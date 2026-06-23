@@ -1,12 +1,13 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { loginSchema, type LoginFormData } from "../../../schemas/auth.schema";
 import { authService } from "../../../services/auth.service";
+import { useAuth } from "../../../contexts/AuthContext";
 
 function GoogleIcon() {
   return (
@@ -29,6 +30,7 @@ function FacebookIcon() {
 
 export default function LoginPage() {
   const router = useRouter();
+  const { login, isAuthenticated, authReady } = useAuth();
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [toast, setToast] = useState<{ type: "success" | "error"; message: string } | null>(null);
@@ -39,6 +41,10 @@ export default function LoginPage() {
     formState: { errors },
   } = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
+    defaultValues: {
+      email: "",
+      password: "",
+    },
   });
 
   const showToast = (type: "success" | "error", message: string) => {
@@ -46,12 +52,19 @@ export default function LoginPage() {
     setTimeout(() => setToast(null), 3000);
   };
 
+  useEffect(() => {
+    if (authReady && isAuthenticated) {
+      router.replace("/dashboard");
+    }
+  }, [authReady, isAuthenticated, router]);
+
   const onSubmit = async (data: LoginFormData) => {
     setLoading(true);
     try {
-      await authService.login(data);
+      const result = await authService.login(data);
+      login(result.token, result.user);
       showToast("success", "Signed in successfully! Redirecting...");
-      setTimeout(() => router.push("/dashboard"), 1500);
+      setTimeout(() => router.replace("/dashboard"), 1500);
     } catch (error) {
       const message = error instanceof Error ? error.message : "Login failed";
       showToast("error", message);
@@ -59,6 +72,10 @@ export default function LoginPage() {
       setLoading(false);
     }
   };
+
+  if (!authReady || isAuthenticated) {
+    return null;
+  }
 
   return (
     <div className="auth-root">
@@ -85,31 +102,30 @@ export default function LoginPage() {
             Your health data is protected with industry-standard security.
           </p>
 
-          <form onSubmit={handleSubmit(onSubmit)} className="auth-form">
+          <form onSubmit={handleSubmit(onSubmit)} className="auth-form" autoComplete="off">
             <div className="field">
               <label htmlFor="email">Email Address</label>
               <input
                 id="email"
                 {...registerField("email")}
                 type="email"
-                placeholder="Enter your email"
+                placeholder="name@example.com"
+                autoComplete="off"
+                defaultValue=""
               />
               {errors.email && <span className="error-text">{errors.email.message}</span>}
             </div>
 
             <div className="field">
-              <div className="label-row">
-                <label htmlFor="password">Password</label>
-                <Link href="#" className="forgot-link">
-                  Forgot?
-                </Link>
-              </div>
+              <label htmlFor="password">Password</label>
               <div className="password-wrap">
                 <input
                   id="password"
                   {...registerField("password")}
                   type={showPassword ? "text" : "password"}
-                  placeholder="Enter your password"
+                  placeholder="Enter password"
+                  autoComplete="new-password"
+                  defaultValue=""
                 />
                 <button
                   type="button"
@@ -134,23 +150,14 @@ export default function LoginPage() {
             </button>
           </form>
 
-          <div className="divider">
-            <span>or continue with</span>
-          </div>
-
-          <div className="social-row">
-            <button type="button" className="social-btn" aria-label="Continue with Google">
-              <GoogleIcon />
-            </button>
-            <button type="button" className="social-btn" aria-label="Continue with Facebook">
-              <FacebookIcon />
-            </button>
-          </div>
-
           <p className="switch-link">
-            Don&apos;t have an account?{" "}
-            <Link href="/register">Create an account</Link>
+            Don&apos;t have an account? <Link href="/register">Register</Link>
           </p>
+
+          <div className="secure-access-badge">
+            <span className="badge-icon">🔒</span>
+            <span>Secure medical access</span>
+          </div>
         </div>
       </main>
 
@@ -266,12 +273,6 @@ export default function LoginPage() {
 
         .field { display: flex; flex-direction: column; gap: 0.5rem; }
 
-        .label-row {
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-        }
-
         .field label {
           font-size: 0.875rem;
           font-weight: 600;
@@ -313,15 +314,6 @@ export default function LoginPage() {
           color: #94a3b8;
           padding: 0;
         }
-
-        .forgot-link {
-          font-size: 0.8rem;
-          color: #2563eb;
-          text-decoration: none;
-          font-weight: 500;
-        }
-
-        .forgot-link:hover { text-decoration: underline; }
 
         .submit-btn {
           margin-top: 0.5rem;
@@ -384,6 +376,7 @@ export default function LoginPage() {
           text-align: center;
           font-size: 0.875rem;
           color: #64748b;
+          margin-top: 1.5rem;
         }
 
         .switch-link a {
@@ -393,6 +386,25 @@ export default function LoginPage() {
         }
 
         .switch-link a:hover { text-decoration: underline; }
+
+        .secure-access-badge {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 0.5rem;
+          margin-top: 1.5rem;
+          padding: 0.75rem 1rem;
+          background: #f0f9ff;
+          border: 1px solid #bae6fd;
+          border-radius: 8px;
+          font-size: 0.8rem;
+          color: #0369a1;
+          font-weight: 500;
+        }
+
+        .secure-access-badge .badge-icon {
+          font-size: 1rem;
+        }
 
         .auth-footer {
           background: #fff;

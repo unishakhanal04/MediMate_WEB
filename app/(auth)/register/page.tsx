@@ -1,12 +1,13 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { registerSchema, type RegisterFormData } from "../../../schemas/auth.schema";
 import { authService } from "../../../services/auth.service";
+import { useAuth } from "../../../contexts/AuthContext";
 
 function GoogleIcon() {
   return (
@@ -29,6 +30,7 @@ function FacebookIcon() {
 
 export default function RegisterPage() {
   const router = useRouter();
+  const { isAuthenticated, authReady } = useAuth();
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
   const [toast, setToast] = useState<{ type: "success" | "error"; message: string } | null>(null);
@@ -45,9 +47,9 @@ export default function RegisterPage() {
       username: "",
       email: "",
       gender: undefined,
-      dateOfBirth: "",
       password: "",
       confirmPassword: "",
+      agreeToTerms: false,
     },
   });
 
@@ -55,6 +57,12 @@ export default function RegisterPage() {
     setToast({ type, message });
     setTimeout(() => setToast(null), 3000);
   };
+
+  useEffect(() => {
+    if (authReady && isAuthenticated) {
+      router.replace("/dashboard");
+    }
+  }, [authReady, isAuthenticated, router]);
 
   const onSubmit = async (data: RegisterFormData) => {
     setLoading(true);
@@ -69,6 +77,10 @@ export default function RegisterPage() {
       setLoading(false);
     }
   };
+
+  if (!authReady || isAuthenticated) {
+    return null;
+  }
 
   return (
     <div className="auth-root">
@@ -125,48 +137,34 @@ export default function RegisterPage() {
                   {...registerField("username")}
                   type="text"
                   placeholder="Choose a username"
+                  autoComplete="off"
                 />
                 {errors.username && <span className="error-text">{errors.username.message}</span>}
               </div>
 
               <div className="field">
-                <label htmlFor="email">Email address</label>
+                <label htmlFor="email">Email Address</label>
                 <input
                   id="email"
                   {...registerField("email")}
                   type="email"
-                  placeholder="Enter your email"
+                  placeholder="name@example.com"
+                  autoComplete="off"
                 />
                 {errors.email && <span className="error-text">{errors.email.message}</span>}
               </div>
 
               <div className="field">
-                <label>Gender</label>
-                <div className="gender-row">
-                  <label className="radio-label">
-                    <input type="radio" value="male" {...registerField("gender")} />
-                    <span>Male</span>
-                  </label>
-                  <label className="radio-label">
-                    <input type="radio" value="female" {...registerField("gender")} />
-                    <span>Female</span>
-                  </label>
-                  <label className="radio-label">
-                    <input type="radio" value="other" {...registerField("gender")} />
-                    <span>Other</span>
-                  </label>
-                </div>
+                <label htmlFor="gender">Gender</label>
+                <select id="gender" {...registerField("gender")} defaultValue="">
+                  <option value="" disabled>
+                    Select gender
+                  </option>
+                  <option value="male">Male</option>
+                  <option value="female">Female</option>
+                  <option value="other">Other</option>
+                </select>
                 {errors.gender && <span className="error-text">{errors.gender.message}</span>}
-              </div>
-
-              <div className="field">
-                <label htmlFor="dateOfBirth">Date of Birth</label>
-                <input
-                  id="dateOfBirth"
-                  {...registerField("dateOfBirth")}
-                  type="date"
-                />
-                {errors.dateOfBirth && <span className="error-text">{errors.dateOfBirth.message}</span>}
               </div>
 
               <div className="field">
@@ -176,7 +174,8 @@ export default function RegisterPage() {
                     id="password"
                     {...registerField("password")}
                     type={showPassword ? "text" : "password"}
-                    placeholder="Create a password"
+                    placeholder="Min. 6 characters"
+                    autoComplete="new-password"
                   />
                   <button
                     type="button"
@@ -197,7 +196,8 @@ export default function RegisterPage() {
                     id="confirmPassword"
                     {...registerField("confirmPassword")}
                     type={showConfirm ? "text" : "password"}
-                    placeholder="Confirm your password"
+                    placeholder="Re-enter password"
+                    autoComplete="new-password"
                   />
                   <button
                     type="button"
@@ -213,6 +213,21 @@ export default function RegisterPage() {
                 )}
               </div>
 
+              <div className="field terms-field">
+                <label className="checkbox-label">
+                  <input
+                    type="checkbox"
+                    {...registerField("agreeToTerms")}
+                  />
+                  <span className="checkbox-text">
+                    By creating an account, you agree to our{" "}
+                    <Link href="#">Terms of Service</Link> and{" "}
+                    <Link href="#">Privacy Policy</Link>.
+                  </span>
+                </label>
+                {errors.agreeToTerms && <span className="error-text">{errors.agreeToTerms.message}</span>}
+              </div>
+
               <button type="submit" className="submit-btn" disabled={loading}>
                 {loading ? (
                   <span className="btn-loader">
@@ -225,25 +240,6 @@ export default function RegisterPage() {
                 )}
               </button>
             </form>
-
-            <div className="divider">
-              <span>or sign up with</span>
-            </div>
-
-            <div className="social-row">
-              <button type="button" className="social-btn" aria-label="Sign up with Google">
-                <GoogleIcon />
-              </button>
-              <button type="button" className="social-btn" aria-label="Sign up with Facebook">
-                <FacebookIcon />
-              </button>
-            </div>
-
-            <p className="terms-text">
-              By creating an account, you agree to our{" "}
-              <Link href="#">Terms of Service</Link> and{" "}
-              <Link href="#">Privacy Policy</Link>.
-            </p>
           </div>
         </div>
       </main>
@@ -433,7 +429,7 @@ export default function RegisterPage() {
         .field input[type="text"],
         .field input[type="email"],
         .field input[type="password"],
-        .field input[type="date"] {
+        .field select {
           padding: 0.7rem 1rem;
           border: 1.5px solid #e2e8f0;
           border-radius: 8px;
@@ -445,33 +441,16 @@ export default function RegisterPage() {
           width: 100%;
         }
 
-        .field input:focus {
+        .field input:focus,
+        .field select:focus {
           border-color: #2563eb;
           box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
         }
 
         .field input::placeholder { color: #94a3b8; }
 
-        .gender-row {
-          display: flex;
-          gap: 1.25rem;
-        }
-
-        .radio-label {
-          display: flex;
-          align-items: center;
-          gap: 0.4rem;
-          font-size: 0.875rem;
-          color: #475569;
-          cursor: pointer;
-          font-weight: 500;
-        }
-
-        .radio-label input[type="radio"] {
-          accent-color: #2563eb;
-          width: 16px;
-          height: 16px;
-          cursor: pointer;
+        .field select:invalid {
+          color: #94a3b8;
         }
 
         .password-wrap { position: relative; }
@@ -489,6 +468,42 @@ export default function RegisterPage() {
           font-size: 0.9rem;
           color: #94a3b8;
           padding: 0;
+        }
+
+        .terms-field {
+          margin-top: 0.5rem;
+        }
+
+        .checkbox-label {
+          display: flex;
+          align-items: flex-start;
+          gap: 0.5rem;
+          cursor: pointer;
+          font-size: 0.8rem;
+          color: #64748b;
+          line-height: 1.5;
+        }
+
+        .checkbox-label input[type="checkbox"] {
+          width: 16px;
+          height: 16px;
+          margin-top: 0.15rem;
+          cursor: pointer;
+          accent-color: #2563eb;
+        }
+
+        .checkbox-text {
+          flex: 1;
+        }
+
+        .checkbox-text a {
+          color: #2563eb;
+          text-decoration: none;
+          font-weight: 500;
+        }
+
+        .checkbox-text a:hover {
+          text-decoration: underline;
         }
 
         .submit-btn {
