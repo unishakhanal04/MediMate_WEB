@@ -1,15 +1,6 @@
-import { NextResponse } from "next/server";
-import { API_BASE_URL } from "../../../../lib/constants";
+import { NextRequest } from "next/server";
+import { proxyJson } from "../../_utils/auth-proxy";
 
-export async function POST(request: Request) {
-  const body = await request.text();
-
-  const response = await fetch(`${API_BASE_URL}/api/auth/register`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body,
-  });
-
-  const data = await response.json();
-  return NextResponse.json(data, { status: response.status });
+export async function POST(request: NextRequest) {
+  return proxyJson(request, "/api/v1/auth/register", "POST");
 }

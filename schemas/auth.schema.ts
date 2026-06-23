@@ -7,9 +7,11 @@ export const registerSchema = z
     gender: z.enum(["male", "female", "other"], {
       message: "Please select a gender",
     }),
-    dateOfBirth: z.string().min(1, "Date of birth is required"),
     password: z.string().min(6, "Password must be at least 6 characters"),
     confirmPassword: z.string().min(1, "Please confirm your password"),
+    agreeToTerms: z.boolean().refine((val) => val === true, {
+      message: "You must agree to the terms and conditions",
+    }),
   })
   .refine((data) => data.password === data.confirmPassword, {
     message: "Passwords do not match",

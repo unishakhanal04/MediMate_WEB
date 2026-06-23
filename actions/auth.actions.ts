@@ -7,17 +7,6 @@ import { cookies } from "next/headers";
 export async function registerAction(data: RegisterFormData) {
   try {
     const result = await authService.register(data);
-
-    if (result.token) {
-      const cookieStore = await cookies();
-      cookieStore.set("token", result.token, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
-        sameSite: "lax",
-        maxAge: 60 * 60 * 24 * 7,
-      });
-    }
-
     return { success: true, data: result };
   } catch (error) {
     return { 

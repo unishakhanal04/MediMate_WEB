@@ -1,7 +1,9 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useState, useEffect, useRef } from "react";
+import { useAuth } from "../contexts/AuthContext";
 
 /* ── tiny hook: fade-in on scroll ── */
 function useInView() {
@@ -28,14 +30,26 @@ function Section({ children, className = "" }: { children: React.ReactNode; clas
 }
 
 export default function HomePage() {
+  const router = useRouter();
+  const { isAuthenticated, authReady } = useAuth();
   const [menuOpen, setMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+
+  useEffect(() => {
+    if (authReady && isAuthenticated) {
+      router.replace("/dashboard");
+    }
+  }, [authReady, isAuthenticated, router]);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 20);
     window.addEventListener("scroll", onScroll);
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
+
+  if (!authReady || isAuthenticated) {
+    return null;
+  }
 
   return (
     <div className="root">
