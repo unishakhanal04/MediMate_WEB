@@ -3,6 +3,18 @@ import { RegisterFormData, LoginFormData } from "../schemas/auth.schema";
 
 const getApiUrl = (path: string) => path;
 
+export type AuthUser = {
+  id: string;
+  username: string;
+  email: string;
+  gender: string;
+  profileImage?: string;
+  role?: "user" | "admin";
+  status?: "active" | "inactive";
+  createdAt?: string;
+  updatedAt?: string;
+};
+
 type ApiResponse<T> = {
   success: boolean;
   message: string;
@@ -44,7 +56,12 @@ const getAuthHeaders = () => {
 
 export const authService = {
   async register(data: RegisterFormData) {
-    const { confirmPassword: _confirmPassword, agreeToTerms: _agreeToTerms, ...payload } = data;
+    const payload = {
+      username: data.username,
+      email: data.email,
+      gender: data.gender,
+      password: data.password,
+    };
 
     const response = await fetch(getApiUrl("/api/auth/register"), {
       method: "POST",
@@ -54,7 +71,7 @@ export const authService = {
       body: JSON.stringify(payload),
     });
 
-    return parseResponse<{ id: string; username: string; email: string; gender: string }>(response);
+    return parseResponse<AuthUser>(response);
   },
 
   async login(data: LoginFormData) {
@@ -66,7 +83,7 @@ export const authService = {
       body: JSON.stringify(data),
     });
 
-    const result = await parseResponse<{ token: string; user: { id: string; username: string; email: string; gender: string; profileImage?: string } }>(response);
+    const result = await parseResponse<{ token: string; user: AuthUser }>(response);
 
     if (result.token) {
       localStorage.setItem("token", result.token);
@@ -86,7 +103,7 @@ export const authService = {
       headers: getAuthHeaders(),
     });
 
-    return parseResponse<{ id: string; username: string; email: string; gender: string; profileImage?: string }>(response);
+    return parseResponse<AuthUser>(response);
   },
 
   async updateProfile(data: { username?: string; email?: string; gender?: string; profileImage?: string }) {
@@ -96,7 +113,7 @@ export const authService = {
       body: JSON.stringify(data),
     });
 
-    return parseResponse<{ id: string; username: string; email: string; gender: string; profileImage?: string }>(response);
+    return parseResponse<AuthUser>(response);
   },
 
   async updatePassword(currentPassword: string, newPassword: string) {

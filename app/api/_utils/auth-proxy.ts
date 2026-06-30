@@ -36,7 +36,7 @@ export const getBearerToken = (request: NextRequest) => {
 export const proxyJson = async (
   request: NextRequest,
   path: string,
-  method: "GET" | "POST" | "PUT",
+  method: "GET" | "POST" | "PUT" | "PATCH" | "DELETE",
   options: { protected?: boolean } = {}
 ) => {
   const headers: Record<string, string> = {};

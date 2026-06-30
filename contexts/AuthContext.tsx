@@ -8,6 +8,10 @@ interface User {
   email: string;
   gender: string;
   profileImage?: string;
+  role?: "user" | "admin";
+  status?: "active" | "inactive";
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 interface AuthContextType {
