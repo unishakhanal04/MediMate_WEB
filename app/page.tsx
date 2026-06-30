@@ -31,15 +31,16 @@ function Section({ children, className = "" }: { children: React.ReactNode; clas
 
 export default function HomePage() {
   const router = useRouter();
-  const { isAuthenticated, authReady } = useAuth();
+  const { isAuthenticated, authReady, user } = useAuth();
   const [menuOpen, setMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => {
     if (authReady && isAuthenticated) {
-      router.replace("/dashboard");
+      const destination = user?.role === "admin" ? "/admin" : "/dashboard";
+      router.replace(destination);
     }
-  }, [authReady, isAuthenticated, router]);
+  }, [authReady, isAuthenticated, router, user?.role]);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 20);
