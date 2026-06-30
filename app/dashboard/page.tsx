@@ -8,30 +8,35 @@ import { authService } from "../../services/auth.service";
 
 export default function DashboardPage() {
   const router = useRouter();
-  const { user, isAuthenticated, authReady, logout, updateUser } = useAuth();
+  const { user, isAuthenticated, logout, updateUser } = useAuth();
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   useEffect(() => {
-    if (!authReady) return;
-
     if (!isAuthenticated) {
       router.push("/login");
     } else {
       // Fetch fresh user data from backend
-      authService.whoami().then((freshUser) => {
-        updateUser(freshUser);
-      }).catch((err) => {
-        console.error("Failed to fetch user data:", err);
-      });
+      authService
+        .whoami()
+        .then((freshUser) => {
+          updateUser(freshUser);
+
+          if (freshUser.role === "admin") {
+            router.replace("/admin");
+          }
+        })
+        .catch((err) => {
+          console.error("Failed to fetch user data:", err);
+        });
     }
-  }, [authReady, isAuthenticated, router, updateUser]);
+  }, [isAuthenticated, router, updateUser]);
 
   const handleLogout = () => {
     logout();
     router.push("/login");
   };
 
-  if (!authReady || !isAuthenticated) {
+  if (!isAuthenticated) {
     return null;
   }
 

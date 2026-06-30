@@ -44,7 +44,19 @@ export default function PasswordPage() {
 
     if (!isAuthenticated) {
       router.push("/login");
+      return;
     }
+
+    authService
+      .whoami()
+      .then((freshUser) => {
+        if (freshUser.role === "admin") {
+          router.replace("/admin");
+        }
+      })
+      .catch(() => {
+        // ignore
+      });
   }, [authReady, isAuthenticated, router]);
 
   const showToast = (type: "success" | "error", message: string) => {

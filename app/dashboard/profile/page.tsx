@@ -51,6 +51,12 @@ export default function ProfilePage() {
       authService.whoami().then((freshUser) => {
         if (ignore) return;
         updateUser(freshUser);
+
+        if (freshUser.role === "admin") {
+          router.replace("/admin");
+          return;
+        }
+
         reset({
           username: freshUser.username,
           email: freshUser.email,
