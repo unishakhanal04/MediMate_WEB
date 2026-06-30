@@ -30,7 +30,7 @@ function FacebookIcon() {
 
 export default function RegisterPage() {
   const router = useRouter();
-  const { isAuthenticated, authReady } = useAuth();
+  const { isAuthenticated, authReady, user } = useAuth();
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
   const [toast, setToast] = useState<{ type: "success" | "error"; message: string } | null>(null);
@@ -60,9 +60,10 @@ export default function RegisterPage() {
 
   useEffect(() => {
     if (authReady && isAuthenticated) {
-      router.replace("/dashboard");
+      const destination = user?.role === "admin" ? "/admin" : "/dashboard";
+      router.replace(destination);
     }
-  }, [authReady, isAuthenticated, router]);
+  }, [authReady, isAuthenticated, router, user?.role]);
 
   const onSubmit = async (data: RegisterFormData) => {
     setLoading(true);

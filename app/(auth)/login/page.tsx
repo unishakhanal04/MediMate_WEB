@@ -30,7 +30,7 @@ function FacebookIcon() {
 
 export default function LoginPage() {
   const router = useRouter();
-  const { login, isAuthenticated, authReady } = useAuth();
+  const { login, isAuthenticated, authReady, user } = useAuth();
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [toast, setToast] = useState<{ type: "success" | "error"; message: string } | null>(null);
@@ -54,9 +54,10 @@ export default function LoginPage() {
 
   useEffect(() => {
     if (authReady && isAuthenticated) {
-      router.replace("/dashboard");
+      const destination = user?.role === "admin" ? "/admin" : "/dashboard";
+      router.replace(destination);
     }
-  }, [authReady, isAuthenticated, router]);
+  }, [authReady, isAuthenticated, router, user?.role]);
 
   const onSubmit = async (data: LoginFormData) => {
     setLoading(true);
@@ -64,7 +65,8 @@ export default function LoginPage() {
       const result = await authService.login(data);
       login(result.token, result.user);
       showToast("success", "Signed in successfully! Redirecting...");
-      setTimeout(() => router.replace("/dashboard"), 1500);
+      const destination = result.user.role === "admin" ? "/admin" : "/dashboard";
+      setTimeout(() => router.replace(destination), 500);
     } catch (error) {
       const message = error instanceof Error ? error.message : "Login failed";
       showToast("error", message);
