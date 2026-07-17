@@ -21,8 +21,8 @@ export function AppointmentCard({
     <Card className="flex h-full flex-col gap-4">
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
-          <h3 className="truncate text-base font-bold text-gray-900">{appointment.purpose}</h3>
-          <p className="mt-1 text-sm text-gray-500">
+          <h3 className="truncate text-base font-bold text-gray-900 dark:text-white">{appointment.purpose}</h3>
+          <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
             {appointment.doctorName}
             {appointment.specialization ? ` · ${appointment.specialization}` : ""}
           </p>
@@ -32,28 +32,28 @@ export function AppointmentCard({
 
       <div className="flex flex-col gap-2 text-sm">
         <div className="flex items-center justify-between">
-          <span className="text-gray-500">Date &amp; Time</span>
-          <span className="font-medium text-gray-900">
+          <span className="text-gray-500 dark:text-gray-400">Date &amp; Time</span>
+          <span className="font-medium text-gray-900 dark:text-white">
             {new Date(appointment.appointmentDate).toLocaleDateString()} · {appointment.appointmentTime}
           </span>
         </div>
         {appointment.hospital && (
           <div className="flex items-center justify-between">
-            <span className="text-gray-500">Hospital</span>
-            <span className="font-medium text-gray-900">{appointment.hospital}</span>
+            <span className="text-gray-500 dark:text-gray-400">Hospital</span>
+            <span className="font-medium text-gray-900 dark:text-white">{appointment.hospital}</span>
           </div>
         )}
       </div>
 
-      {appointment.notes && <p className="text-sm text-gray-600">{appointment.notes}</p>}
+      {appointment.notes && <p className="text-sm text-gray-600 dark:text-gray-400">{appointment.notes}</p>}
 
       <button
         onClick={() => onReminderToggle(appointment._id, !appointment.reminderEnabled)}
         aria-pressed={appointment.reminderEnabled}
         className={`flex items-center gap-2 self-start rounded-full px-3 py-1.5 text-xs font-semibold transition-colors ${
           appointment.reminderEnabled
-            ? "bg-amber-50 text-amber-700 hover:bg-amber-100"
-            : "bg-gray-100 text-gray-500 hover:bg-gray-200"
+            ? "bg-amber-50 text-amber-700 hover:bg-amber-100 dark:bg-amber-500/10 dark:text-amber-400 dark:hover:bg-amber-500/20"
+            : "bg-gray-100 text-gray-500 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-gray-700"
         }`}
       >
         <span aria-hidden="true">{appointment.reminderEnabled ? "🔔" : "🔕"}</span>
@@ -65,13 +65,13 @@ export function AppointmentCard({
           <>
             <button
               onClick={() => onStatusChange(appointment._id, "completed")}
-              className="rounded-lg bg-emerald-50 px-3 py-2 text-sm font-semibold text-emerald-700 transition-colors hover:bg-emerald-100"
+              className="rounded-lg bg-emerald-50 px-3 py-2 text-sm font-semibold text-emerald-700 transition-colors hover:bg-emerald-100 dark:bg-emerald-500/10 dark:text-emerald-400 dark:hover:bg-emerald-500/20"
             >
               Mark Completed
             </button>
             <button
               onClick={() => onStatusChange(appointment._id, "cancelled")}
-              className="rounded-lg bg-amber-50 px-3 py-2 text-sm font-semibold text-amber-700 transition-colors hover:bg-amber-100"
+              className="rounded-lg bg-amber-50 px-3 py-2 text-sm font-semibold text-amber-700 transition-colors hover:bg-amber-100 dark:bg-amber-500/10 dark:text-amber-400 dark:hover:bg-amber-500/20"
             >
               Cancel
             </button>
@@ -79,13 +79,13 @@ export function AppointmentCard({
         )}
         <button
           onClick={() => onEdit(appointment)}
-          className="rounded-lg bg-gray-100 px-3 py-2 text-sm font-semibold text-gray-700 transition-colors hover:bg-gray-200"
+          className="rounded-lg bg-gray-100 px-3 py-2 text-sm font-semibold text-gray-700 transition-colors hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
         >
           Edit
         </button>
         <button
           onClick={() => onDelete(appointment._id)}
-          className="rounded-lg bg-red-50 px-3 py-2 text-sm font-semibold text-red-600 transition-colors hover:bg-red-100"
+          className="rounded-lg bg-red-50 px-3 py-2 text-sm font-semibold text-red-600 transition-colors hover:bg-red-100 dark:bg-red-500/10 dark:text-red-400 dark:hover:bg-red-500/20"
         >
           Delete
         </button>

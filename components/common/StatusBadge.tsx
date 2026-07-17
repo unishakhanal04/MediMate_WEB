@@ -17,13 +17,13 @@ interface StatusBadgeProps {
 // current badge colors "completed" gray, which this maps to emerald instead —
 // a deliberate pick (see task notes), not yet backported to MedicineCard.
 const statusStyles: Record<StatusBadgeVariant, string> = {
-  active: "bg-emerald-50 text-emerald-700",
-  scheduled: "bg-blue-50 text-blue-700",
-  upcoming: "bg-blue-50 text-blue-700",
-  completed: "bg-emerald-50 text-emerald-700",
-  inactive: "bg-red-50 text-red-600",
-  expired: "bg-red-50 text-red-600",
-  cancelled: "bg-gray-100 text-gray-600",
+  active: "bg-emerald-50 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-400",
+  scheduled: "bg-blue-50 text-blue-700 dark:bg-blue-500/10 dark:text-blue-400",
+  upcoming: "bg-blue-50 text-blue-700 dark:bg-blue-500/10 dark:text-blue-400",
+  completed: "bg-emerald-50 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-400",
+  inactive: "bg-red-50 text-red-600 dark:bg-red-500/10 dark:text-red-400",
+  expired: "bg-red-50 text-red-600 dark:bg-red-500/10 dark:text-red-400",
+  cancelled: "bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400",
 };
 
 export function StatusBadge({ status, label, className = "" }: StatusBadgeProps) {

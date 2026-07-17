@@ -260,6 +260,28 @@ export default function PasswordPage() {
         @media (max-width: 768px) {
           .password-card { padding: 2rem 1.5rem; }
         }
+
+        :global(.dark) .password-card {
+          background: #111827;
+          border-color: #1f2937;
+        }
+        :global(.dark) .password-card h1 {
+          color: #f9fafb;
+        }
+        :global(.dark) .form-sub {
+          color: #9ca3af;
+        }
+        :global(.dark) .field label {
+          color: #d1d5db;
+        }
+        :global(.dark) .field input {
+          background: #1f2937;
+          border-color: #374151;
+          color: #f3f4f6;
+        }
+        :global(.dark) .eye-btn {
+          color: #9ca3af;
+        }
       `}</style>
     </>
   );

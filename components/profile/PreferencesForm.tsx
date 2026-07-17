@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { UserPreferences } from "../../types/profile.types";
 import { Button } from "../Button";
 import { Card } from "../dashboard/Card";
+import { useTheme } from "../../contexts/ThemeContext";
 
 interface PreferencesFormProps {
   preferences: UserPreferences;
@@ -32,25 +33,34 @@ const toggleConfig: { key: keyof UserPreferences; label: string; description: st
 
 export function PreferencesForm({ preferences, onSubmit, submitting = false }: PreferencesFormProps) {
   const [values, setValues] = useState(preferences);
+  const { setDarkMode } = useTheme();
 
   useEffect(() => {
     setValues(preferences);
   }, [preferences]);
 
   const toggle = (key: keyof UserPreferences) => {
-    setValues((current) => ({ ...current, [key]: !current[key] }));
+    setValues((current) => {
+      const next = { ...current, [key]: !current[key] };
+      if (key === "darkMode") {
+        // Dark mode applies instantly for immediate feedback; other
+        // preferences stay staged until "Save Preferences" is clicked.
+        setDarkMode(next.darkMode);
+      }
+      return next;
+    });
   };
 
   return (
     <Card className="flex flex-col gap-4">
-      <h2 className="text-base font-bold text-gray-900">Preferences</h2>
+      <h2 className="text-base font-bold text-gray-900 dark:text-white">Preferences</h2>
 
-      <div className="flex flex-col divide-y divide-gray-100">
+      <div className="flex flex-col divide-y divide-gray-100 dark:divide-gray-800">
         {toggleConfig.map(({ key, label, description }) => (
           <div key={key} className="flex items-center justify-between gap-4 py-3">
             <div>
-              <p className="text-sm font-semibold text-gray-900">{label}</p>
-              <p className="text-xs text-gray-500">{description}</p>
+              <p className="text-sm font-semibold text-gray-900 dark:text-white">{label}</p>
+              <p className="text-xs text-gray-500 dark:text-gray-400">{description}</p>
             </div>
             <button
               type="button"
@@ -59,7 +69,7 @@ export function PreferencesForm({ preferences, onSubmit, submitting = false }: P
               aria-label={label}
               onClick={() => toggle(key)}
               className={`relative h-6 w-11 shrink-0 rounded-full transition-colors ${
-                values[key] ? "bg-blue-600" : "bg-gray-200"
+                values[key] ? "bg-blue-600" : "bg-gray-200 dark:bg-gray-700"
               }`}
             >
               <span

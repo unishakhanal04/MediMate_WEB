@@ -30,17 +30,17 @@ export function Modal({ open, title, onClose, children }: ModalProps) {
       aria-labelledby="modal-title"
     >
       <div
-        className="max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-2xl bg-white p-6 shadow-lg sm:p-8"
+        className="max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-2xl bg-white p-6 shadow-lg dark:bg-gray-900 sm:p-8"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="mb-6 flex items-center justify-between">
-          <h2 id="modal-title" className="text-lg font-bold text-gray-900">
+          <h2 id="modal-title" className="text-lg font-bold text-gray-900 dark:text-white">
             {title}
           </h2>
           <button
             onClick={onClose}
             aria-label="Close"
-            className="text-2xl text-gray-400 transition-colors hover:text-gray-600"
+            className="text-2xl text-gray-400 transition-colors hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300"
           >
             ✕
           </button>

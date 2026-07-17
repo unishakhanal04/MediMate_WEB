@@ -11,24 +11,24 @@ const benefits = [
 
 export function EmptyMedicines({ onAddMedicine }: EmptyMedicinesProps) {
   return (
-    <div className="flex flex-col items-center rounded-2xl border border-gray-200 bg-white px-6 py-12 text-center shadow-sm sm:px-12 sm:py-16">
-      <span className="flex h-20 w-20 items-center justify-center rounded-full bg-blue-50 text-4xl">
+    <div className="flex flex-col items-center rounded-2xl border border-gray-200 bg-white px-6 py-12 text-center shadow-sm dark:border-gray-800 dark:bg-gray-900 sm:px-12 sm:py-16">
+      <span className="flex h-20 w-20 items-center justify-center rounded-full bg-blue-50 text-4xl dark:bg-blue-500/10">
         💊
       </span>
 
-      <h2 className="mt-6 text-xl font-bold text-gray-900 sm:text-2xl">
+      <h2 className="mt-6 text-xl font-bold text-gray-900 dark:text-white sm:text-2xl">
         Welcome to Medication Tracking
       </h2>
 
-      <p className="mt-3 max-w-md text-sm leading-relaxed text-gray-500 sm:text-base">
+      <p className="mt-3 max-w-md text-sm leading-relaxed text-gray-500 dark:text-gray-400 sm:text-base">
         You haven&apos;t added any medicines yet. Add your medications to receive
         reminders, track adherence, and manage your health.
       </p>
 
       <ul className="mt-6 flex flex-col gap-2 text-left">
         {benefits.map((benefit) => (
-          <li key={benefit} className="flex items-center gap-2 text-sm text-gray-600 sm:text-base">
-            <span className="text-emerald-600" aria-hidden="true">
+          <li key={benefit} className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400 sm:text-base">
+            <span className="text-emerald-600 dark:text-emerald-400" aria-hidden="true">
               ✓
             </span>
             {benefit}

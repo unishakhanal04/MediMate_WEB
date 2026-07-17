@@ -27,15 +27,15 @@ export function PasswordForm({ onSubmit, submitting = false }: PasswordFormProps
   };
 
   const inputClass =
-    "w-full rounded-lg border border-gray-200 px-3 py-2 text-sm outline-none transition-colors focus:border-blue-500";
+    "w-full rounded-lg border border-gray-200 px-3 py-2 text-sm outline-none transition-colors focus:border-blue-500 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100";
 
   return (
     <Card className="flex flex-col gap-4">
-      <h2 className="text-base font-bold text-gray-900">Change Password</h2>
+      <h2 className="text-base font-bold text-gray-900 dark:text-white">Change Password</h2>
 
       <form onSubmit={handleSubmit(handleFormSubmit)} className="flex flex-col gap-4">
         <div>
-          <label className="mb-1 block text-sm font-semibold text-gray-700">Current Password *</label>
+          <label className="mb-1 block text-sm font-semibold text-gray-700 dark:text-gray-300">Current Password *</label>
           <input type="password" className={inputClass} {...register("currentPassword")} />
           {errors.currentPassword && (
             <p className="mt-1 text-xs text-red-600">{errors.currentPassword.message}</p>
@@ -43,7 +43,7 @@ export function PasswordForm({ onSubmit, submitting = false }: PasswordFormProps
         </div>
 
         <div>
-          <label className="mb-1 block text-sm font-semibold text-gray-700">New Password *</label>
+          <label className="mb-1 block text-sm font-semibold text-gray-700 dark:text-gray-300">New Password *</label>
           <input type="password" className={inputClass} {...register("newPassword")} />
           {errors.newPassword && (
             <p className="mt-1 text-xs text-red-600">{errors.newPassword.message}</p>
@@ -51,7 +51,7 @@ export function PasswordForm({ onSubmit, submitting = false }: PasswordFormProps
         </div>
 
         <div>
-          <label className="mb-1 block text-sm font-semibold text-gray-700">
+          <label className="mb-1 block text-sm font-semibold text-gray-700 dark:text-gray-300">
             Confirm New Password *
           </label>
           <input type="password" className={inputClass} {...register("confirmNewPassword")} />

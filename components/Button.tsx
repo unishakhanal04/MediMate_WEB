@@ -16,8 +16,8 @@ const baseStyles =
 
 const variantStyles: Record<ButtonVariant, string> = {
   primary: "bg-blue-600 text-white hover:bg-blue-700",
-  secondary: "bg-gray-100 text-gray-900 hover:bg-gray-200",
-  outline: "border border-gray-300 bg-transparent text-gray-900 hover:bg-gray-50",
+  secondary: "bg-gray-100 text-gray-900 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-100 dark:hover:bg-gray-700",
+  outline: "border border-gray-300 bg-transparent text-gray-900 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-100 dark:hover:bg-gray-800",
 };
 
 export function Button({

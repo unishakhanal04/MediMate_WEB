@@ -46,25 +46,25 @@ export function AppointmentForm({
   }, [existingAppointment, reset]);
 
   const inputClass =
-    "w-full rounded-lg border border-gray-200 px-3 py-2 text-sm outline-none transition-colors focus:border-blue-500";
+    "w-full rounded-lg border border-gray-200 px-3 py-2 text-sm outline-none transition-colors focus:border-blue-500 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100";
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
       <div>
-        <label className="mb-1 block text-sm font-semibold text-gray-700">Purpose *</label>
+        <label className="mb-1 block text-sm font-semibold text-gray-700 dark:text-gray-300">Purpose *</label>
         <input type="text" placeholder="e.g., Annual Checkup" className={inputClass} {...register("purpose")} />
         {errors.purpose && <p className="mt-1 text-xs text-red-600">{errors.purpose.message}</p>}
       </div>
 
       <div>
-        <label className="mb-1 block text-sm font-semibold text-gray-700">Doctor Name *</label>
+        <label className="mb-1 block text-sm font-semibold text-gray-700 dark:text-gray-300">Doctor Name *</label>
         <input type="text" placeholder="e.g., Dr. Sharma" className={inputClass} {...register("doctorName")} />
         {errors.doctorName && <p className="mt-1 text-xs text-red-600">{errors.doctorName.message}</p>}
       </div>
 
       <div className="flex gap-3">
         <div className="flex-1">
-          <label className="mb-1 block text-sm font-semibold text-gray-700">Specialization (Optional)</label>
+          <label className="mb-1 block text-sm font-semibold text-gray-700 dark:text-gray-300">Specialization (Optional)</label>
           <input
             type="text"
             placeholder="e.g., Cardiology"
@@ -73,21 +73,21 @@ export function AppointmentForm({
           />
         </div>
         <div className="flex-1">
-          <label className="mb-1 block text-sm font-semibold text-gray-700">Hospital (Optional)</label>
+          <label className="mb-1 block text-sm font-semibold text-gray-700 dark:text-gray-300">Hospital (Optional)</label>
           <input type="text" className={inputClass} {...register("hospital")} />
         </div>
       </div>
 
       <div className="flex gap-3">
         <div className="flex-1">
-          <label className="mb-1 block text-sm font-semibold text-gray-700">Date *</label>
+          <label className="mb-1 block text-sm font-semibold text-gray-700 dark:text-gray-300">Date *</label>
           <input type="date" className={inputClass} {...register("appointmentDate")} />
           {errors.appointmentDate && (
             <p className="mt-1 text-xs text-red-600">{errors.appointmentDate.message}</p>
           )}
         </div>
         <div className="flex-1">
-          <label className="mb-1 block text-sm font-semibold text-gray-700">Time *</label>
+          <label className="mb-1 block text-sm font-semibold text-gray-700 dark:text-gray-300">Time *</label>
           <input type="time" className={inputClass} {...register("appointmentTime")} />
           {errors.appointmentTime && (
             <p className="mt-1 text-xs text-red-600">{errors.appointmentTime.message}</p>
@@ -96,11 +96,11 @@ export function AppointmentForm({
       </div>
 
       <div>
-        <label className="mb-1 block text-sm font-semibold text-gray-700">Notes (Optional)</label>
+        <label className="mb-1 block text-sm font-semibold text-gray-700 dark:text-gray-300">Notes (Optional)</label>
         <textarea rows={3} className={inputClass} {...register("notes")} />
       </div>
 
-      <label className="flex items-center gap-2 text-sm font-semibold text-gray-700">
+      <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-300">
         <input type="checkbox" className="h-4 w-4 rounded border-gray-300" {...register("reminderEnabled")} />
         Enable reminder for this appointment
       </label>

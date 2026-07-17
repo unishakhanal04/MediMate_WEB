@@ -80,8 +80,8 @@ export default function AdminDashboardPage() {
       <StatsCards stats={stats} />
 
       <Card>
-        <h2 className="mb-2 text-base font-bold text-gray-900">Inactive Users</h2>
-        <p className="text-sm text-gray-500">
+        <h2 className="mb-2 text-base font-bold text-gray-900 dark:text-white">Inactive Users</h2>
+        <p className="text-sm text-gray-500 dark:text-gray-400">
           {summary.inactiveUsers} user{summary.inactiveUsers === 1 ? "" : "s"} currently inactive.{" "}
           <Link href="/admin/users" className="font-semibold text-blue-600 hover:underline">
             Review in User Management →
