@@ -41,25 +41,25 @@ export function TimelineFilters({
         onChange={(_, value) => onTypeChange(value as TimelineEventType | "all")}
       />
 
-      <label className="flex items-center gap-2 text-sm text-gray-600">
+      <label className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
         From
         <input
           type="date"
           value={from}
           onChange={(e) => onFromChange(e.target.value)}
           aria-label="Filter events from date"
-          className="rounded-full border border-gray-200 bg-white px-3 py-2 text-sm text-gray-900 shadow-sm outline-none transition-colors focus:border-blue-500"
+          className="rounded-full border border-gray-200 bg-white px-3 py-2 text-sm text-gray-900 shadow-sm outline-none transition-colors focus:border-blue-500 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100"
         />
       </label>
 
-      <label className="flex items-center gap-2 text-sm text-gray-600">
+      <label className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
         To
         <input
           type="date"
           value={to}
           onChange={(e) => onToChange(e.target.value)}
           aria-label="Filter events to date"
-          className="rounded-full border border-gray-200 bg-white px-3 py-2 text-sm text-gray-900 shadow-sm outline-none transition-colors focus:border-blue-500"
+          className="rounded-full border border-gray-200 bg-white px-3 py-2 text-sm text-gray-900 shadow-sm outline-none transition-colors focus:border-blue-500 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100"
         />
       </label>
     </div>

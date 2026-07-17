@@ -36,7 +36,7 @@ export function TimelineItem({ event }: TimelineItemProps) {
     <li>
       <Link
         href={linkByType(event)}
-        className={`flex items-center gap-4 rounded-lg border border-gray-200 bg-white px-4 py-3 transition-colors hover:border-gray-300 hover:bg-gray-50 ${
+        className={`flex items-center gap-4 rounded-lg border border-gray-200 bg-white px-4 py-3 transition-colors hover:border-gray-300 hover:bg-gray-50 dark:border-gray-800 dark:bg-gray-900 dark:hover:border-gray-700 dark:hover:bg-gray-800 ${
           event.type === "medicine_missed" ? "border-l-4 border-l-red-400" : ""
         }`}
       >
@@ -44,12 +44,12 @@ export function TimelineItem({ event }: TimelineItemProps) {
           {iconByType[event.type]}
         </span>
         <div className="min-w-0 flex-1">
-          <p className="truncate text-sm font-semibold text-gray-900">{event.title}</p>
+          <p className="truncate text-sm font-semibold text-gray-900 dark:text-white">{event.title}</p>
           {event.description && (
-            <p className="truncate text-xs text-gray-500">{event.description}</p>
+            <p className="truncate text-xs text-gray-500 dark:text-gray-400">{event.description}</p>
           )}
         </div>
-        <span className="flex-shrink-0 whitespace-nowrap text-xs text-gray-400">
+        <span className="flex-shrink-0 whitespace-nowrap text-xs text-gray-400 dark:text-gray-500">
           {new Date(event.date).toLocaleTimeString(undefined, {
             hour: "2-digit",
             minute: "2-digit",

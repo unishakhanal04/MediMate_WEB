@@ -9,7 +9,7 @@ interface TimelineGroupProps {
 export function TimelineGroup({ label, events }: TimelineGroupProps) {
   return (
     <section aria-label={label}>
-      <h2 className="mb-3 text-xs font-bold uppercase tracking-wide text-gray-400">{label}</h2>
+      <h2 className="mb-3 text-xs font-bold uppercase tracking-wide text-gray-400 dark:text-gray-500">{label}</h2>
       <ul className="flex flex-col gap-2">
         {events.map((event) => (
           <TimelineItem key={event.id} event={event} />
