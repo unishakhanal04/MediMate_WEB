@@ -37,7 +37,7 @@ export default function HomePage() {
 
   useEffect(() => {
     if (authReady && isAuthenticated) {
-      const destination = user?.role === "admin" ? "/admin" : "/dashboard";
+      const destination = user?.role === "admin" ? "/admin" : "/user";
       router.replace(destination);
     }
   }, [authReady, isAuthenticated, router, user?.role]);
@@ -61,8 +61,9 @@ export default function HomePage() {
 
         <nav className={`nav-links ${menuOpen ? "open" : ""}`}>
           <Link href="#home" onClick={() => setMenuOpen(false)}>Home</Link>
-          <Link href="#features" onClick={() => setMenuOpen(false)}>How it works</Link>
+          <Link href="#how-it-works" onClick={() => setMenuOpen(false)}>How it works</Link>
           <Link href="#features" onClick={() => setMenuOpen(false)}>Find a doctor</Link>
+          <Link href="#testimonials" onClick={() => setMenuOpen(false)}>Testimonials</Link>
           <Link href="#cta" onClick={() => setMenuOpen(false)}>Services</Link>
         </nav>
 
@@ -163,6 +164,32 @@ export default function HomePage() {
         </div>
       </section>
 
+      {/* ══════════ HOW IT WORKS ══════════ */}
+      <section id="how-it-works" className="how-section">
+        <Section>
+          <p className="section-eyebrow">How It Works</p>
+          <p className="section-sub">
+            Getting your medications on track takes just a few minutes.
+          </p>
+        </Section>
+
+        <div className="how-grid">
+          {[
+            { step: "1", icon: "📝", title: "Sign Up", body: "Create your free MediMate account in seconds." },
+            { step: "2", icon: "💊", title: "Add Medications", body: "Log your prescriptions and set your dosage schedule." },
+            { step: "3", icon: "⏰", title: "Get Reminders", body: "Receive gentle nudges exactly when it's time for each dose." },
+            { step: "4", icon: "📈", title: "Track Progress", body: "Watch your adherence improve with real, easy-to-read insights." },
+          ].map((item) => (
+            <Section key={item.step} className="how-card">
+              <div className="how-step">{item.step}</div>
+              <div className="how-icon">{item.icon}</div>
+              <h3>{item.title}</h3>
+              <p>{item.body}</p>
+            </Section>
+          ))}
+        </div>
+      </section>
+
       {/* ══════════ TRUST BAR ══════════ */}
       <section id="trust" className="trust-section">
         <Section>
@@ -175,6 +202,50 @@ export default function HomePage() {
             ))}
           </div>
         </Section>
+      </section>
+
+      {/* ══════════ TESTIMONIALS ══════════ */}
+      <section id="testimonials" className="testimonials-section">
+        <Section>
+          <p className="section-eyebrow">Loved by Patients &amp; Caregivers</p>
+          <p className="section-sub">
+            Real stories from people managing their health with MediMate.
+          </p>
+        </Section>
+
+        <div className="testimonials-grid">
+          {[
+            {
+              quote: "MediMate reminded me every single day — I haven't missed a dose in three months.",
+              name: "Sarah K.",
+              role: "Caregiver",
+              avatar: "👩",
+            },
+            {
+              quote: "The prescription vault alone is worth it. Everything is in one secure place whenever I need it.",
+              name: "James O.",
+              role: "Patient",
+              avatar: "🧑",
+            },
+            {
+              quote: "As a nurse, I recommend MediMate to every family managing multiple medications at home.",
+              name: "Priya R.",
+              role: "Registered Nurse",
+              avatar: "👩‍⚕️",
+            },
+          ].map((t) => (
+            <Section key={t.name} className="testimonial-card">
+              <p className="testimonial-quote">&ldquo;{t.quote}&rdquo;</p>
+              <div className="testimonial-author">
+                <span className="testimonial-avatar">{t.avatar}</span>
+                <div>
+                  <p className="testimonial-name">{t.name}</p>
+                  <p className="testimonial-role">{t.role}</p>
+                </div>
+              </div>
+            </Section>
+          ))}
+        </div>
       </section>
 
       {/* ══════════ CTA BANNER ══════════ */}
@@ -622,6 +693,114 @@ export default function HomePage() {
         }
         .feat-text { flex: 1; }
 
+        /* ── HOW IT WORKS ── */
+        .how-section {
+          padding: 5rem 5%;
+          background: #fff;
+        }
+        .how-grid {
+          display: grid;
+          grid-template-columns: repeat(4, 1fr);
+          gap: 1.5rem;
+        }
+        .how-card {
+          position: relative;
+          background: #f8fafc;
+          border: 1px solid #e2e8f0;
+          border-radius: 16px;
+          padding: 2rem 1.5rem;
+          text-align: center;
+          transition: transform 0.25s, box-shadow 0.25s;
+        }
+        .how-card:hover {
+          transform: translateY(-4px);
+          box-shadow: 0 12px 40px rgba(0,0,0,0.08);
+        }
+        .how-step {
+          position: absolute;
+          top: -14px;
+          left: 50%;
+          transform: translateX(-50%);
+          width: 28px;
+          height: 28px;
+          border-radius: 50%;
+          background: #2563eb;
+          color: #fff;
+          font-size: 0.8rem;
+          font-weight: 800;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
+        .how-icon { font-size: 2rem; margin: 0.75rem 0 1rem; }
+        .how-card h3 {
+          font-size: 1rem;
+          font-weight: 700;
+          color: #0f172a;
+          margin-bottom: 0.5rem;
+        }
+        .how-card p {
+          font-size: 0.85rem;
+          color: #64748b;
+          line-height: 1.6;
+        }
+
+        /* ── TESTIMONIALS ── */
+        .testimonials-section {
+          padding: 5rem 5%;
+          background: #f8fafc;
+        }
+        .testimonials-grid {
+          display: grid;
+          grid-template-columns: repeat(3, 1fr);
+          gap: 1.5rem;
+        }
+        .testimonial-card {
+          background: #fff;
+          border: 1px solid #e2e8f0;
+          border-radius: 16px;
+          padding: 2rem;
+          display: flex;
+          flex-direction: column;
+          gap: 1.5rem;
+          transition: transform 0.25s, box-shadow 0.25s;
+        }
+        .testimonial-card:hover {
+          transform: translateY(-4px);
+          box-shadow: 0 12px 40px rgba(0,0,0,0.08);
+        }
+        .testimonial-quote {
+          font-size: 0.95rem;
+          color: #334155;
+          line-height: 1.7;
+          flex: 1;
+        }
+        .testimonial-author {
+          display: flex;
+          align-items: center;
+          gap: 0.75rem;
+        }
+        .testimonial-avatar {
+          width: 40px;
+          height: 40px;
+          border-radius: 50%;
+          background: #e0f2fe;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 1.2rem;
+          flex-shrink: 0;
+        }
+        .testimonial-name {
+          font-size: 0.875rem;
+          font-weight: 700;
+          color: #0f172a;
+        }
+        .testimonial-role {
+          font-size: 0.78rem;
+          color: #94a3b8;
+        }
+
         /* ── TRUST ── */
         .trust-section {
           padding: 3.5rem 5%;
@@ -811,6 +990,9 @@ export default function HomePage() {
           .feat-card--light { grid-column: 2; grid-row: 2; }
           .feat-card--white { grid-column: 1; grid-row: 3; }
           .feat-card--blue2 { grid-column: 2; grid-row: 3; }
+
+          .how-grid { grid-template-columns: 1fr 1fr; }
+          .testimonials-grid { grid-template-columns: 1fr 1fr; }
         }
 
         @media (max-width: 768px) {
@@ -846,6 +1028,9 @@ export default function HomePage() {
           .feat-card--light,
           .feat-card--white,
           .feat-card--blue2 { grid-column: 1; grid-row: auto; }
+
+          .how-grid { grid-template-columns: 1fr; }
+          .testimonials-grid { grid-template-columns: 1fr; }
 
           .trust-logos { gap: 1.5rem; }
           .cta-card { padding: 2.5rem 1.5rem; }

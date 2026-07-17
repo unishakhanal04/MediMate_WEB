@@ -8,6 +8,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { loginSchema, type LoginFormData } from "../../../schemas/auth.schema";
 import { authService } from "../../../services/auth.service";
 import { useAuth } from "../../../contexts/AuthContext";
+import { useToast } from "../../../contexts/ToastContext";
 
 function GoogleIcon() {
   return (
@@ -31,9 +32,9 @@ function FacebookIcon() {
 export default function LoginPage() {
   const router = useRouter();
   const { login, isAuthenticated, authReady, user } = useAuth();
+  const toast = useToast();
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [toast, setToast] = useState<{ type: "success" | "error"; message: string } | null>(null);
 
   const {
     register: registerField,
@@ -44,17 +45,13 @@ export default function LoginPage() {
     defaultValues: {
       email: "",
       password: "",
+      rememberMe: false,
     },
   });
 
-  const showToast = (type: "success" | "error", message: string) => {
-    setToast({ type, message });
-    setTimeout(() => setToast(null), 3000);
-  };
-
   useEffect(() => {
     if (authReady && isAuthenticated) {
-      const destination = user?.role === "admin" ? "/admin" : "/dashboard";
+      const destination = user?.role === "admin" ? "/admin" : "/user";
       router.replace(destination);
     }
   }, [authReady, isAuthenticated, router, user?.role]);
@@ -64,12 +61,12 @@ export default function LoginPage() {
     try {
       const result = await authService.login(data);
       login(result.token, result.user);
-      showToast("success", "Signed in successfully! Redirecting...");
-      const destination = result.user.role === "admin" ? "/admin" : "/dashboard";
+      toast.success("Signed in successfully! Redirecting...");
+      const destination = result.user.role === "admin" ? "/admin" : "/user";
       setTimeout(() => router.replace(destination), 500);
     } catch (error) {
       const message = error instanceof Error ? error.message : "Login failed";
-      showToast("error", message);
+      toast.error(message);
     } finally {
       setLoading(false);
     }
@@ -81,13 +78,6 @@ export default function LoginPage() {
 
   return (
     <div className="auth-root">
-      {toast && (
-        <div className={`toast toast-${toast.type}`}>
-          <span className="toast-icon">{toast.type === "success" ? "✅" : "❌"}</span>
-          {toast.message}
-        </div>
-      )}
-
       <header className="nav">
         <Link href="/" className="logo">
           Medi<span>Mate</span>
@@ -139,6 +129,16 @@ export default function LoginPage() {
                 </button>
               </div>
               {errors.password && <span className="error-text">{errors.password.message}</span>}
+            </div>
+
+            <div className="field-row">
+              <label className="remember-label">
+                <input type="checkbox" {...registerField("rememberMe")} />
+                <span>Remember me</span>
+              </label>
+              <Link href="/forgot-password" className="forgot-link">
+                Forgot password?
+              </Link>
             </div>
 
             <button type="submit" className="submit-btn" disabled={loading}>
@@ -299,6 +299,37 @@ export default function LoginPage() {
         }
 
         .field input::placeholder { color: #94a3b8; }
+
+        .field-row {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          margin-top: -0.5rem;
+        }
+
+        .remember-label {
+          display: flex;
+          align-items: center;
+          gap: 0.5rem;
+          font-size: 0.85rem;
+          color: #475569;
+          cursor: pointer;
+        }
+
+        .remember-label input {
+          width: 15px;
+          height: 15px;
+          cursor: pointer;
+          accent-color: #2563eb;
+        }
+
+        .forgot-link {
+          font-size: 0.85rem;
+          font-weight: 600;
+          color: #2563eb;
+        }
+
+        .forgot-link:hover { text-decoration: underline; }
 
         .password-wrap { position: relative; }
 
@@ -471,26 +502,6 @@ export default function LoginPage() {
           border-top: 1px solid #f1f5f9;
         }
 
-        .toast {
-          position: fixed;
-          top: 1.25rem;
-          left: 50%;
-          transform: translateX(-50%);
-          z-index: 999;
-          display: flex;
-          align-items: center;
-          gap: 0.6rem;
-          padding: 0.85rem 1.5rem;
-          border-radius: 10px;
-          font-size: 0.9rem;
-          font-weight: 600;
-          box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
-          animation: slideDown 0.3s ease;
-        }
-
-        .toast-success { background: #fff; border: 1.5px solid #22c55e; color: #15803d; }
-        .toast-error { background: #fff; border: 1.5px solid #ef4444; color: #b91c1c; }
-
         .error-text {
           font-size: 0.75rem;
           color: #ef4444;
@@ -509,11 +520,6 @@ export default function LoginPage() {
         }
 
         @keyframes spin { to { transform: rotate(360deg); } }
-
-        @keyframes slideDown {
-          from { opacity: 0; top: 0.5rem; }
-          to { opacity: 1; top: 1.25rem; }
-        }
 
         @media (max-width: 768px) {
           .nav { padding: 1rem 1.5rem; }

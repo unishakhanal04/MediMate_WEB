@@ -8,6 +8,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { registerSchema, type RegisterFormData } from "../../../schemas/auth.schema";
 import { authService } from "../../../services/auth.service";
 import { useAuth } from "../../../contexts/AuthContext";
+import { useToast } from "../../../contexts/ToastContext";
 
 function GoogleIcon() {
   return (
@@ -31,9 +32,9 @@ function FacebookIcon() {
 export default function RegisterPage() {
   const router = useRouter();
   const { isAuthenticated, authReady, user } = useAuth();
+  const toast = useToast();
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
-  const [toast, setToast] = useState<{ type: "success" | "error"; message: string } | null>(null);
   const [loading, setLoading] = useState(false);
 
   const {
@@ -53,14 +54,9 @@ export default function RegisterPage() {
     },
   });
 
-  const showToast = (type: "success" | "error", message: string) => {
-    setToast({ type, message });
-    setTimeout(() => setToast(null), 3000);
-  };
-
   useEffect(() => {
     if (authReady && isAuthenticated) {
-      const destination = user?.role === "admin" ? "/admin" : "/dashboard";
+      const destination = user?.role === "admin" ? "/admin" : "/user";
       router.replace(destination);
     }
   }, [authReady, isAuthenticated, router, user?.role]);
@@ -68,12 +64,12 @@ export default function RegisterPage() {
   const onSubmit = async (data: RegisterFormData) => {
     setLoading(true);
     try {
-      const result = await authService.register(data);
-      showToast("success", "Account created successfully! Redirecting to login...");
+      await authService.register(data);
+      toast.success("Account created successfully! Redirecting to login...");
       setTimeout(() => router.push("/login"), 2000);
     } catch (error) {
       const message = error instanceof Error ? error.message : "Registration failed";
-      showToast("error", message);
+      toast.error(message);
     } finally {
       setLoading(false);
     }
@@ -85,13 +81,6 @@ export default function RegisterPage() {
 
   return (
     <div className="auth-root">
-      {toast && (
-        <div className={`toast toast-${toast.type}`}>
-          <span className="toast-icon">{toast.type === "success" ? "✅" : "❌"}</span>
-          {toast.message}
-        </div>
-      )}
-
       <header className="nav">
         <Link href="/" className="logo">
           Medi<span>Mate</span>
@@ -648,26 +637,6 @@ export default function RegisterPage() {
           border-top: 1px solid #f1f5f9;
         }
 
-        .toast {
-          position: fixed;
-          top: 1.25rem;
-          left: 50%;
-          transform: translateX(-50%);
-          z-index: 999;
-          display: flex;
-          align-items: center;
-          gap: 0.6rem;
-          padding: 0.85rem 1.5rem;
-          border-radius: 10px;
-          font-size: 0.9rem;
-          font-weight: 600;
-          box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
-          animation: slideDown 0.3s ease;
-        }
-
-        .toast-success { background: #fff; border: 1.5px solid #22c55e; color: #15803d; }
-        .toast-error { background: #fff; border: 1.5px solid #ef4444; color: #b91c1c; }
-
         .error-text {
           font-size: 0.75rem;
           color: #ef4444;
@@ -686,11 +655,6 @@ export default function RegisterPage() {
         }
 
         @keyframes spin { to { transform: rotate(360deg); } }
-
-        @keyframes slideDown {
-          from { opacity: 0; top: 0.5rem; }
-          to { opacity: 1; top: 1.25rem; }
-        }
 
         @media (max-width: 900px) {
           .auth-main { grid-template-columns: 1fr; }
