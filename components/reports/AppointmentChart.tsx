@@ -14,9 +14,9 @@ export function AppointmentChart({ report }: AppointmentChartProps) {
 
   return (
     <Card className="flex flex-col gap-4">
-      <h2 className="text-base font-bold text-gray-900">Appointments</h2>
+      <h2 className="text-base font-bold text-gray-900 dark:text-white">Appointments</h2>
 
-      <div className="flex h-2 overflow-hidden rounded-full bg-gray-100">
+      <div className="flex h-2 overflow-hidden rounded-full bg-gray-100 dark:bg-gray-800">
         {segments.map((segment) => (
           <div
             key={segment.label}
@@ -33,24 +33,24 @@ export function AppointmentChart({ report }: AppointmentChartProps) {
 
       <div className="flex flex-wrap gap-2 text-xs font-semibold">
         {segments.map((segment) => (
-          <span key={segment.label} className="rounded-full bg-gray-50 px-2 py-1 text-gray-600">
+          <span key={segment.label} className="rounded-full bg-gray-50 px-2 py-1 text-gray-600 dark:bg-gray-800 dark:text-gray-400">
             {segment.value} {segment.label}
           </span>
         ))}
       </div>
 
       {report.nextAppointment ? (
-        <div className="rounded-lg bg-blue-50 px-4 py-3">
-          <p className="text-xs font-semibold uppercase tracking-wide text-blue-500">Next Appointment</p>
-          <p className="mt-1 text-sm font-semibold text-gray-900">{report.nextAppointment.purpose}</p>
-          <p className="text-xs text-gray-600">
+        <div className="rounded-lg bg-blue-50 px-4 py-3 dark:bg-blue-500/10">
+          <p className="text-xs font-semibold uppercase tracking-wide text-blue-500 dark:text-blue-400">Next Appointment</p>
+          <p className="mt-1 text-sm font-semibold text-gray-900 dark:text-white">{report.nextAppointment.purpose}</p>
+          <p className="text-xs text-gray-600 dark:text-gray-400">
             {report.nextAppointment.doctorName} ·{" "}
             {new Date(report.nextAppointment.appointmentDate).toLocaleDateString()} ·{" "}
             {report.nextAppointment.appointmentTime}
           </p>
         </div>
       ) : (
-        <p className="py-2 text-sm text-gray-500">No upcoming appointments scheduled.</p>
+        <p className="py-2 text-sm text-gray-500 dark:text-gray-400">No upcoming appointments scheduled.</p>
       )}
     </Card>
   );

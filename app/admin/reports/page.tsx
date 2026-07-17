@@ -86,7 +86,7 @@ export default function AdminReportsPage() {
       <StatsCards stats={stats} />
 
       <Card className="flex flex-col gap-4">
-        <h2 className="text-base font-bold text-gray-900">User Growth (last 8 weeks)</h2>
+        <h2 className="text-base font-bold text-gray-900 dark:text-white">User Growth (last 8 weeks)</h2>
         <div className="flex items-end gap-2 overflow-x-auto pb-2" style={{ minHeight: "9rem" }}>
           {overview.userGrowth.map((point) => (
             <div key={point.label} className="flex flex-1 flex-col items-center gap-2">
@@ -95,8 +95,8 @@ export default function AdminReportsPage() {
                 style={{ height: `${Math.max((point.count / maxGrowth) * 100, 4)}px` }}
                 title={`${point.count} new users`}
               />
-              <span className="text-[11px] font-semibold text-gray-500">{point.count}</span>
-              <span className="whitespace-nowrap text-[11px] text-gray-400">{point.label}</span>
+              <span className="text-[11px] font-semibold text-gray-500 dark:text-gray-400">{point.count}</span>
+              <span className="whitespace-nowrap text-[11px] text-gray-400 dark:text-gray-500">{point.label}</span>
             </div>
           ))}
         </div>
@@ -104,8 +104,8 @@ export default function AdminReportsPage() {
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
         <Card className="flex flex-col gap-4">
-          <h2 className="text-base font-bold text-gray-900">Appointments</h2>
-          <div className="flex h-2 overflow-hidden rounded-full bg-gray-100">
+          <h2 className="text-base font-bold text-gray-900 dark:text-white">Appointments</h2>
+          <div className="flex h-2 overflow-hidden rounded-full bg-gray-100 dark:bg-gray-800">
             {appointmentSegments.map((segment) => (
               <div
                 key={segment.label}
@@ -116,7 +116,7 @@ export default function AdminReportsPage() {
           </div>
           <div className="flex flex-wrap gap-2 text-xs font-semibold">
             {appointmentSegments.map((segment) => (
-              <span key={segment.label} className="rounded-full bg-gray-50 px-2 py-1 text-gray-600">
+              <span key={segment.label} className="rounded-full bg-gray-50 px-2 py-1 text-gray-600 dark:bg-gray-800 dark:text-gray-400">
                 {segment.value} {segment.label}
               </span>
             ))}
@@ -124,8 +124,8 @@ export default function AdminReportsPage() {
         </Card>
 
         <Card className="flex flex-col gap-4">
-          <h2 className="text-base font-bold text-gray-900">Medicines</h2>
-          <div className="flex h-2 overflow-hidden rounded-full bg-gray-100">
+          <h2 className="text-base font-bold text-gray-900 dark:text-white">Medicines</h2>
+          <div className="flex h-2 overflow-hidden rounded-full bg-gray-100 dark:bg-gray-800">
             {medicineSegments.map((segment) => (
               <div
                 key={segment.label}
@@ -136,7 +136,7 @@ export default function AdminReportsPage() {
           </div>
           <div className="flex flex-wrap gap-2 text-xs font-semibold">
             {medicineSegments.map((segment) => (
-              <span key={segment.label} className="rounded-full bg-gray-50 px-2 py-1 text-gray-600">
+              <span key={segment.label} className="rounded-full bg-gray-50 px-2 py-1 text-gray-600 dark:bg-gray-800 dark:text-gray-400">
                 {segment.value} {segment.label}
               </span>
             ))}
