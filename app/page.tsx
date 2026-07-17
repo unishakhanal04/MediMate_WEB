@@ -2,1045 +2,431 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState, useEffect, useRef } from "react";
+import { useEffect, useState } from "react";
 import { useAuth } from "../contexts/AuthContext";
 
-/* ── tiny hook: fade-in on scroll ── */
-function useInView() {
-  const ref = useRef<HTMLDivElement>(null);
-  const [visible, setVisible] = useState(false);
-  useEffect(() => {
-    const obs = new IntersectionObserver(
-      ([e]) => { if (e.isIntersecting) { setVisible(true); obs.disconnect(); } },
-      { threshold: 0.15 }
-    );
-    if (ref.current) obs.observe(ref.current);
-    return () => obs.disconnect();
-  }, []);
-  return { ref, visible };
-}
+const navLinks = [
+  { href: "#features", label: "Features" },
+  { href: "#solutions", label: "Solutions" },
+  { href: "#pricing", label: "Pricing" },
+  { href: "#contact", label: "Contact" },
+];
 
-function Section({ children, className = "" }: { children: React.ReactNode; className?: string }) {
-  const { ref, visible } = useInView();
-  return (
-    <div ref={ref} className={`section-reveal ${visible ? "visible" : ""} ${className}`}>
-      {children}
-    </div>
-  );
-}
+const partnerLogos = [1, 2, 3, 4, 5];
+
+const steps = [
+  { n: 1, title: "Sync Your Profile", body: "Connect your existing records and wearable devices in under 60 seconds." },
+  { n: 2, title: "Monitor & Analyze", body: "Our AI engine processes your data to identify trends and potential health risks." },
+  { n: 3, title: "Receive Care", body: "Get personalized insights and connect with doctors when intervention is needed." },
+];
 
 export default function HomePage() {
   const router = useRouter();
   const { isAuthenticated, authReady, user } = useAuth();
   const [menuOpen, setMenuOpen] = useState(false);
-  const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => {
     if (authReady && isAuthenticated) {
-      const destination = user?.role === "admin" ? "/admin" : "/user";
-      router.replace(destination);
+      router.replace(user?.role === "admin" ? "/admin" : "/user");
     }
   }, [authReady, isAuthenticated, router, user?.role]);
-
-  useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 20);
-    window.addEventListener("scroll", onScroll);
-    return () => window.removeEventListener("scroll", onScroll);
-  }, []);
 
   if (!authReady || isAuthenticated) {
     return null;
   }
 
   return (
-    <div className="root">
+    <div className="min-h-screen bg-white text-slate-900 dark:bg-gray-950 dark:text-white">
+      {/* ── Nav ── */}
+      <header className="sticky top-0 z-50 border-b border-slate-200 bg-white/90 backdrop-blur dark:border-gray-800 dark:bg-gray-950/90">
+        <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
+          <Link href="/" className="text-lg font-extrabold tracking-tight text-slate-900 dark:text-white">
+            MediMate
+          </Link>
 
-      {/* ══════════ NAV ══════════ */}
-      <header className={`nav ${scrolled ? "nav-scrolled" : ""}`}>
-        <Link href="/" className="logo">Medi<span>Mate</span></Link>
+          <nav className="hidden items-center gap-8 md:flex">
+            {navLinks.map((link) => (
+              <a
+                key={link.href}
+                href={link.href}
+                className="text-sm font-medium text-slate-600 transition-colors hover:text-blue-600 dark:text-gray-400 dark:hover:text-blue-400"
+              >
+                {link.label}
+              </a>
+            ))}
+          </nav>
 
-        <nav className={`nav-links ${menuOpen ? "open" : ""}`}>
-          <Link href="#home" onClick={() => setMenuOpen(false)}>Home</Link>
-          <Link href="#how-it-works" onClick={() => setMenuOpen(false)}>How it works</Link>
-          <Link href="#features" onClick={() => setMenuOpen(false)}>Find a doctor</Link>
-          <Link href="#testimonials" onClick={() => setMenuOpen(false)}>Testimonials</Link>
-          <Link href="#cta" onClick={() => setMenuOpen(false)}>Services</Link>
-        </nav>
+          <div className="hidden items-center gap-5 md:flex">
+            <Link href="/login" className="text-sm font-semibold text-slate-600 hover:text-slate-900 dark:text-gray-400 dark:hover:text-white">
+              Sign In
+            </Link>
+            <Link
+              href="/register"
+              className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-blue-700"
+            >
+              Get Started
+            </Link>
+          </div>
 
-        <div className="nav-cta">
-          <Link href="/login" className="btn-outline">Login</Link>
-          <Link href="/register" className="btn-solid">Signup</Link>
+          <button
+            className="text-xl text-slate-600 dark:text-gray-400 md:hidden"
+            onClick={() => setMenuOpen((v) => !v)}
+            aria-label="Toggle menu"
+          >
+            ☰
+          </button>
         </div>
 
-        <button className="hamburger" onClick={() => setMenuOpen(!menuOpen)} aria-label="Menu">
-          <span /><span /><span />
-        </button>
+        {menuOpen && (
+          <div className="flex flex-col gap-4 border-t border-slate-200 px-6 py-4 dark:border-gray-800 md:hidden">
+            {navLinks.map((link) => (
+              <a
+                key={link.href}
+                href={link.href}
+                onClick={() => setMenuOpen(false)}
+                className="text-sm font-medium text-slate-600 dark:text-gray-400"
+              >
+                {link.label}
+              </a>
+            ))}
+            <Link href="/login" className="text-sm font-semibold text-slate-900 dark:text-white">
+              Sign In
+            </Link>
+            <Link
+              href="/register"
+              className="rounded-lg bg-blue-600 px-4 py-2 text-center text-sm font-semibold text-white"
+            >
+              Get Started
+            </Link>
+          </div>
+        )}
       </header>
 
-      {/* ══════════ HERO ══════════ */}
-      <section id="home" className="hero">
-        <div className="hero-left">
-          <p className="hero-eyebrow">RELIABLE EMPATHY IN CARE</p>
-          <h1 className="hero-heading">
-            Reliable Empathy in <span className="hero-highlight">Every Care</span>
+      {/* ── Hero ── */}
+      <section className="mx-auto grid max-w-7xl grid-cols-1 items-center gap-12 px-6 py-16 lg:grid-cols-2 lg:py-24">
+        <div>
+          <span className="inline-flex items-center gap-1.5 rounded-full border border-blue-100 bg-blue-50 px-3 py-1 text-xs font-semibold text-blue-700 dark:border-blue-500/20 dark:bg-blue-500/10 dark:text-blue-400">
+            🛡️ FDA Compliant Security
+          </span>
+
+          <h1 className="mt-5 text-4xl font-extrabold leading-tight tracking-tight text-slate-900 dark:text-white sm:text-5xl">
+            Healthcare that stays
+            <br />
+            <span className="italic text-blue-600 dark:text-blue-400">one step ahead</span> of you.
           </h1>
-          <p className="hero-body">
-            MediMate seamlessly blends clinical precision with human warmth, giving you the tools to manage medications, sync vitals, and connect with healthcare professionals effortlessly.
+
+          <p className="mt-5 max-w-md text-base leading-relaxed text-slate-500 dark:text-gray-400">
+            Personalized health management powered by AI. Real-time monitoring, appointment
+            synchronization, and intelligent symptom tracking designed for modern living.
           </p>
-          <div className="hero-actions">
-            <Link href="/register" className="btn-solid btn-lg">Get Started</Link>
-            <Link href="#features" className="btn-outline-dark btn-lg">View Services</Link>
+
+          <div className="mt-8 flex flex-wrap gap-3">
+            <Link
+              href="/register"
+              className="rounded-lg bg-blue-600 px-6 py-3 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-blue-700"
+            >
+              Join the Waitlist
+            </Link>
+            <a
+              href="#features"
+              className="rounded-lg border border-slate-300 px-6 py-3 text-sm font-semibold text-slate-900 transition-colors hover:bg-slate-50 dark:border-gray-700 dark:text-white dark:hover:bg-gray-900"
+            >
+              Watch Demo
+            </a>
           </div>
-          <div className="hero-social-proof">
-            <div className="avatar-stack">
-              <span className="avatar">👤</span>
-              <span className="avatar">👤</span>
-              <span className="avatar">👤</span>
+
+          <div className="mt-8 flex items-center gap-3">
+            <div className="flex -space-x-2">
+              {["👤", "👤", "👤"].map((emoji, i) => (
+                <span
+                  key={i}
+                  className="flex h-8 w-8 items-center justify-center rounded-full border-2 border-white bg-blue-100 text-sm dark:border-gray-950 dark:bg-blue-500/20"
+                >
+                  {emoji}
+                </span>
+              ))}
+              <span className="flex h-8 w-8 items-center justify-center rounded-full border-2 border-white bg-blue-600 text-[10px] font-bold text-white dark:border-gray-950">
+                +2k
+              </span>
             </div>
-            <p className="proof-text"><strong>50,000+</strong> users trust MediMate</p>
+            <p className="text-xs text-slate-500 dark:text-gray-400">Trusted by 2,000+ patients and doctors.</p>
           </div>
         </div>
 
-        <div className="hero-right">
-          <div className="hero-img-wrap">
-            <div className="hero-img-placeholder">
-              <div className="hero-img-inner">
-                <span className="hero-emoji">👩‍⚕️</span>
+        <div className="relative">
+          <div className="overflow-hidden rounded-3xl bg-gradient-to-br from-amber-100 via-orange-50 to-blue-50 p-2 shadow-xl dark:from-amber-500/10 dark:via-orange-500/5 dark:to-blue-500/10">
+            <div className="flex h-80 flex-col justify-between rounded-2xl bg-white/50 p-5 backdrop-blur-sm dark:bg-gray-900/60 sm:h-96">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-semibold text-slate-500 dark:text-gray-400">Welcome to MediMate · Overview</span>
+                <span className="h-2 w-2 rounded-full bg-emerald-500" />
+              </div>
+
+              <div className="flex flex-1 items-end gap-1.5 py-4">
+                {[40, 65, 50, 80, 55, 70, 45, 60].map((h, i) => (
+                  <div key={i} className="flex-1 rounded-t bg-blue-400/70" style={{ height: `${h}%` }} />
+                ))}
+              </div>
+
+              <div className="grid grid-cols-3 gap-2">
+                {["Heart Rate", "Sleep", "Appts"].map((label) => (
+                  <div key={label} className="rounded-lg bg-white/70 p-2 text-center dark:bg-gray-800/70">
+                    <p className="text-[10px] font-semibold text-slate-500 dark:text-gray-400">{label}</p>
+                  </div>
+                ))}
               </div>
             </div>
-            <div className="hero-badge">
-              <span className="badge-dot" />
-              <span className="badge-pct">Heart Rate</span>
-              <span className="badge-label">72 BPM</span>
+          </div>
+
+          <div className="absolute -left-4 top-6 flex items-center gap-2 rounded-xl border border-slate-100 bg-white px-4 py-3 shadow-lg dark:border-gray-800 dark:bg-gray-900">
+            <span className="text-lg text-rose-500">❤️</span>
+            <div>
+              <p className="text-sm font-extrabold text-slate-900 dark:text-white">72 BPM</p>
+              <p className="text-[10px] text-slate-400 dark:text-gray-500">Resting Heart Rate</p>
             </div>
+          </div>
+
+          <div className="absolute -bottom-4 right-2 flex items-center gap-1.5 rounded-full bg-violet-600 px-4 py-2 text-xs font-semibold text-white shadow-lg">
+            📍 AI Insight: Hydration Low
           </div>
         </div>
       </section>
 
-      {/* ══════════ CORE FEATURES ══════════ */}
-      <section id="features" className="features-section">
-        <Section>
-          <p className="section-eyebrow">Precision-Crafted Features</p>
-          <p className="section-sub">
-            Intelligent tools designed to simplify your health journey without compromising on the human connection.
+      {/* ── Partner logos ── */}
+      <section className="border-y border-slate-100 bg-slate-50 py-10 dark:border-gray-800 dark:bg-gray-900">
+        <div className="mx-auto max-w-7xl px-6">
+          <p className="text-center text-xs font-bold uppercase tracking-widest text-slate-400 dark:text-gray-500">
+            Partnering with world-class institutions
           </p>
-        </Section>
+          <div className="mt-6 flex flex-wrap items-center justify-center gap-6">
+            {partnerLogos.map((i) => (
+              <div key={i} className="h-8 w-28 rounded-md bg-slate-200 dark:bg-gray-800" aria-hidden="true" />
+            ))}
+          </div>
+        </div>
+      </section>
 
-        <div className="features-grid">
-          <Section className="feat-card feat-card--dark feat-card--tall">
-            <div className="feat-icon">🔐</div>
-            <h3>Prescription Vault</h3>
-            <p>Store and organize all your prescriptions in one encrypted space for instant access.</p>
-            <Link href="/register" className="feat-link">Start a Conversation →</Link>
-            <div className="feat-img-placeholder">
-              <span>📋</span>
+      {/* ── Features ── */}
+      <section id="features" className="mx-auto max-w-7xl px-6 py-20">
+        <div className="mx-auto max-w-xl text-center">
+          <h2 className="text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white">
+            Comprehensive Health Intelligence
+          </h2>
+          <p className="mt-3 text-sm leading-relaxed text-slate-500 dark:text-gray-400">
+            We&apos;ve designed a suite of tools that work together to provide a holistic view of your
+            health journey.
+          </p>
+        </div>
+
+        <div className="mt-12 grid grid-cols-1 gap-4 lg:grid-cols-3">
+          <div className="flex flex-col gap-4 lg:col-span-2">
+            <div className="flex flex-col justify-between rounded-2xl bg-slate-900 p-7 text-white">
+              <div className="flex items-start justify-between">
+                <span className="rounded-full bg-white/10 px-3 py-1 text-[11px] font-semibold text-blue-300">
+                  Real-time Analytics
+                </span>
+                <span className="text-xl">📈</span>
+              </div>
+              <div className="mt-8">
+                <h3 className="text-lg font-bold">Live Vital Monitoring</h3>
+                <p className="mt-2 text-sm leading-relaxed text-slate-300">
+                  Connect your wearables for continuous tracking of heart rate, sleep quality, and
+                  daily activity levels with millisecond precision.
+                </p>
+              </div>
             </div>
-          </Section>
 
-          <Section className="feat-card feat-card--blue">
-            <div className="feat-icon">⏰</div>
-            <h3>Smart Reminders</h3>
-            <p>Receive alerts for each dose, customized to your daily routine and lifestyle.</p>
-          </Section>
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              <div className="rounded-2xl bg-indigo-50 p-6 dark:bg-indigo-500/10">
+                <span className="text-xl">📅</span>
+                <h3 className="mt-3 text-sm font-bold text-slate-900 dark:text-white">Appointments</h3>
+                <p className="mt-1 text-xs leading-relaxed text-slate-500 dark:text-gray-400">
+                  Sync seamlessly with your calendar and get travel time estimates for clinical
+                  visits.
+                </p>
+              </div>
+              <div className="rounded-2xl bg-indigo-50 p-6 dark:bg-indigo-500/10">
+                <span className="text-xl">🛡️</span>
+                <h3 className="mt-3 text-sm font-bold text-slate-900 dark:text-white">Privacy First</h3>
+                <p className="mt-1 text-xs leading-relaxed text-slate-500 dark:text-gray-400">
+                  Bank-grade encryption for all your medical records and personal data. You own
+                  your data.
+                </p>
+              </div>
+            </div>
+          </div>
 
-          <Section className="feat-card feat-card--light">
-            <div className="feat-icon">🩺</div>
-            <h3>Find Doctors</h3>
-            <p>Locate top-rated healthcare providers and book appointments directly through our partnered scheduler.</p>
-          </Section>
+          <div className="flex flex-col justify-between rounded-2xl bg-blue-600 p-7 text-white">
+            <div className="flex items-start justify-between">
+              <span className="text-xl">💊</span>
+            </div>
+            <div className="mt-8">
+              <h3 className="text-lg font-bold">Medication Management</h3>
+              <p className="mt-2 text-sm leading-relaxed text-blue-100">
+                Never miss a dose with smart reminders that adapt to your schedule and time zone
+                automatically.
+              </p>
+              <ul className="mt-4 flex flex-col gap-2 text-sm text-blue-50">
+                {["Auto-refill alerts", "Interaction warnings", "Dosage tracking"].map((item) => (
+                  <li key={item} className="flex items-center gap-2">
+                    <span aria-hidden="true">✓</span> {item}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
 
-          <Section className="feat-card feat-card--white">
-            <div className="feat-icon">📊</div>
-            <h3>Vitals Sync</h3>
-            <p>Automatically connect your wearable device to track blood pressure, glucose levels, and heart rate in real time.</p>
-          </Section>
-
-          <Section className="feat-card feat-card--blue2">
-            <div className="feat-icon">💬</div>
-            <h3>24/7 Nurse Chat</h3>
-            <p>Immediate access to a licensed nursing professional for non-emergency guidance, anytime, day or night.</p>
-            <Link href="/register" className="feat-link feat-link--light">Start a Conversation →</Link>
-          </Section>
+          <div className="flex flex-col items-start justify-between gap-6 rounded-2xl bg-indigo-50 p-7 dark:bg-indigo-500/10 sm:flex-row sm:items-center lg:col-span-3">
+            <div className="max-w-md">
+              <h3 className="text-sm font-bold text-slate-900 dark:text-white">Telehealth Integrated</h3>
+              <p className="mt-1 text-xs leading-relaxed text-slate-500 dark:text-gray-400">
+                Connect with specialists directly through the platform. Share real-time health data
+                during video consultations.
+              </p>
+            </div>
+            <span className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-white text-xl shadow-sm dark:bg-gray-800">
+              💬
+            </span>
+          </div>
         </div>
       </section>
 
-      {/* ══════════ HOW IT WORKS ══════════ */}
-      <section id="how-it-works" className="how-section">
-        <Section>
-          <p className="section-eyebrow">How It Works</p>
-          <p className="section-sub">
-            Getting your medications on track takes just a few minutes.
-          </p>
-        </Section>
-
-        <div className="how-grid">
-          {[
-            { step: "1", icon: "📝", title: "Sign Up", body: "Create your free MediMate account in seconds." },
-            { step: "2", icon: "💊", title: "Add Medications", body: "Log your prescriptions and set your dosage schedule." },
-            { step: "3", icon: "⏰", title: "Get Reminders", body: "Receive gentle nudges exactly when it's time for each dose." },
-            { step: "4", icon: "📈", title: "Track Progress", body: "Watch your adherence improve with real, easy-to-read insights." },
-          ].map((item) => (
-            <Section key={item.step} className="how-card">
-              <div className="how-step">{item.step}</div>
-              <div className="how-icon">{item.icon}</div>
-              <h3>{item.title}</h3>
-              <p>{item.body}</p>
-            </Section>
-          ))}
+      {/* ── Three steps ── */}
+      <section id="solutions" className="bg-slate-50 py-20 dark:bg-gray-900">
+        <div className="mx-auto max-w-4xl px-6 text-center">
+          <h2 className="text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white">
+            Three steps to better health
+          </h2>
         </div>
-      </section>
 
-      {/* ══════════ TRUST BAR ══════════ */}
-      <section id="trust" className="trust-section">
-        <Section>
-          <p className="trust-label">Trusted by 50,000+ Caregivers</p>
-          <div className="trust-logos">
-            {["HealthCore", "Vitalis", "MediLink", "CareNet"].map((name) => (
-              <div key={name} className="trust-logo">
-                <span className="trust-dot">◆</span> {name}
+        <div className="relative mx-auto mt-14 max-w-4xl px-6">
+          <div className="absolute inset-x-[16.5%] top-6 hidden h-px bg-slate-300 dark:bg-gray-700 sm:block" aria-hidden="true" />
+          <div className="grid grid-cols-1 gap-10 sm:grid-cols-3">
+            {steps.map((step) => (
+              <div key={step.n} className="relative flex flex-col items-center text-center">
+                <span className="relative z-10 flex h-12 w-12 items-center justify-center rounded-full bg-blue-600 text-sm font-bold text-white">
+                  {step.n}
+                </span>
+                <h3 className="mt-4 text-sm font-bold text-slate-900 dark:text-white">{step.title}</h3>
+                <p className="mt-2 text-xs leading-relaxed text-slate-500 dark:text-gray-400">{step.body}</p>
               </div>
             ))}
           </div>
-        </Section>
-      </section>
-
-      {/* ══════════ TESTIMONIALS ══════════ */}
-      <section id="testimonials" className="testimonials-section">
-        <Section>
-          <p className="section-eyebrow">Loved by Patients &amp; Caregivers</p>
-          <p className="section-sub">
-            Real stories from people managing their health with MediMate.
-          </p>
-        </Section>
-
-        <div className="testimonials-grid">
-          {[
-            {
-              quote: "MediMate reminded me every single day — I haven't missed a dose in three months.",
-              name: "Sarah K.",
-              role: "Caregiver",
-              avatar: "👩",
-            },
-            {
-              quote: "The prescription vault alone is worth it. Everything is in one secure place whenever I need it.",
-              name: "James O.",
-              role: "Patient",
-              avatar: "🧑",
-            },
-            {
-              quote: "As a nurse, I recommend MediMate to every family managing multiple medications at home.",
-              name: "Priya R.",
-              role: "Registered Nurse",
-              avatar: "👩‍⚕️",
-            },
-          ].map((t) => (
-            <Section key={t.name} className="testimonial-card">
-              <p className="testimonial-quote">&ldquo;{t.quote}&rdquo;</p>
-              <div className="testimonial-author">
-                <span className="testimonial-avatar">{t.avatar}</span>
-                <div>
-                  <p className="testimonial-name">{t.name}</p>
-                  <p className="testimonial-role">{t.role}</p>
-                </div>
-              </div>
-            </Section>
-          ))}
         </div>
       </section>
 
-      {/* ══════════ CTA BANNER ══════════ */}
-      <section id="cta" className="cta-section">
-        <Section>
-          <div className="cta-card">
-            <h2>Ready for a Healthier Tomorrow?</h2>
-            <p>
-              Join thousands of users who have transformed their healthcare management with MediMate&apos;s empathetic platform.
+      {/* ── Testimonial ── */}
+      <section id="pricing" className="mx-auto max-w-7xl px-6 py-20">
+        <span className="inline-flex items-center rounded-full bg-violet-50 px-3 py-1 text-xs font-semibold text-violet-700 dark:bg-violet-500/10 dark:text-violet-400">
+          Patient Stories
+        </span>
+        <h2 className="mt-4 max-w-lg text-3xl font-extrabold leading-tight tracking-tight text-slate-900 dark:text-white">
+          Transforming lives through proactive care.
+        </h2>
+
+        <div className="mt-10 grid grid-cols-1 gap-6 lg:grid-cols-2">
+          <div className="rounded-2xl border border-slate-200 bg-white p-8 dark:border-gray-800 dark:bg-gray-900">
+            <span className="text-4xl font-serif text-blue-600 dark:text-blue-400" aria-hidden="true">
+              &ldquo;
+            </span>
+            <p className="-mt-2 text-base italic leading-relaxed text-slate-700 dark:text-gray-300">
+              MediMate literally saved my life. The AI picked up on a slight heart rhythm
+              abnormality that I hadn&apos;t even noticed. My doctor was able to treat it before it
+              became a crisis.
             </p>
-            <div className="cta-actions">
-              <Link href="/register" className="btn-solid btn-lg btn-white">
-                Download for iOS
-              </Link>
-              <Link href="/register" className="btn-outline-white btn-lg">
-                Download for Android
-              </Link>
-            </div>
-            <div className="cta-trust">
-              <span className="cta-trust-item">🔒 HIPAA Compliant</span>
-              <span className="cta-trust-item">⭐ 4.9 App Rating</span>
-              <span className="cta-trust-item">🛡️ SOC 2 Certified</span>
+            <div className="mt-6 flex items-center gap-3">
+              <span className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-100 text-lg dark:bg-blue-500/20">
+                👩
+              </span>
+              <div>
+                <p className="text-sm font-bold text-slate-900 dark:text-white">Eleanor Vance</p>
+                <p className="text-xs text-slate-400 dark:text-gray-500">Active User for 18 Months</p>
+              </div>
             </div>
           </div>
-        </Section>
-      </section>
 
-      {/* ══════════ FOOTER ══════════ */}
-      <footer className="footer">
-        <div className="footer-top">
-          <div className="footer-brand">
-            <p className="footer-logo">MediMate</p>
-            <p className="footer-tagline">Connecting patients with your most trusted empathetic and professional healthcare solutions.</p>
-          </div>
-          <div className="footer-links-grid">
-            <div>
-              <p className="footer-col-head">MediMate</p>
-              <Link href="#features">Features</Link>
-              <Link href="#trust">About Us</Link>
-              <Link href="#">Reminders</Link>
-              <Link href="#">Technology</Link>
+          <div className="grid grid-cols-2 gap-4">
+            <div className="flex items-center justify-center rounded-2xl bg-gradient-to-br from-slate-800 to-blue-900 text-4xl">
+              🧑‍⚕️
             </div>
-            <div>
-              <p className="footer-col-head">Medical Services</p>
-              <Link href="#">Cardiology</Link>
-              <Link href="#">Neurology</Link>
-              <Link href="#">Pediatrics</Link>
-              <Link href="#">Technology</Link>
-            </div>
-            <div>
-              <p className="footer-col-head">Support</p>
-              <Link href="#">Help Center</Link>
-              <Link href="#">Contact Us</Link>
-            </div>
-            <div>
-              <p className="footer-col-head">Legal</p>
-              <Link href="#">Privacy Policy</Link>
-              <Link href="#">Terms of Service</Link>
+            <div className="flex items-center justify-center rounded-2xl bg-gradient-to-br from-blue-100 to-indigo-100 text-4xl">
+              ⌚
             </div>
           </div>
         </div>
-        <div className="footer-bottom">
-          <p>© {new Date().getFullYear()} MediMate. All rights reserved.</p>
-          <div className="footer-bottom-links">
-            <Link href="#">Privacy Policy</Link>
-            <Link href="#">Terms of Service</Link>
-            <Link href="#">Accessibility</Link>
-            <Link href="#">Contact</Link>
+      </section>
+
+      {/* ── Footer ── */}
+      <footer id="contact" className="bg-slate-900 text-slate-300">
+        <div className="mx-auto grid max-w-7xl grid-cols-2 gap-10 px-6 py-16 sm:grid-cols-4">
+          <div className="col-span-2 sm:col-span-1">
+            <p className="text-lg font-extrabold text-white">MediMate</p>
+            <p className="mt-3 max-w-[200px] text-xs leading-relaxed text-slate-400">
+              Redefining healthcare through the lens of technology and empathy. Empowering patients
+              to live their healthiest lives.
+            </p>
+            <div className="mt-4 flex gap-3 text-slate-400" aria-hidden="true">
+              <span>𝕏</span>
+              <span>✉️</span>
+            </div>
+          </div>
+
+          <div>
+            <p className="text-xs font-bold uppercase tracking-wide text-slate-500">Product</p>
+            <div className="mt-4 flex flex-col gap-2.5 text-sm">
+              {["Features", "AI Engine", "Integrations", "Pricing"].map((label) => (
+                <a key={label} href="#" className="text-slate-400 hover:text-white">
+                  {label}
+                </a>
+              ))}
+            </div>
+          </div>
+
+          <div>
+            <p className="text-xs font-bold uppercase tracking-wide text-slate-500">Resources</p>
+            <div className="mt-4 flex flex-col gap-2.5 text-sm">
+              {["Support Center", "API Docs", "Case Studies", "Community"].map((label) => (
+                <a key={label} href="#" className="text-slate-400 hover:text-white">
+                  {label}
+                </a>
+              ))}
+            </div>
+          </div>
+
+          <div className="col-span-2 sm:col-span-1">
+            <p className="text-xs font-bold uppercase tracking-wide text-slate-500">Newsletter</p>
+            <p className="mt-4 text-sm text-slate-400">
+              Stay ahead with health insights delivered to your inbox.
+            </p>
+            <form className="mt-3 flex gap-2" onSubmit={(e) => e.preventDefault()}>
+              <input
+                type="email"
+                placeholder="Email address"
+                aria-label="Email address"
+                className="min-w-0 flex-1 rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-white placeholder-slate-500 outline-none focus:border-blue-500"
+              />
+              <button
+                type="submit"
+                className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-blue-700"
+              >
+                Join
+              </button>
+            </form>
+          </div>
+        </div>
+
+        <div className="border-t border-slate-800">
+          <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-4 px-6 py-6 text-xs text-slate-500 sm:flex-row">
+            <p>© {new Date().getFullYear()} MediMate Healthcare. All rights reserved.</p>
+            <div className="flex flex-wrap justify-center gap-5">
+              {["Privacy Policy", "Terms of Service", "Security", "Accessibility"].map((label) => (
+                <a key={label} href="#" className="hover:text-slate-300">
+                  {label}
+                </a>
+              ))}
+            </div>
           </div>
         </div>
       </footer>
-
-      {/* ══════════ STYLES ══════════ */}
-      <style jsx>{`
-        /* ── BASE ── */
-        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-        .root {
-          font-family: 'Segoe UI', system-ui, sans-serif;
-          color: #1e293b;
-          background: #fff;
-          overflow-x: hidden;
-        }
-        a { text-decoration: none; }
-
-        /* ── SCROLL REVEAL ── */
-        .section-reveal {
-          opacity: 0;
-          transform: translateY(28px);
-          transition: opacity 0.6s ease, transform 0.6s ease;
-        }
-        .section-reveal.visible {
-          opacity: 1;
-          transform: translateY(0);
-        }
-
-        /* ── NAV ── */
-        .nav {
-          position: fixed;
-          top: 0; left: 0; right: 0;
-          z-index: 100;
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          padding: 1rem 5%;
-          background: rgba(255,255,255,0.85);
-          backdrop-filter: blur(12px);
-          transition: box-shadow 0.3s;
-        }
-        .nav-scrolled { box-shadow: 0 2px 20px rgba(0,0,0,0.08); }
-        .logo {
-          font-size: 1.4rem;
-          font-weight: 800;
-          color: #1e293b;
-          letter-spacing: -0.5px;
-        }
-        .logo span { color: #2563eb; }
-        .nav-links {
-          display: flex;
-          gap: 2rem;
-        }
-        .nav-links a {
-          font-size: 0.875rem;
-          font-weight: 500;
-          color: #475569;
-          transition: color 0.2s;
-        }
-        .nav-links a:hover { color: #2563eb; }
-        .nav-cta { display: flex; gap: 0.75rem; align-items: center; }
-
-        /* Buttons */
-        .btn-outline {
-          padding: 0.45rem 1.1rem;
-          border: none;
-          border-radius: 7px;
-          font-size: 0.85rem;
-          font-weight: 600;
-          color: #475569;
-          background: transparent;
-          transition: color 0.2s;
-        }
-        .btn-outline:hover { color: #2563eb; }
-        .btn-solid {
-          padding: 0.45rem 1.1rem;
-          background: #2563eb;
-          color: #fff;
-          border-radius: 7px;
-          font-size: 0.85rem;
-          font-weight: 700;
-          border: none;
-          cursor: pointer;
-          transition: background 0.2s, transform 0.1s;
-          display: inline-block;
-        }
-        .btn-solid:hover { background: #1d4ed8; }
-        .btn-solid:active { transform: scale(0.98); }
-        .btn-lg { padding: 0.75rem 1.75rem; font-size: 0.95rem; border-radius: 8px; }
-        .btn-white {
-          background: #fff !important;
-          color: #2563eb !important;
-        }
-        .btn-white:hover { background: #f1f5f9 !important; }
-        .btn-play {
-          display: inline-flex;
-          align-items: center;
-          gap: 0.6rem;
-          padding: 0.75rem 1.25rem;
-          background: transparent;
-          border: 1.5px solid #e2e8f0;
-          border-radius: 8px;
-          font-size: 0.9rem;
-          font-weight: 600;
-          color: #1e293b;
-          cursor: pointer;
-          transition: border-color 0.2s, background 0.2s;
-        }
-        .btn-play:hover { border-color: #2563eb; background: #f0f7ff; }
-        .play-icon {
-          width: 28px; height: 28px;
-          background: #2563eb;
-          color: #fff;
-          border-radius: 50%;
-          display: inline-flex;
-          align-items: center;
-          justify-content: center;
-          font-size: 0.65rem;
-          padding-left: 2px;
-        }
-
-        /* Hamburger */
-        .hamburger {
-          display: none;
-          flex-direction: column;
-          gap: 5px;
-          background: none;
-          border: none;
-          cursor: pointer;
-          padding: 4px;
-        }
-        .hamburger span {
-          display: block;
-          width: 22px; height: 2px;
-          background: #1e293b;
-          border-radius: 2px;
-          transition: all 0.3s;
-        }
-
-        /* ── HERO ── */
-        .hero {
-          min-height: 100vh;
-          padding: 7rem 5% 4rem;
-          display: grid;
-          grid-template-columns: 1fr 1fr;
-          align-items: center;
-          gap: 4rem;
-          background: #fff;
-        }
-        .hero-eyebrow {
-          font-size: 0.7rem;
-          font-weight: 700;
-          letter-spacing: 2.5px;
-          color: #2563eb;
-          text-transform: uppercase;
-          margin-bottom: 1.25rem;
-        }
-        .hero-heading {
-          font-size: clamp(2rem, 3.5vw, 3rem);
-          font-weight: 800;
-          line-height: 1.15;
-          color: #0f172a;
-          letter-spacing: -0.5px;
-          margin-bottom: 1.25rem;
-        }
-        .hero-highlight { color: #2563eb; }
-        .hero-body {
-          font-size: 1rem;
-          color: #64748b;
-          line-height: 1.75;
-          margin-bottom: 2rem;
-          max-width: 480px;
-        }
-        .hero-actions { display: flex; gap: 1rem; flex-wrap: wrap; align-items: center; margin-bottom: 1.75rem; }
-        .btn-outline-dark {
-          padding: 0.75rem 1.75rem;
-          background: transparent;
-          color: #1e293b;
-          border: 1.5px solid #cbd5e1;
-          border-radius: 8px;
-          font-size: 0.95rem;
-          font-weight: 600;
-          display: inline-block;
-          transition: border-color 0.2s, background 0.2s;
-        }
-        .btn-outline-dark:hover { border-color: #2563eb; background: #f0f7ff; color: #2563eb; }
-        .hero-social-proof {
-          display: flex;
-          align-items: center;
-          gap: 0.75rem;
-        }
-        .avatar-stack { display: flex; }
-        .avatar {
-          width: 32px; height: 32px;
-          border-radius: 50%;
-          background: #e0f2fe;
-          border: 2px solid #fff;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          font-size: 1rem;
-          margin-left: -8px;
-        }
-        .avatar:first-child { margin-left: 0; }
-        .proof-text { font-size: 0.82rem; color: #64748b; }
-
-        /* Hero image */
-        .hero-right { display: flex; justify-content: center; }
-        .hero-img-wrap { position: relative; width: 100%; max-width: 440px; }
-        .hero-img-placeholder {
-          width: 100%;
-          aspect-ratio: 4/5;
-          background: linear-gradient(135deg, #e0f2fe 0%, #bfdbfe 100%);
-          border-radius: 20px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          overflow: hidden;
-          position: relative;
-        }
-        .hero-img-inner {
-          font-size: 8rem;
-          line-height: 1;
-          filter: drop-shadow(0 8px 24px rgba(37,99,235,0.2));
-          animation: float 4s ease-in-out infinite;
-        }
-        @keyframes float {
-          0%, 100% { transform: translateY(0); }
-          50%       { transform: translateY(-12px); }
-        }
-        .hero-badge {
-          position: absolute;
-          bottom: 1.5rem;
-          right: -1rem;
-          background: #fff;
-          border-radius: 12px;
-          padding: 0.75rem 1.1rem;
-          box-shadow: 0 8px 32px rgba(0,0,0,0.12);
-          display: flex;
-          align-items: center;
-          gap: 0.5rem;
-          border: 1px solid #e2e8f0;
-        }
-        .badge-dot {
-          width: 10px; height: 10px;
-          background: #22c55e;
-          border-radius: 50%;
-          box-shadow: 0 0 0 3px rgba(34,197,94,0.2);
-          animation: pulse 2s infinite;
-        }
-        @keyframes pulse {
-          0%, 100% { box-shadow: 0 0 0 3px rgba(34,197,94,0.2); }
-          50%       { box-shadow: 0 0 0 6px rgba(34,197,94,0.1); }
-        }
-        .badge-pct { font-size: 1rem; font-weight: 800; color: #0f172a; }
-        .badge-label { font-size: 0.72rem; color: #64748b; font-weight: 500; }
-
-        /* ── FEATURES ── */
-        .features-section {
-          padding: 5rem 5%;
-          background: #f8fafc;
-        }
-        .section-eyebrow {
-          text-align: center;
-          font-size: 1.5rem;
-          font-weight: 800;
-          color: #0f172a;
-          margin-bottom: 0.75rem;
-          letter-spacing: -0.3px;
-        }
-        .section-sub {
-          text-align: center;
-          font-size: 0.95rem;
-          color: #64748b;
-          max-width: 540px;
-          margin: 0 auto 3rem;
-          line-height: 1.7;
-        }
-
-        /* Grid layout */
-        .features-grid {
-          display: grid;
-          grid-template-columns: 1fr 1fr 1fr;
-          grid-template-rows: auto auto;
-          gap: 1.25rem;
-        }
-
-        .feat-card {
-          border-radius: 16px;
-          padding: 2rem;
-          transition: transform 0.25s, box-shadow 0.25s;
-        }
-        .feat-card:hover {
-          transform: translateY(-4px);
-          box-shadow: 0 12px 40px rgba(0,0,0,0.1);
-        }
-        .feat-icon { font-size: 1.75rem; margin-bottom: 1rem; }
-        .feat-card h3 {
-          font-size: 1.05rem;
-          font-weight: 700;
-          margin-bottom: 0.6rem;
-          color: inherit;
-          line-height: 1.3;
-        }
-        .feat-card p {
-          font-size: 0.875rem;
-          line-height: 1.65;
-          opacity: 0.85;
-        }
-        .feat-link {
-          display: inline-block;
-          margin-top: 1rem;
-          font-size: 0.85rem;
-          font-weight: 700;
-          color: #93c5fd;
-          transition: color 0.2s;
-          text-decoration: none;
-        }
-        .feat-link:hover { color: #fff; }
-        .feat-link--light { color: #fff; opacity: 0.85; }
-        .feat-link--light:hover { opacity: 1; }
-
-        /* Card variants */
-        .feat-card--dark {
-          background: #0f172a;
-          color: #fff;
-          grid-column: 1;
-          grid-row: 1 / 3;
-          display: flex;
-          flex-direction: column;
-          min-height: 380px;
-        }
-        .feat-card--blue {
-          background: #2563eb;
-          color: #fff;
-          grid-column: 2;
-          grid-row: 1;
-        }
-        .feat-card--light {
-          background: #fff;
-          color: #1e293b;
-          border: 1px solid #e2e8f0;
-          grid-column: 3;
-          grid-row: 1;
-        }
-        .feat-card--white {
-          background: #fff;
-          color: #1e293b;
-          border: 1px solid #e2e8f0;
-          grid-column: 2;
-          grid-row: 2;
-        }
-        .feat-card--blue2 {
-          background: #1d4ed8;
-          color: #fff;
-          grid-column: 3;
-          grid-row: 2;
-        }
-
-        .feat-img-placeholder {
-          flex: 1;
-          background: linear-gradient(135deg, #1e3a5f 0%, #2563eb 100%);
-          border-radius: 12px;
-          margin-top: auto;
-          min-height: 100px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          font-size: 2.5rem;
-        }
-        .feat-img-side {
-          width: 120px;
-          height: 100%;
-          min-height: 80px;
-          flex-shrink: 0;
-          margin-top: 0;
-          font-size: 2rem;
-        }
-        .feat-text { flex: 1; }
-
-        /* ── HOW IT WORKS ── */
-        .how-section {
-          padding: 5rem 5%;
-          background: #fff;
-        }
-        .how-grid {
-          display: grid;
-          grid-template-columns: repeat(4, 1fr);
-          gap: 1.5rem;
-        }
-        .how-card {
-          position: relative;
-          background: #f8fafc;
-          border: 1px solid #e2e8f0;
-          border-radius: 16px;
-          padding: 2rem 1.5rem;
-          text-align: center;
-          transition: transform 0.25s, box-shadow 0.25s;
-        }
-        .how-card:hover {
-          transform: translateY(-4px);
-          box-shadow: 0 12px 40px rgba(0,0,0,0.08);
-        }
-        .how-step {
-          position: absolute;
-          top: -14px;
-          left: 50%;
-          transform: translateX(-50%);
-          width: 28px;
-          height: 28px;
-          border-radius: 50%;
-          background: #2563eb;
-          color: #fff;
-          font-size: 0.8rem;
-          font-weight: 800;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-        }
-        .how-icon { font-size: 2rem; margin: 0.75rem 0 1rem; }
-        .how-card h3 {
-          font-size: 1rem;
-          font-weight: 700;
-          color: #0f172a;
-          margin-bottom: 0.5rem;
-        }
-        .how-card p {
-          font-size: 0.85rem;
-          color: #64748b;
-          line-height: 1.6;
-        }
-
-        /* ── TESTIMONIALS ── */
-        .testimonials-section {
-          padding: 5rem 5%;
-          background: #f8fafc;
-        }
-        .testimonials-grid {
-          display: grid;
-          grid-template-columns: repeat(3, 1fr);
-          gap: 1.5rem;
-        }
-        .testimonial-card {
-          background: #fff;
-          border: 1px solid #e2e8f0;
-          border-radius: 16px;
-          padding: 2rem;
-          display: flex;
-          flex-direction: column;
-          gap: 1.5rem;
-          transition: transform 0.25s, box-shadow 0.25s;
-        }
-        .testimonial-card:hover {
-          transform: translateY(-4px);
-          box-shadow: 0 12px 40px rgba(0,0,0,0.08);
-        }
-        .testimonial-quote {
-          font-size: 0.95rem;
-          color: #334155;
-          line-height: 1.7;
-          flex: 1;
-        }
-        .testimonial-author {
-          display: flex;
-          align-items: center;
-          gap: 0.75rem;
-        }
-        .testimonial-avatar {
-          width: 40px;
-          height: 40px;
-          border-radius: 50%;
-          background: #e0f2fe;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          font-size: 1.2rem;
-          flex-shrink: 0;
-        }
-        .testimonial-name {
-          font-size: 0.875rem;
-          font-weight: 700;
-          color: #0f172a;
-        }
-        .testimonial-role {
-          font-size: 0.78rem;
-          color: #94a3b8;
-        }
-
-        /* ── TRUST ── */
-        .trust-section {
-          padding: 3.5rem 5%;
-          background: #fff;
-          border-top: 1px solid #f1f5f9;
-          border-bottom: 1px solid #f1f5f9;
-        }
-        .trust-label {
-          text-align: center;
-          font-size: 0.8rem;
-          font-weight: 700;
-          letter-spacing: 1.5px;
-          color: #94a3b8;
-          text-transform: uppercase;
-          margin-bottom: 1.75rem;
-        }
-        .trust-logos {
-          display: flex;
-          justify-content: center;
-          align-items: center;
-          gap: 3rem;
-          flex-wrap: wrap;
-        }
-        .trust-logo {
-          display: flex;
-          align-items: center;
-          gap: 0.4rem;
-          font-size: 0.95rem;
-          font-weight: 700;
-          color: #94a3b8;
-          letter-spacing: 0.3px;
-          transition: color 0.2s;
-        }
-        .trust-logo:hover { color: #2563eb; }
-        .trust-dot { font-size: 0.5rem; color: #2563eb; }
-
-        /* ── CTA ── */
-        .cta-section {
-          padding: 4rem 5%;
-          background: #f8fafc;
-        }
-        .cta-card {
-          background: linear-gradient(135deg, #1e3a5f 0%, #2563eb 100%);
-          border-radius: 20px;
-          padding: 4rem;
-          text-align: center;
-          color: #fff;
-          max-width: 900px;
-          margin: 0 auto;
-          position: relative;
-          overflow: hidden;
-        }
-        .cta-card::before {
-          content: '';
-          position: absolute;
-          width: 300px; height: 300px;
-          background: rgba(255,255,255,0.05);
-          border-radius: 50%;
-          top: -100px; right: -80px;
-        }
-        .cta-card::after {
-          content: '';
-          position: absolute;
-          width: 200px; height: 200px;
-          background: rgba(255,255,255,0.04);
-          border-radius: 50%;
-          bottom: -60px; left: -40px;
-        }
-        .cta-card h2 {
-          font-size: 2rem;
-          font-weight: 800;
-          margin-bottom: 1rem;
-          letter-spacing: -0.3px;
-          position: relative; z-index: 1;
-        }
-        .cta-card p {
-          font-size: 1rem;
-          color: rgba(255,255,255,0.8);
-          margin-bottom: 2rem;
-          max-width: 480px;
-          margin-left: auto; margin-right: auto;
-          line-height: 1.7;
-          position: relative; z-index: 1;
-        }
-        .cta-actions {
-          display: flex;
-          gap: 1rem;
-          justify-content: center;
-          flex-wrap: wrap;
-          margin-bottom: 2rem;
-          position: relative; z-index: 1;
-        }
-        .btn-outline-white {
-          padding: 0.75rem 1.75rem;
-          background: transparent;
-          color: #fff;
-          border: 1.5px solid rgba(255,255,255,0.6);
-          border-radius: 8px;
-          font-size: 0.95rem;
-          font-weight: 600;
-          display: inline-block;
-          transition: border-color 0.2s, background 0.2s;
-        }
-        .btn-outline-white:hover { border-color: #fff; background: rgba(255,255,255,0.1); }
-        .cta-trust {
-          display: flex;
-          justify-content: center;
-          gap: 2rem;
-          flex-wrap: wrap;
-          position: relative; z-index: 1;
-        }
-        .cta-trust-item {
-          font-size: 0.78rem;
-          color: rgba(255,255,255,0.7);
-          font-weight: 500;
-        }
-        .cta-card a { position: relative; z-index: 1; }
-
-        /* ── FOOTER ── */
-        .footer {
-          background: #fff;
-          border-top: 1px solid #e2e8f0;
-          padding: 3rem 5% 1.5rem;
-        }
-        .footer-top {
-          display: flex;
-          justify-content: space-between;
-          gap: 2rem;
-          margin-bottom: 2.5rem;
-          flex-wrap: wrap;
-        }
-        .footer-logo {
-          font-size: 1.2rem;
-          font-weight: 800;
-          color: #0f172a;
-          margin-bottom: 0.35rem;
-        }
-        .footer-tagline {
-          font-size: 0.78rem;
-          color: #94a3b8;
-          line-height: 1.6;
-          max-width: 220px;
-          margin-top: 0.4rem;
-        }
-        .footer-links-grid {
-          display: flex;
-          gap: 4rem;
-        }
-        .footer-links-grid > div {
-          display: flex;
-          flex-direction: column;
-          gap: 0.6rem;
-        }
-        .footer-col-head {
-          font-size: 0.75rem;
-          font-weight: 700;
-          letter-spacing: 1px;
-          text-transform: uppercase;
-          color: #94a3b8;
-          margin-bottom: 0.25rem;
-        }
-        .footer-links-grid a {
-          font-size: 0.85rem;
-          color: #64748b;
-          transition: color 0.2s;
-        }
-        .footer-links-grid a:hover { color: #2563eb; }
-        .footer-bottom {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          padding-top: 1.5rem;
-          border-top: 1px solid #f1f5f9;
-          flex-wrap: wrap;
-          gap: 1rem;
-        }
-        .footer-bottom p { font-size: 0.78rem; color: #94a3b8; }
-        .footer-bottom-links { display: flex; gap: 1.5rem; }
-        .footer-bottom-links a { font-size: 0.75rem; color: #94a3b8; transition: color 0.2s; }
-        .footer-bottom-links a:hover { color: #64748b; }
-
-        /* ── RESPONSIVE ── */
-        @media (max-width: 1024px) {
-          .features-grid { grid-template-columns: 1fr 1fr; }
-          .feat-card--dark { grid-column: 1; grid-row: 1 / 3; }
-          .feat-card--blue { grid-column: 2; grid-row: 1; }
-          .feat-card--light { grid-column: 2; grid-row: 2; }
-          .feat-card--white { grid-column: 1; grid-row: 3; }
-          .feat-card--blue2 { grid-column: 2; grid-row: 3; }
-
-          .how-grid { grid-template-columns: 1fr 1fr; }
-          .testimonials-grid { grid-template-columns: 1fr 1fr; }
-        }
-
-        @media (max-width: 768px) {
-          .hero {
-            grid-template-columns: 1fr;
-            padding-top: 6rem;
-            text-align: center;
-          }
-          .hero-body { margin-left: auto; margin-right: auto; }
-          .hero-actions { justify-content: center; }
-          .hero-right { order: -1; }
-          .hero-img-wrap { max-width: 280px; margin: 0 auto; }
-          .hero-badge { right: 0; }
-
-          .nav-links {
-            display: none;
-            position: fixed;
-            top: 64px; left: 0; right: 0;
-            background: #fff;
-            flex-direction: column;
-            padding: 1.5rem 5%;
-            border-bottom: 1px solid #e2e8f0;
-            gap: 1.25rem;
-            box-shadow: 0 8px 24px rgba(0,0,0,0.08);
-          }
-          .nav-links.open { display: flex; }
-          .hamburger { display: flex; }
-          .nav-cta { display: none; }
-
-          .features-grid { grid-template-columns: 1fr; }
-          .feat-card--dark,
-          .feat-card--blue,
-          .feat-card--light,
-          .feat-card--white,
-          .feat-card--blue2 { grid-column: 1; grid-row: auto; }
-
-          .how-grid { grid-template-columns: 1fr; }
-          .testimonials-grid { grid-template-columns: 1fr; }
-
-          .trust-logos { gap: 1.5rem; }
-          .cta-card { padding: 2.5rem 1.5rem; }
-          .cta-card h2 { font-size: 1.5rem; }
-
-          .footer-top { flex-direction: column; }
-          .footer-links-grid { gap: 2rem; }
-          .footer-bottom { flex-direction: column; text-align: center; }
-        }
-      `}</style>
     </div>
   );
 }
