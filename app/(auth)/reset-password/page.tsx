@@ -323,6 +323,39 @@ function ResetPasswordForm() {
         @media (max-width: 768px) {
           .nav { padding: 1rem 1.5rem; }
         }
+
+        :global(.dark) .auth-root {
+          background: #030712;
+          color: #f3f4f6;
+        }
+        :global(.dark) .nav,
+        :global(.dark) .form-card {
+          background: #111827;
+          border-color: #1f2937;
+        }
+        :global(.dark) .logo,
+        :global(.dark) .form-card h1 {
+          color: #f9fafb;
+        }
+        :global(.dark) .form-sub,
+        :global(.dark) .switch-link {
+          color: #9ca3af;
+        }
+        :global(.dark) .field label {
+          color: #d1d5db;
+        }
+        :global(.dark) .field input {
+          background: #1f2937;
+          border-color: #374151;
+          color: #f3f4f6;
+        }
+        :global(.dark) .eye-btn {
+          color: #9ca3af;
+        }
+        :global(.dark) .field-error {
+          background: rgba(239, 68, 68, 0.1);
+          border-color: rgba(239, 68, 68, 0.3);
+        }
       `}</style>
     </div>
   );
