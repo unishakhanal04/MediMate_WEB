@@ -104,7 +104,7 @@ export default function AdminUsersPage() {
           <UserTable users={users} onView={openDetails} onToggleStatus={toggleStatus} />
 
           <div className="flex items-center justify-between gap-4">
-            <p className="text-sm text-gray-500">
+            <p className="text-sm text-gray-500 dark:text-gray-400">
               Page {page} of {totalPages}
             </p>
             <div className="flex gap-2">

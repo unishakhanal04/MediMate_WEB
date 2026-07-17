@@ -14,8 +14,8 @@ interface UserDetailsModalProps {
 function DetailRow({ label, value }: { label: string; value: string }) {
   return (
     <div>
-      <p className="text-xs font-semibold uppercase tracking-wide text-gray-400">{label}</p>
-      <p className="mt-0.5 text-sm font-medium capitalize text-gray-900">{value}</p>
+      <p className="text-xs font-semibold uppercase tracking-wide text-gray-400 dark:text-gray-500">{label}</p>
+      <p className="mt-0.5 text-sm font-medium capitalize text-gray-900 dark:text-white">{value}</p>
     </div>
   );
 }
@@ -24,7 +24,7 @@ export function UserDetailsModal({ open, user, loading, onClose, onToggleStatus 
   return (
     <Modal open={open} title="User Details" onClose={onClose}>
       {loading || !user ? (
-        <p className="py-6 text-center text-sm text-gray-500">Loading user details...</p>
+        <p className="py-6 text-center text-sm text-gray-500 dark:text-gray-400">Loading user details...</p>
       ) : (
         <div className="flex flex-col gap-5">
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
@@ -42,9 +42,9 @@ export function UserDetailsModal({ open, user, loading, onClose, onToggleStatus 
             />
           </div>
 
-          <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg bg-gray-50 px-4 py-3">
+          <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg bg-gray-50 px-4 py-3 dark:bg-gray-800">
             <div>
-              <p className="text-xs font-semibold uppercase tracking-wide text-gray-400">Status</p>
+              <p className="text-xs font-semibold uppercase tracking-wide text-gray-400 dark:text-gray-500">Status</p>
               <StatusBadge status={user.status} className="mt-1" />
             </div>
             <Button

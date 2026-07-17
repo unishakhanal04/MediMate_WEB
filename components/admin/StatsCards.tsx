@@ -17,15 +17,15 @@ export function StatsCards({ stats }: StatsCardsProps) {
         <Card key={stat.label} className="flex items-center gap-4">
           {stat.icon && (
             <span
-              className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-xl bg-blue-50 text-xl"
+              className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-xl bg-blue-50 text-xl dark:bg-blue-500/10"
               aria-hidden="true"
             >
               {stat.icon}
             </span>
           )}
           <div className="min-w-0">
-            <p className="text-2xl font-bold text-gray-900">{stat.value}</p>
-            <p className="truncate text-sm text-gray-500">{stat.label}</p>
+            <p className="text-2xl font-bold text-gray-900 dark:text-white">{stat.value}</p>
+            <p className="truncate text-sm text-gray-500 dark:text-gray-400">{stat.label}</p>
           </div>
         </Card>
       ))}
