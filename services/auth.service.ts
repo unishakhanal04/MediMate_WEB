@@ -1,5 +1,6 @@
 import Cookies from "js-cookie";
 import { RegisterFormData, LoginFormData } from "../schemas/auth.schema";
+import { getAuthHeaders, parseResponse } from "./api-client";
 
 const getApiUrl = (path: string) => path;
 
@@ -13,45 +14,6 @@ export type AuthUser = {
   status?: "active" | "inactive";
   createdAt?: string;
   updatedAt?: string;
-};
-
-type ApiResponse<T> = {
-  success: boolean;
-  message: string;
-  data?: T;
-  errors?: Record<string, string>;
-};
-
-const parseResponse = async <T>(response: Response): Promise<T> => {
-  const text = await response.text();
-  if (!text) {
-    throw new Error(`Empty response from ${response.url || "API"}`);
-  }
-
-  let result: ApiResponse<T>;
-  try {
-    result = JSON.parse(text) as ApiResponse<T>;
-  } catch {
-    throw new Error(`Invalid JSON response from ${response.url || "API"}`);
-  }
-
-  if (!response.ok) {
-    throw new Error(result.message || `Request failed with status ${response.status}`);
-  }
-
-  if (!result.success) {
-    throw new Error(result.message || "Request was not successful");
-  }
-
-  return result.data as T;
-};
-
-const getAuthHeaders = () => {
-  const token = localStorage.getItem("token") || Cookies.get("token");
-  return {
-    "Content-Type": "application/json",
-    ...(token && { Authorization: `Bearer ${token}` }),
-  };
 };
 
 export const authService = {
@@ -88,7 +50,7 @@ export const authService = {
     if (result.token) {
       localStorage.setItem("token", result.token);
       Cookies.set("token", result.token, {
-        expires: 7,
+        ...(data.rememberMe && { expires: 30 }),
         secure: process.env.NODE_ENV === "production",
         sameSite: "lax",
       });
@@ -130,19 +92,33 @@ export const authService = {
     const formData = new FormData();
     formData.append("image", file);
 
-    const token = localStorage.getItem("token") || Cookies.get("token");
-    const headers: Record<string, string> = {};
-    if (token) {
-      headers["Authorization"] = `Bearer ${token}`;
-    }
-
     const response = await fetch(getApiUrl("/api/auth/upload"), {
       method: "POST",
-      headers,
+      headers: getAuthHeaders(true),
       body: formData,
     });
 
     return parseResponse<{ imageUrl: string }>(response);
+  },
+
+  async requestPasswordReset(email: string) {
+    const response = await fetch(getApiUrl("/api/auth/forgot-password"), {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email }),
+    });
+
+    return parseResponse<{ message: string }>(response);
+  },
+
+  async resetPassword(token: string, newPassword: string) {
+    const response = await fetch(getApiUrl("/api/auth/reset-password"), {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ token, newPassword }),
+    });
+
+    return parseResponse<{ message: string }>(response);
   },
 
   logout() {
