@@ -181,14 +181,14 @@ export default function AppointmentsPage() {
       />
 
       <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
-        <div className="flex gap-2 border-b border-gray-200">
+        <div className="flex gap-2 border-b border-gray-200 dark:border-gray-800">
           <button
             onClick={() => setActiveTab("upcoming")}
             disabled={viewMode === "calendar"}
             className={`border-b-2 px-4 py-3 text-sm font-semibold transition-colors disabled:opacity-40 ${
               activeTab === "upcoming"
                 ? "border-blue-600 text-blue-600"
-                : "border-transparent text-gray-500 hover:text-gray-700"
+                : "border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
             }`}
           >
             Upcoming ({upcoming.length})
@@ -199,18 +199,18 @@ export default function AppointmentsPage() {
             className={`border-b-2 px-4 py-3 text-sm font-semibold transition-colors disabled:opacity-40 ${
               activeTab === "past"
                 ? "border-blue-600 text-blue-600"
-                : "border-transparent text-gray-500 hover:text-gray-700"
+                : "border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
             }`}
           >
             Past ({past.length})
           </button>
         </div>
 
-        <div className="flex gap-2 rounded-full bg-gray-100 p-1">
+        <div className="flex gap-2 rounded-full bg-gray-100 p-1 dark:bg-gray-800">
           <button
             onClick={() => setViewMode("list")}
             className={`rounded-full px-4 py-1.5 text-sm font-semibold transition-colors ${
-              viewMode === "list" ? "bg-white text-blue-600 shadow-sm" : "text-gray-500"
+              viewMode === "list" ? "bg-white text-blue-600 shadow-sm dark:bg-gray-900 dark:text-blue-400" : "text-gray-500 dark:text-gray-400"
             }`}
           >
             List
@@ -218,7 +218,7 @@ export default function AppointmentsPage() {
           <button
             onClick={() => setViewMode("calendar")}
             className={`rounded-full px-4 py-1.5 text-sm font-semibold transition-colors ${
-              viewMode === "calendar" ? "bg-white text-blue-600 shadow-sm" : "text-gray-500"
+              viewMode === "calendar" ? "bg-white text-blue-600 shadow-sm dark:bg-gray-900 dark:text-blue-400" : "text-gray-500 dark:text-gray-400"
             }`}
           >
             Calendar
