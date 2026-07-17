@@ -1,52 +1,64 @@
 import Link from "next/link";
-import { Card } from "./Card";
 
-interface ChecklistItem {
-  label: string;
-  completed: boolean;
+interface ProfileCompletionProps {
+  percent: number;
 }
 
-const completionPercent = 65;
+export function ProfileCompletion({ percent }: ProfileCompletionProps) {
+  const radius = 24;
+  const circumference = 2 * Math.PI * radius;
+  const offset = circumference - (percent / 100) * circumference;
 
-const checklist: ChecklistItem[] = [
-  { label: "Full Name", completed: true },
-  { label: "Email", completed: true },
-  { label: "Phone Number", completed: true },
-  { label: "Blood Group", completed: false },
-  { label: "Emergency Contact", completed: false },
-  { label: "Profile Photo", completed: false },
-];
-
-export function ProfileCompletion() {
   return (
-    <Card className="flex flex-col gap-4">
-      <div className="flex items-center justify-between">
-        <p className="font-semibold text-gray-900">Complete Your Profile</p>
-        <span className="text-sm font-medium text-gray-500">{completionPercent}% Complete</span>
-      </div>
+    <div className="flex flex-col items-start gap-4 rounded-2xl bg-indigo-50 p-6 dark:bg-indigo-500/10 sm:flex-row sm:items-center sm:justify-between">
+      <div className="flex items-center gap-4">
+        <svg width="56" height="56" viewBox="0 0 56 56" className="flex-shrink-0 -rotate-90">
+          <circle
+            cx="28"
+            cy="28"
+            r={radius}
+            fill="none"
+            strokeWidth="5"
+            className="stroke-gray-200 dark:stroke-gray-700"
+          />
+          <circle
+            cx="28"
+            cy="28"
+            r={radius}
+            fill="none"
+            stroke="#2563EB"
+            strokeWidth="5"
+            strokeLinecap="round"
+            strokeDasharray={circumference}
+            strokeDashoffset={offset}
+          />
+          <text
+            x="28"
+            y="28"
+            textAnchor="middle"
+            dominantBaseline="central"
+            className="rotate-90 fill-gray-900 dark:fill-white"
+            style={{ transform: "rotate(90deg)", transformOrigin: "28px 28px", fontSize: "13px", fontWeight: 700 }}
+          >
+            {percent}%
+          </text>
+        </svg>
 
-      <div className="h-2 w-full rounded-full bg-gray-100">
-        <div
-          className="h-2 rounded-full bg-blue-600"
-          style={{ width: `${completionPercent}%` }}
-        />
+        <div>
+          <p className="text-base font-bold text-gray-900 dark:text-white">Complete Your Profile</p>
+          <p className="mt-0.5 text-sm text-gray-600 dark:text-gray-400">
+            Add your medical details to get personalized health insights.
+          </p>
+        </div>
       </div>
-
-      <ul className="flex flex-col gap-2">
-        {checklist.map((item) => (
-          <li key={item.label} className="flex items-center gap-2 text-sm text-gray-700">
-            <span>{item.completed ? "✅" : "❌"}</span>
-            <span>{item.label}</span>
-          </li>
-        ))}
-      </ul>
 
       <Link
         href="/user/profile"
-        className="text-sm font-medium text-blue-600 hover:text-blue-700"
+        className="inline-flex flex-shrink-0 items-center gap-1.5 rounded-lg bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-blue-700"
       >
-        Complete Profile →
+        Complete Profile
+        <span aria-hidden="true">→</span>
       </Link>
-    </Card>
+    </div>
   );
 }

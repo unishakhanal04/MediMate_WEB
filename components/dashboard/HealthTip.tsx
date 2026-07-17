@@ -1,33 +1,20 @@
 import { Card } from "./Card";
 
-interface HealthTipData {
-  icon: string;
-  title: string;
-  tip: string;
-  category: string;
-}
-
-const healthTip: HealthTipData = {
-  icon: "💡",
-  title: "Daily Health Tip",
-  tip: "Stay hydrated! Drinking enough water throughout the day helps maintain energy levels and supports overall health.",
-  category: "Hydration",
-};
+const HEALTH_TIP =
+  "Stay hydrated! Drinking 2L of water today helps with your medication absorption.";
 
 export function HealthTip() {
   return (
-    <Card className="flex flex-col gap-3">
-      <div className="flex items-center gap-2">
-        <span className="text-2xl">{healthTip.icon}</span>
-        <p className="font-semibold text-gray-900">{healthTip.title}</p>
-      </div>
-
-      <p className="text-sm leading-relaxed text-gray-600">{healthTip.tip}</p>
-
-      <div className="mt-1 border-t border-gray-100 pt-3">
-        <span className="inline-block rounded-full bg-blue-50 px-3 py-1 text-xs font-medium text-blue-700">
-          {healthTip.category}
-        </span>
+    <Card className="flex items-start gap-3 sm:min-w-[320px]">
+      <span
+        className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-blue-50 text-lg dark:bg-blue-500/10"
+        aria-hidden="true"
+      >
+        💧
+      </span>
+      <div>
+        <p className="text-xs font-bold text-blue-600 dark:text-blue-400">Daily Health Tip</p>
+        <p className="mt-1 text-sm leading-relaxed text-gray-700 dark:text-gray-300">{HEALTH_TIP}</p>
       </div>
     </Card>
   );
