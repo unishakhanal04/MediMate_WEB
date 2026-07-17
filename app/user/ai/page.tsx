@@ -131,7 +131,7 @@ export default function AIAssistantPage() {
         action={
           <button
             onClick={handleClearHistory}
-            className="rounded-lg bg-red-50 px-4 py-2 text-sm font-semibold text-red-600 transition-colors hover:bg-red-100"
+            className="rounded-lg bg-red-50 px-4 py-2 text-sm font-semibold text-red-600 transition-colors hover:bg-red-100 dark:bg-red-500/10 dark:text-red-400 dark:hover:bg-red-500/20"
           >
             Clear History
           </button>
@@ -139,7 +139,7 @@ export default function AIAssistantPage() {
       />
 
       {loadError && (
-        <div className="mb-4 flex items-center justify-between rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+        <div className="mb-4 flex items-center justify-between rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 dark:border-red-500/20 dark:bg-red-500/10 dark:text-red-400">
           <span>Something went wrong loading your chat history.</span>
           <button onClick={fetchHistory} className="font-semibold underline">
             Retry
@@ -154,7 +154,7 @@ export default function AIAssistantPage() {
       <div className="flex flex-1 flex-col gap-6 lg:flex-row">
         <ConversationSidebar groups={historyGroups} onNewConversation={handleClearHistory} />
 
-        <div className="flex flex-1 flex-col overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
+        <div className="flex flex-1 flex-col overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm dark:border-gray-800 dark:bg-gray-900">
           <AIChat messages={messages} sending={sending} />
 
           <div className="flex flex-col gap-3 px-4 pt-3">
