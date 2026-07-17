@@ -1,0 +1,532 @@
+"use client";
+
+import Link from "next/link";
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { loginSchema, type LoginFormData } from "../../../schemas/auth.schema";
+import { authService } from "../../../services/auth.service";
+import { useAuth } from "../../../contexts/AuthContext";
+import { useToast } from "../../../contexts/ToastContext";
+
+function GoogleIcon() {
+  return (
+    <svg width="22" height="22" viewBox="0 0 18 18" fill="none" aria-hidden="true">
+      <path d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844a4.14 4.14 0 01-1.796 2.716v2.259h2.908c1.702-1.567 2.684-3.875 2.684-6.615z" fill="#4285F4" />
+      <path d="M9 18c2.43 0 4.467-.806 5.956-2.18l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 009 18z" fill="#34A853" />
+      <path d="M3.964 10.71A5.41 5.41 0 013.682 9c0-.593.102-1.17.282-1.71V4.958H.957A8.996 8.996 0 000 9c0 1.452.348 2.827.957 4.042l3.007-2.332z" fill="#FBBC05" />
+      <path d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 00.957 4.958L3.964 7.29C4.672 5.163 6.656 3.58 9 3.58z" fill="#EA4335" />
+    </svg>
+  );
+}
+
+function FacebookIcon() {
+  return (
+    <svg width="22" height="22" viewBox="0 0 18 18" fill="#1877F2" aria-hidden="true">
+      <path d="M18 9a9 9 0 10-10.406 8.891v-6.29H5.31V9h2.284V7.017c0-2.255 1.343-3.501 3.4-3.501.984 0 2.014.175 2.014.175v2.214h-1.134c-1.118 0-1.467.694-1.467 1.406V9h2.496l-.399 2.601H10.41v6.29A9.002 9.002 0 0018 9z" />
+    </svg>
+  );
+}
+
+export default function LoginPage() {
+  const router = useRouter();
+  const { login, isAuthenticated, authReady, user } = useAuth();
+  const toast = useToast();
+  const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
+
+  const {
+    register: registerField,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<LoginFormData>({
+    resolver: zodResolver(loginSchema),
+    defaultValues: {
+      email: "",
+      password: "",
+      rememberMe: false,
+    },
+  });
+
+  useEffect(() => {
+    if (authReady && isAuthenticated) {
+      const destination = user?.role === "admin" ? "/admin" : "/user";
+      router.replace(destination);
+    }
+  }, [authReady, isAuthenticated, router, user?.role]);
+
+  const onSubmit = async (data: LoginFormData) => {
+    setLoading(true);
+    try {
+      const result = await authService.login(data);
+      login(result.token, result.user);
+      toast.success("Signed in successfully! Redirecting...");
+      const destination = result.user.role === "admin" ? "/admin" : "/user";
+      setTimeout(() => router.replace(destination), 500);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Login failed";
+      toast.error(message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (!authReady || isAuthenticated) {
+    return null;
+  }
+
+  return (
+    <div className="auth-root">
+      <header className="nav">
+        <Link href="/" className="logo">
+          Medi<span>Mate</span>
+        </Link>
+        <Link href="/register" className="btn-signup">
+          Signup
+        </Link>
+      </header>
+
+      <main className="auth-main">
+        <div className="form-card">
+          <h1>Welcome Back</h1>
+          <p className="form-sub">
+            Your health data is protected with industry-standard security.
+          </p>
+
+          <form onSubmit={handleSubmit(onSubmit)} className="auth-form" autoComplete="off">
+            <div className="field">
+              <label htmlFor="email">Email Address</label>
+              <input
+                id="email"
+                {...registerField("email")}
+                type="email"
+                placeholder="name@example.com"
+                autoComplete="off"
+                defaultValue=""
+              />
+              {errors.email && <span className="error-text">{errors.email.message}</span>}
+            </div>
+
+            <div className="field">
+              <label htmlFor="password">Password</label>
+              <div className="password-wrap">
+                <input
+                  id="password"
+                  {...registerField("password")}
+                  type={showPassword ? "text" : "password"}
+                  placeholder="Enter password"
+                  autoComplete="new-password"
+                  defaultValue=""
+                />
+                <button
+                  type="button"
+                  className="eye-btn"
+                  onClick={() => setShowPassword(!showPassword)}
+                  aria-label="Toggle password visibility"
+                >
+                  {showPassword ? "👁" : "👁"}
+                </button>
+              </div>
+              {errors.password && <span className="error-text">{errors.password.message}</span>}
+            </div>
+
+            <div className="field-row">
+              <label className="remember-label">
+                <input type="checkbox" {...registerField("rememberMe")} />
+                <span>Remember me</span>
+              </label>
+              <Link href="/forgot-password" className="forgot-link">
+                Forgot password?
+              </Link>
+            </div>
+
+            <button type="submit" className="submit-btn" disabled={loading}>
+              {loading ? (
+                <span className="btn-loader">
+                  <span className="spinner" /> Signing In...
+                </span>
+              ) : (
+                "Sign In"
+              )}
+            </button>
+          </form>
+
+          <p className="switch-link">
+            Don&apos;t have an account? <Link href="/register">Register</Link>
+          </p>
+
+          <div className="secure-access-badge">
+            <span className="badge-icon">🔒</span>
+            <span>Secure medical access</span>
+          </div>
+        </div>
+      </main>
+
+      <footer className="auth-footer">
+        <div className="footer-brand">
+          <span className="footer-logo">MediMate</span>
+          <div className="social-icons">
+            <span>𝕏</span>
+            <span>in</span>
+            <span>f</span>
+            <span>◎</span>
+          </div>
+        </div>
+        <div className="footer-links-grid">
+          <div>
+            <p className="footer-col-head">Services</p>
+            <Link href="#">Cardiology</Link>
+            <Link href="#">Neurology</Link>
+            <Link href="#">Pediatrics</Link>
+          </div>
+          <div>
+            <p className="footer-col-head">Support</p>
+            <Link href="#">Help Center</Link>
+            <Link href="#">Contact Us</Link>
+          </div>
+          <div>
+            <p className="footer-col-head">Legal</p>
+            <Link href="#">Privacy Policy</Link>
+            <Link href="#">Terms of Service</Link>
+          </div>
+        </div>
+        <p className="footer-copy">© {new Date().getFullYear()} MediMate. All rights reserved.</p>
+      </footer>
+
+      <style jsx>{`
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        .auth-root {
+          min-height: 100vh;
+          display: flex;
+          flex-direction: column;
+          font-family: 'Segoe UI', system-ui, sans-serif;
+          background: #f1f5f9;
+          color: #1e293b;
+        }
+
+        .nav {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          padding: 1.25rem 3rem;
+          background: #fff;
+          border-bottom: 1px solid #e2e8f0;
+        }
+
+        .logo {
+          font-size: 1.4rem;
+          font-weight: 800;
+          color: #0f172a;
+          text-decoration: none;
+          letter-spacing: -0.5px;
+        }
+
+        .logo span { color: #2563eb; }
+
+        .btn-signup {
+          padding: 0.5rem 1.25rem;
+          background: #2563eb;
+          color: #fff;
+          border-radius: 8px;
+          text-decoration: none;
+          font-size: 0.875rem;
+          font-weight: 600;
+          transition: background 0.2s;
+        }
+
+        .btn-signup:hover { background: #1d4ed8; }
+
+        .auth-main {
+          flex: 1;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          padding: 3rem 1.5rem;
+        }
+
+        .form-card {
+          width: 100%;
+          max-width: 440px;
+          background: #fff;
+          border-radius: 16px;
+          padding: 2.5rem;
+          box-shadow: 0 4px 24px rgba(0, 0, 0, 0.06);
+          border: 1px solid #e2e8f0;
+        }
+
+        .form-card h1 {
+          font-size: 1.75rem;
+          font-weight: 800;
+          color: #0f172a;
+          margin-bottom: 0.5rem;
+          letter-spacing: -0.3px;
+        }
+
+        .form-sub {
+          font-size: 0.875rem;
+          color: #64748b;
+          margin-bottom: 2rem;
+          line-height: 1.6;
+        }
+
+        .auth-form { display: flex; flex-direction: column; gap: 1.25rem; }
+
+        .field { display: flex; flex-direction: column; gap: 0.5rem; }
+
+        .field label {
+          font-size: 0.875rem;
+          font-weight: 600;
+          color: #334155;
+        }
+
+        .field input {
+          padding: 0.75rem 1rem;
+          border: 1.5px solid #e2e8f0;
+          border-radius: 8px;
+          font-size: 0.9rem;
+          color: #1e293b;
+          background: #fff;
+          transition: border-color 0.2s, box-shadow 0.2s;
+          outline: none;
+          width: 100%;
+        }
+
+        .field input:focus {
+          border-color: #2563eb;
+          box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        .field input::placeholder { color: #94a3b8; }
+
+        .field-row {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          margin-top: -0.5rem;
+        }
+
+        .remember-label {
+          display: flex;
+          align-items: center;
+          gap: 0.5rem;
+          font-size: 0.85rem;
+          color: #475569;
+          cursor: pointer;
+        }
+
+        .remember-label input {
+          width: 15px;
+          height: 15px;
+          cursor: pointer;
+          accent-color: #2563eb;
+        }
+
+        .forgot-link {
+          font-size: 0.85rem;
+          font-weight: 600;
+          color: #2563eb;
+        }
+
+        .forgot-link:hover { text-decoration: underline; }
+
+        .password-wrap { position: relative; }
+
+        .password-wrap input { padding-right: 2.75rem; }
+
+        .eye-btn {
+          position: absolute;
+          right: 0.75rem;
+          top: 50%;
+          transform: translateY(-50%);
+          background: none;
+          border: none;
+          cursor: pointer;
+          font-size: 0.9rem;
+          color: #94a3b8;
+          padding: 0;
+        }
+
+        .submit-btn {
+          margin-top: 0.5rem;
+          padding: 0.8rem;
+          background: #2563eb;
+          color: #fff;
+          border: none;
+          border-radius: 8px;
+          font-size: 0.95rem;
+          font-weight: 700;
+          cursor: pointer;
+          transition: background 0.2s;
+        }
+
+        .submit-btn:hover { background: #1d4ed8; }
+        .submit-btn:disabled { opacity: 0.8; cursor: not-allowed; }
+
+        .divider {
+          display: flex;
+          align-items: center;
+          gap: 0.75rem;
+          margin: 1.5rem 0;
+          color: #94a3b8;
+          font-size: 0.8rem;
+        }
+
+        .divider::before, .divider::after {
+          content: '';
+          flex: 1;
+          height: 1px;
+          background: #e2e8f0;
+        }
+
+        .social-row {
+          display: flex;
+          gap: 1rem;
+          justify-content: center;
+          margin-bottom: 1.5rem;
+        }
+
+        .social-btn {
+          width: 52px;
+          height: 52px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          border: 1.5px solid #e2e8f0;
+          border-radius: 10px;
+          background: #fff;
+          cursor: pointer;
+          transition: background 0.2s, border-color 0.2s;
+        }
+
+        .social-btn:hover {
+          background: #f8fafc;
+          border-color: #cbd5e1;
+        }
+
+        .switch-link {
+          text-align: center;
+          font-size: 0.875rem;
+          color: #64748b;
+          margin-top: 1.5rem;
+        }
+
+        .switch-link a {
+          color: #2563eb;
+          font-weight: 600;
+          text-decoration: none;
+        }
+
+        .switch-link a:hover { text-decoration: underline; }
+
+        .secure-access-badge {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 0.5rem;
+          margin-top: 1.5rem;
+          padding: 0.75rem 1rem;
+          background: #f0f9ff;
+          border: 1px solid #bae6fd;
+          border-radius: 8px;
+          font-size: 0.8rem;
+          color: #0369a1;
+          font-weight: 500;
+        }
+
+        .secure-access-badge .badge-icon {
+          font-size: 1rem;
+        }
+
+        .auth-footer {
+          background: #fff;
+          border-top: 1px solid #e2e8f0;
+          padding: 2.5rem 3rem 1.5rem;
+        }
+
+        .footer-brand {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          margin-bottom: 2rem;
+        }
+
+        .footer-logo {
+          font-size: 1.1rem;
+          font-weight: 800;
+          color: #0f172a;
+        }
+
+        .social-icons {
+          display: flex;
+          gap: 0.75rem;
+          font-size: 0.85rem;
+          color: #94a3b8;
+        }
+
+        .footer-links-grid {
+          display: flex;
+          gap: 4rem;
+          margin-bottom: 2rem;
+        }
+
+        .footer-links-grid > div {
+          display: flex;
+          flex-direction: column;
+          gap: 0.5rem;
+        }
+
+        .footer-col-head {
+          font-size: 0.75rem;
+          font-weight: 700;
+          letter-spacing: 0.5px;
+          text-transform: uppercase;
+          color: #94a3b8;
+          margin-bottom: 0.25rem;
+        }
+
+        .footer-links-grid a {
+          font-size: 0.85rem;
+          color: #64748b;
+          text-decoration: none;
+          transition: color 0.2s;
+        }
+
+        .footer-links-grid a:hover { color: #2563eb; }
+
+        .footer-copy {
+          font-size: 0.78rem;
+          color: #94a3b8;
+          padding-top: 1.5rem;
+          border-top: 1px solid #f1f5f9;
+        }
+
+        .error-text {
+          font-size: 0.75rem;
+          color: #ef4444;
+        }
+
+        .btn-loader { display: flex; align-items: center; justify-content: center; gap: 0.5rem; }
+
+        .spinner {
+          width: 16px;
+          height: 16px;
+          border: 2.5px solid rgba(255, 255, 255, 0.4);
+          border-top-color: #fff;
+          border-radius: 50%;
+          animation: spin 0.7s linear infinite;
+          display: inline-block;
+        }
+
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        @media (max-width: 768px) {
+          .nav { padding: 1rem 1.5rem; }
+          .auth-footer { padding: 2rem 1.5rem 1rem; }
+          .footer-links-grid { gap: 2rem; flex-wrap: wrap; }
+        }
+      `}</style>
+    </div>
+  );
+}
