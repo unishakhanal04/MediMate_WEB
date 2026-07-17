@@ -7,11 +7,11 @@ export function LoadingSpinner({ message = "Loading...", className = "" }: Loadi
   return (
     <div className={`flex min-h-[60vh] flex-col items-center justify-center gap-4 ${className}`}>
       <div
-        className="h-10 w-10 animate-spin rounded-full border-4 border-gray-200 border-t-blue-600"
+        className="h-10 w-10 animate-spin rounded-full border-4 border-gray-200 border-t-blue-600 dark:border-gray-700"
         role="status"
         aria-label={message}
       />
-      {message && <p className="text-sm text-gray-500">{message}</p>}
+      {message && <p className="text-sm text-gray-500 dark:text-gray-400">{message}</p>}
     </div>
   );
 }
