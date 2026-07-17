@@ -33,28 +33,28 @@ export function MedicalInfoForm({ profile, onSubmit, submitting = false }: Medic
   }, [profile, reset]);
 
   const inputClass =
-    "w-full rounded-lg border border-gray-200 px-3 py-2 text-sm outline-none transition-colors focus:border-blue-500";
+    "w-full rounded-lg border border-gray-200 px-3 py-2 text-sm outline-none transition-colors focus:border-blue-500 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100";
 
   return (
     <Card className="flex flex-col gap-4">
-      <h2 className="text-base font-bold text-gray-900">Medical Information</h2>
+      <h2 className="text-base font-bold text-gray-900 dark:text-white">Medical Information</h2>
 
       <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
         <div className="flex flex-col gap-3 sm:flex-row">
           <div className="flex-1">
-            <label className="mb-1 block text-sm font-semibold text-gray-700">
+            <label className="mb-1 block text-sm font-semibold text-gray-700 dark:text-gray-300">
               Blood Group (Optional)
             </label>
             <input type="text" placeholder="e.g., O+" className={inputClass} {...register("bloodGroup")} />
           </div>
           <div className="flex-1">
-            <label className="mb-1 block text-sm font-semibold text-gray-700">
+            <label className="mb-1 block text-sm font-semibold text-gray-700 dark:text-gray-300">
               Height in cm (Optional)
             </label>
             <input type="number" min="0" className={inputClass} {...register("height")} />
           </div>
           <div className="flex-1">
-            <label className="mb-1 block text-sm font-semibold text-gray-700">
+            <label className="mb-1 block text-sm font-semibold text-gray-700 dark:text-gray-300">
               Weight in kg (Optional)
             </label>
             <input type="number" min="0" className={inputClass} {...register("weight")} />
@@ -62,7 +62,7 @@ export function MedicalInfoForm({ profile, onSubmit, submitting = false }: Medic
         </div>
 
         <div>
-          <label className="mb-1 block text-sm font-semibold text-gray-700">Allergies (Optional)</label>
+          <label className="mb-1 block text-sm font-semibold text-gray-700 dark:text-gray-300">Allergies (Optional)</label>
           <input
             type="text"
             placeholder="Comma-separated, e.g., Penicillin, Peanuts"
@@ -72,7 +72,7 @@ export function MedicalInfoForm({ profile, onSubmit, submitting = false }: Medic
         </div>
 
         <div>
-          <label className="mb-1 block text-sm font-semibold text-gray-700">
+          <label className="mb-1 block text-sm font-semibold text-gray-700 dark:text-gray-300">
             Chronic Diseases (Optional)
           </label>
           <input

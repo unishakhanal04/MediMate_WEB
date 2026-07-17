@@ -6,6 +6,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
 import { useAuth } from "../../../contexts/AuthContext";
 import { useToast } from "../../../contexts/ToastContext";
+import { useTheme } from "../../../contexts/ThemeContext";
 import { profileService } from "../../../services/profile.service";
 import { authService } from "../../../services/auth.service";
 import { emergencyContactService, EmergencyContact } from "../../../services/emergency-contact.service";
@@ -33,6 +34,7 @@ import { Modal } from "../../../components/Modal";
 export default function ProfilePage() {
   const router = useRouter();
   const { isAuthenticated, updateUser } = useAuth();
+  const { setDarkMode } = useTheme();
   const toast = useToast();
 
   const [profile, setProfile] = useState<ProfileData | null>(null);
@@ -73,6 +75,7 @@ export default function ProfilePage() {
     try {
       const data = await profileService.getProfile();
       setProfile(data);
+      setDarkMode(data.preferences.darkMode);
     } catch (error) {
       console.error("Failed to fetch profile:", error);
       toast.error("Unable to load your profile. Please try again.");
@@ -90,6 +93,20 @@ export default function ProfilePage() {
       toast.error("Unable to load emergency contacts.");
     } finally {
       setContactsLoading(false);
+    }
+  };
+
+  const handleImageChange = async (file: File) => {
+    try {
+      const { imageUrl } = await authService.uploadImage(file);
+      const updated = await profileService.updateProfile({ profileImage: imageUrl });
+      setProfile(updated);
+      const freshUser = await authService.whoami();
+      updateUser(freshUser);
+      toast.success("Profile picture updated successfully.");
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Unable to update profile picture.";
+      toast.error(message);
     }
   };
 
@@ -237,7 +254,7 @@ export default function ProfilePage() {
         <ProfileSkeleton />
       ) : (
         <div className="flex flex-col gap-6">
-          <ProfileCard profile={profile} />
+          <ProfileCard profile={profile} onImageChange={handleImageChange} />
           <ProfileCompletion profile={profile} />
 
           <PersonalInfoForm profile={profile} onSubmit={handlePersonalSubmit} submitting={savingPersonal} />
@@ -246,48 +263,48 @@ export default function ProfilePage() {
           <Card className="flex flex-col gap-4">
             <div className="flex items-center justify-between">
               <div>
-                <h2 className="text-base font-bold text-gray-900">Emergency Contacts</h2>
-                <p className="text-sm text-gray-500">People we can reach in case of an emergency.</p>
+                <h2 className="text-base font-bold text-gray-900 dark:text-white">Emergency Contacts</h2>
+                <p className="text-sm text-gray-500 dark:text-gray-400">People we can reach in case of an emergency.</p>
               </div>
               <button
                 onClick={openAddContactModal}
-                className="rounded-lg bg-blue-50 px-3 py-2 text-sm font-semibold text-blue-700 transition-colors hover:bg-blue-100"
+                className="rounded-lg bg-blue-50 px-3 py-2 text-sm font-semibold text-blue-700 transition-colors hover:bg-blue-100 dark:bg-blue-500/10 dark:text-blue-400 dark:hover:bg-blue-500/20"
               >
                 + Add Contact
               </button>
             </div>
 
             {contactsLoading ? (
-              <p className="text-sm text-gray-400">Loading contacts...</p>
+              <p className="text-sm text-gray-400 dark:text-gray-500">Loading contacts...</p>
             ) : contacts.length === 0 ? (
-              <p className="text-sm text-gray-400">No emergency contacts added yet.</p>
+              <p className="text-sm text-gray-400 dark:text-gray-500">No emergency contacts added yet.</p>
             ) : (
-              <div className="flex flex-col divide-y divide-gray-100">
+              <div className="flex flex-col divide-y divide-gray-100 dark:divide-gray-800">
                 {contacts.map((contact) => (
                   <div key={contact._id} className="flex items-center justify-between gap-3 py-3">
                     <div>
                       <div className="flex items-center gap-2">
-                        <span className="text-sm font-semibold text-gray-900">{contact.name}</span>
+                        <span className="text-sm font-semibold text-gray-900 dark:text-white">{contact.name}</span>
                         {contact.isPrimary && (
-                          <span className="rounded-full bg-blue-50 px-2 py-0.5 text-xs font-semibold text-blue-700">
+                          <span className="rounded-full bg-blue-50 px-2 py-0.5 text-xs font-semibold text-blue-700 dark:bg-blue-500/10 dark:text-blue-400">
                             Primary
                           </span>
                         )}
                       </div>
-                      <p className="text-xs text-gray-500">
+                      <p className="text-xs text-gray-500 dark:text-gray-400">
                         {contact.relationship} · {contact.phone}
                       </p>
                     </div>
                     <div className="flex gap-2">
                       <button
                         onClick={() => openEditContactModal(contact)}
-                        className="rounded-lg bg-gray-100 px-3 py-1.5 text-xs font-semibold text-gray-700 transition-colors hover:bg-gray-200"
+                        className="rounded-lg bg-gray-100 px-3 py-1.5 text-xs font-semibold text-gray-700 transition-colors hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
                       >
                         Edit
                       </button>
                       <button
                         onClick={() => handleDeleteContact(contact._id)}
-                        className="rounded-lg bg-red-50 px-3 py-1.5 text-xs font-semibold text-red-600 transition-colors hover:bg-red-100"
+                        className="rounded-lg bg-red-50 px-3 py-1.5 text-xs font-semibold text-red-600 transition-colors hover:bg-red-100 dark:bg-red-500/10 dark:text-red-400 dark:hover:bg-red-500/20"
                       >
                         Delete
                       </button>
@@ -314,22 +331,22 @@ export default function ProfilePage() {
       >
         <form onSubmit={handleContactSubmit(onContactSubmit)} className="flex flex-col gap-4">
           <div>
-            <label className="mb-1 block text-sm font-semibold text-gray-700">Full Name *</label>
+            <label className="mb-1 block text-sm font-semibold text-gray-700 dark:text-gray-300">Full Name *</label>
             <input
               type="text"
               placeholder="e.g., Jane Doe"
-              className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm outline-none transition-colors focus:border-blue-500"
+              className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm outline-none transition-colors focus:border-blue-500 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100"
               {...registerContactField("name")}
             />
             {contactErrors.name && <p className="mt-1 text-xs text-red-600">{contactErrors.name.message}</p>}
           </div>
 
           <div>
-            <label className="mb-1 block text-sm font-semibold text-gray-700">Relationship *</label>
+            <label className="mb-1 block text-sm font-semibold text-gray-700 dark:text-gray-300">Relationship *</label>
             <input
               type="text"
               placeholder="e.g., Spouse"
-              className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm outline-none transition-colors focus:border-blue-500"
+              className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm outline-none transition-colors focus:border-blue-500 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100"
               {...registerContactField("relationship")}
             />
             {contactErrors.relationship && (
@@ -338,30 +355,30 @@ export default function ProfilePage() {
           </div>
 
           <div>
-            <label className="mb-1 block text-sm font-semibold text-gray-700">Phone Number *</label>
+            <label className="mb-1 block text-sm font-semibold text-gray-700 dark:text-gray-300">Phone Number *</label>
             <input
               type="tel"
               placeholder="e.g., +1 555 123 4567"
-              className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm outline-none transition-colors focus:border-blue-500"
+              className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm outline-none transition-colors focus:border-blue-500 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100"
               {...registerContactField("phone")}
             />
             {contactErrors.phone && <p className="mt-1 text-xs text-red-600">{contactErrors.phone.message}</p>}
           </div>
 
           <div>
-            <label className="mb-1 block text-sm font-semibold text-gray-700">Email (Optional)</label>
+            <label className="mb-1 block text-sm font-semibold text-gray-700 dark:text-gray-300">Email (Optional)</label>
             <input
               type="email"
               placeholder="name@example.com"
-              className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm outline-none transition-colors focus:border-blue-500"
+              className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm outline-none transition-colors focus:border-blue-500 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100"
               {...registerContactField("email")}
             />
           </div>
 
-          <label className="flex items-center gap-2 text-sm font-semibold text-gray-700">
+          <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-300">
             <input
               type="checkbox"
-              className="h-4 w-4 rounded border-gray-300"
+              className="h-4 w-4 rounded border-gray-300 dark:border-gray-600"
               {...registerContactField("isPrimary")}
             />
             Set as primary contact
@@ -371,7 +388,7 @@ export default function ProfilePage() {
             <button
               type="button"
               onClick={closeContactModal}
-              className="flex-1 rounded-lg bg-gray-100 px-3 py-2 text-sm font-semibold text-gray-700 transition-colors hover:bg-gray-200"
+              className="flex-1 rounded-lg bg-gray-100 px-3 py-2 text-sm font-semibold text-gray-700 transition-colors hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
             >
               Cancel
             </button>

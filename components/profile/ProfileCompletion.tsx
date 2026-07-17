@@ -23,11 +23,11 @@ export function ProfileCompletion({ profile }: ProfileCompletionProps) {
   return (
     <Card className="flex flex-col gap-4">
       <div className="flex items-center justify-between">
-        <p className="font-semibold text-gray-900">Profile Completion</p>
-        <span className="text-sm font-medium text-gray-500">{completionPercent}% Complete</span>
+        <p className="font-semibold text-gray-900 dark:text-white">Profile Completion</p>
+        <span className="text-sm font-medium text-gray-500 dark:text-gray-400">{completionPercent}% Complete</span>
       </div>
 
-      <div className="h-2 w-full rounded-full bg-gray-100">
+      <div className="h-2 w-full rounded-full bg-gray-100 dark:bg-gray-800">
         <div
           className="h-2 rounded-full bg-blue-600 transition-all"
           style={{ width: `${completionPercent}%` }}
@@ -36,7 +36,7 @@ export function ProfileCompletion({ profile }: ProfileCompletionProps) {
 
       <ul className="grid grid-cols-1 gap-2 sm:grid-cols-2">
         {checklist.map((item) => (
-          <li key={item.label} className="flex items-center gap-2 text-sm text-gray-700">
+          <li key={item.label} className="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
             <span aria-hidden="true">{item.completed ? "✅" : "❌"}</span>
             <span>{item.label}</span>
           </li>
