@@ -29,6 +29,13 @@ export function LoadingMedicines() {
           color: #64748b;
           font-size: 0.9rem;
         }
+        :global(.dark) .spinner {
+          border-color: #374151;
+          border-top-color: #3b82f6;
+        }
+        :global(.dark) p {
+          color: #9ca3af;
+        }
       `}</style>
     </div>
   );

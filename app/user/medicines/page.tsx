@@ -139,16 +139,16 @@ export default function MedicinesPage() {
 
   return (
     <div>
-      <div className="mb-8 flex flex-col gap-5 border-b border-gray-200 pb-6 sm:flex-row sm:items-center sm:justify-between">
+      <div className="mb-8 flex flex-col gap-5 border-b border-gray-200 pb-6 dark:border-gray-800 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-start gap-3">
-          <span className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-xl bg-blue-50 text-xl">
+          <span className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-xl bg-blue-50 text-xl dark:bg-blue-500/10">
             💊
           </span>
           <div>
-            <h1 className="text-2xl font-bold tracking-tight text-gray-900 sm:text-3xl">
+            <h1 className="text-2xl font-bold tracking-tight text-gray-900 dark:text-white sm:text-3xl">
               My Medicines
             </h1>
-            <p className="mt-1 text-sm leading-relaxed text-gray-500 sm:text-base">
+            <p className="mt-1 text-sm leading-relaxed text-gray-500 dark:text-gray-400 sm:text-base">
               Manage your medications, track adherence, and stay on schedule.
             </p>
           </div>

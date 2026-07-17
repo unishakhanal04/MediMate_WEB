@@ -71,6 +71,15 @@ export function MedicineModal({ open, medicine, onClose, onSuccess, toast }: Med
           cursor: pointer;
           color: #64748b;
         }
+        :global(.dark) .modal-content {
+          background: #111827;
+        }
+        :global(.dark) .modal-header h2 {
+          color: #f9fafb;
+        }
+        :global(.dark) .close-btn {
+          color: #9ca3af;
+        }
       `}</style>
     </div>
   );

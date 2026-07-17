@@ -335,6 +335,32 @@ export function AddMedicineForm({
           opacity: 0.5;
           cursor: not-allowed;
         }
+        :global(.dark) .form-group label {
+          color: #d1d5db;
+        }
+        :global(.dark) .form-group input,
+        :global(.dark) .form-group select,
+        :global(.dark) .form-group textarea {
+          background: #111827;
+          border-color: #374151;
+          color: #f3f4f6;
+        }
+        :global(.dark) .add-time-btn {
+          background: #1f2937;
+          color: #e5e7eb;
+        }
+        :global(.dark) .add-time-btn:hover {
+          background: #374151;
+        }
+        :global(.dark) .cancel-btn {
+          background: #1f2937;
+          color: #e5e7eb;
+        }
+        :global(.dark) .field-error {
+          background: rgba(239, 68, 68, 0.1);
+          border-color: rgba(239, 68, 68, 0.3);
+          color: #f87171;
+        }
       `}</style>
     </form>
   );

@@ -10,25 +10,25 @@ export function MedicineStats({ stats }: MedicineStatsProps) {
       icon: "📈",
       title: "Weekly Adherence",
       value: `${stats.weeklyAdherence}%`,
-      accent: "bg-blue-50 text-blue-600",
+      accent: "bg-blue-50 text-blue-600 dark:bg-blue-500/10 dark:text-blue-400",
     },
     {
       icon: "✅",
       title: "Medicines Taken",
       value: stats.medicinesTaken,
-      accent: "bg-emerald-50 text-emerald-600",
+      accent: "bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400",
     },
     {
       icon: "📋",
       title: "Total Scheduled",
       value: stats.totalScheduled,
-      accent: "bg-amber-50 text-amber-600",
+      accent: "bg-amber-50 text-amber-600 dark:bg-amber-500/10 dark:text-amber-400",
     },
     {
       icon: "🔥",
       title: "Current Streak",
       value: `${stats.streak} ${stats.streak === 1 ? "day" : "days"}`,
-      accent: "bg-rose-50 text-rose-600",
+      accent: "bg-rose-50 text-rose-600 dark:bg-rose-500/10 dark:text-rose-400",
     },
   ];
 
@@ -37,14 +37,14 @@ export function MedicineStats({ stats }: MedicineStatsProps) {
       {cards.map((card) => (
         <div
           key={card.title}
-          className="flex h-full flex-col gap-3 rounded-2xl border border-gray-200 bg-white p-5 shadow-sm"
+          className="flex h-full flex-col gap-3 rounded-2xl border border-gray-200 bg-white p-5 shadow-sm dark:border-gray-800 dark:bg-gray-900"
         >
           <span className={`flex h-10 w-10 items-center justify-center rounded-xl text-lg ${card.accent}`}>
             {card.icon}
           </span>
           <div>
-            <p className="text-2xl font-bold text-gray-900">{card.value}</p>
-            <p className="mt-1 text-sm font-medium text-gray-500">{card.title}</p>
+            <p className="text-2xl font-bold text-gray-900 dark:text-white">{card.value}</p>
+            <p className="mt-1 text-sm font-medium text-gray-500 dark:text-gray-400">{card.title}</p>
           </div>
         </div>
       ))}
