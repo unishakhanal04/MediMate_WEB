@@ -54,43 +54,43 @@ export function PrescriptionForm({
   const { fields, append, remove } = useFieldArray({ control, name: "medicines" });
 
   const inputClass =
-    "w-full rounded-lg border border-gray-200 px-3 py-2 text-sm outline-none transition-colors focus:border-blue-500";
+    "w-full rounded-lg border border-gray-200 px-3 py-2 text-sm outline-none transition-colors focus:border-blue-500 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100";
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
       <div>
-        <label className="mb-1 block text-sm font-semibold text-gray-700">Title *</label>
+        <label className="mb-1 block text-sm font-semibold text-gray-700 dark:text-gray-300">Title *</label>
         <input type="text" placeholder="e.g., Flu treatment" className={inputClass} {...register("title")} />
         {errors.title && <p className="mt-1 text-xs text-red-600">{errors.title.message}</p>}
       </div>
 
       <div>
-        <label className="mb-1 block text-sm font-semibold text-gray-700">Doctor Name *</label>
+        <label className="mb-1 block text-sm font-semibold text-gray-700 dark:text-gray-300">Doctor Name *</label>
         <input type="text" placeholder="e.g., Dr. Sharma" className={inputClass} {...register("doctorName")} />
         {errors.doctorName && <p className="mt-1 text-xs text-red-600">{errors.doctorName.message}</p>}
       </div>
 
       <div>
-        <label className="mb-1 block text-sm font-semibold text-gray-700">Hospital (Optional)</label>
+        <label className="mb-1 block text-sm font-semibold text-gray-700 dark:text-gray-300">Hospital (Optional)</label>
         <input type="text" className={inputClass} {...register("hospital")} />
       </div>
 
       <div className="flex gap-3">
         <div className="flex-1">
-          <label className="mb-1 block text-sm font-semibold text-gray-700">Prescription Date *</label>
+          <label className="mb-1 block text-sm font-semibold text-gray-700 dark:text-gray-300">Prescription Date *</label>
           <input type="date" className={inputClass} {...register("prescriptionDate")} />
           {errors.prescriptionDate && (
             <p className="mt-1 text-xs text-red-600">{errors.prescriptionDate.message}</p>
           )}
         </div>
         <div className="flex-1">
-          <label className="mb-1 block text-sm font-semibold text-gray-700">Expiry Date (Optional)</label>
+          <label className="mb-1 block text-sm font-semibold text-gray-700 dark:text-gray-300">Expiry Date (Optional)</label>
           <input type="date" className={inputClass} {...register("expiryDate")} />
         </div>
       </div>
 
       <div>
-        <label className="mb-1 block text-sm font-semibold text-gray-700">Medicines</label>
+        <label className="mb-1 block text-sm font-semibold text-gray-700 dark:text-gray-300">Medicines</label>
         <div className="flex flex-col gap-2">
           {fields.map((field, index) => (
             <div key={field.id} className="flex items-center gap-2">
@@ -105,7 +105,7 @@ export function PrescriptionForm({
                   type="button"
                   onClick={() => remove(index)}
                   aria-label="Remove medicine"
-                  className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-600"
+                  className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-600 dark:bg-red-500/10 dark:text-red-400"
                 >
                   ✕
                 </button>
@@ -116,19 +116,19 @@ export function PrescriptionForm({
         <button
           type="button"
           onClick={() => append({ value: "" })}
-          className="mt-2 rounded-lg bg-gray-100 px-3 py-2 text-sm font-semibold text-gray-700"
+          className="mt-2 rounded-lg bg-gray-100 px-3 py-2 text-sm font-semibold text-gray-700 dark:bg-gray-800 dark:text-gray-300"
         >
           + Add Medicine
         </button>
       </div>
 
       <div>
-        <label className="mb-1 block text-sm font-semibold text-gray-700">Notes (Optional)</label>
+        <label className="mb-1 block text-sm font-semibold text-gray-700 dark:text-gray-300">Notes (Optional)</label>
         <textarea rows={3} className={inputClass} {...register("notes")} />
       </div>
 
       <div>
-        <label className="mb-1 block text-sm font-semibold text-gray-700">
+        <label className="mb-1 block text-sm font-semibold text-gray-700 dark:text-gray-300">
           Attachment {existingPrescription ? "(leave blank to keep current file)" : "(Optional)"}
         </label>
         <input type="file" accept="image/*,.pdf" className="w-full text-sm" {...register("attachment")} />

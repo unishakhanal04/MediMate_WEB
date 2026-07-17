@@ -10,8 +10,8 @@ import { Prescription, getPrescriptionDisplayStatus } from "../../../../types/pr
 import { LoadingPrescriptions } from "../../../../components/prescriptions/LoadingPrescriptions";
 
 const statusStyles = {
-  active: "bg-emerald-50 text-emerald-700",
-  expired: "bg-red-50 text-red-600",
+  active: "bg-emerald-50 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-400",
+  expired: "bg-red-50 text-red-600 dark:bg-red-500/10 dark:text-red-400",
 };
 
 export default function PrescriptionDetailPage() {
@@ -62,7 +62,7 @@ export default function PrescriptionDetailPage() {
 
   if (!prescription) {
     return (
-      <div className="flex min-h-[60vh] flex-col items-center justify-center gap-4 text-gray-500">
+      <div className="flex min-h-[60vh] flex-col items-center justify-center gap-4 text-gray-500 dark:text-gray-400">
         <p>This prescription could not be found.</p>
         <Link href="/user/prescriptions" className="font-semibold text-blue-600">
           ← Back to Prescriptions
@@ -79,11 +79,11 @@ export default function PrescriptionDetailPage() {
         ← Back to Prescriptions
       </Link>
 
-      <div className="rounded-2xl border border-gray-200 bg-white shadow-sm">
-        <div className="flex flex-col gap-3 border-b border-gray-100 px-6 py-5 sm:flex-row sm:items-center sm:justify-between">
+      <div className="rounded-2xl border border-gray-200 bg-white shadow-sm dark:border-gray-800 dark:bg-gray-900">
+        <div className="flex flex-col gap-3 border-b border-gray-100 px-6 py-5 dark:border-gray-800 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <h1 className="text-xl font-bold text-gray-900 sm:text-2xl">{prescription.title}</h1>
-            <p className="mt-1 text-sm text-gray-500">
+            <h1 className="text-xl font-bold text-gray-900 dark:text-white sm:text-2xl">{prescription.title}</h1>
+            <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
               {prescription.doctorName}
               {prescription.hospital ? ` · ${prescription.hospital}` : ""}
             </p>
@@ -97,15 +97,15 @@ export default function PrescriptionDetailPage() {
 
         <div className="flex flex-col gap-4 px-6 py-5 text-sm">
           <div className="flex items-center justify-between">
-            <span className="text-gray-500">Prescribed</span>
-            <span className="font-medium text-gray-900">
+            <span className="text-gray-500 dark:text-gray-400">Prescribed</span>
+            <span className="font-medium text-gray-900 dark:text-white">
               {new Date(prescription.prescriptionDate).toLocaleDateString()}
             </span>
           </div>
           {prescription.expiryDate && (
             <div className="flex items-center justify-between">
-              <span className="text-gray-500">Expires</span>
-              <span className="font-medium text-gray-900">
+              <span className="text-gray-500 dark:text-gray-400">Expires</span>
+              <span className="font-medium text-gray-900 dark:text-white">
                 {new Date(prescription.expiryDate).toLocaleDateString()}
               </span>
             </div>
@@ -113,12 +113,12 @@ export default function PrescriptionDetailPage() {
 
           {prescription.medicines.length > 0 && (
             <div>
-              <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-gray-400">Medicines</p>
+              <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-gray-400 dark:text-gray-500">Medicines</p>
               <div className="flex flex-wrap gap-2">
                 {prescription.medicines.map((medicine) => (
                   <span
                     key={medicine}
-                    className="rounded-full bg-gray-100 px-3 py-1 text-sm font-medium text-gray-700"
+                    className="rounded-full bg-gray-100 px-3 py-1 text-sm font-medium text-gray-700 dark:bg-gray-800 dark:text-gray-300"
                   >
                     {medicine}
                   </span>
@@ -129,8 +129,8 @@ export default function PrescriptionDetailPage() {
 
           {prescription.notes && (
             <div>
-              <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-gray-400">Notes</p>
-              <p className="text-gray-700">{prescription.notes}</p>
+              <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-gray-400 dark:text-gray-500">Notes</p>
+              <p className="text-gray-700 dark:text-gray-300">{prescription.notes}</p>
             </div>
           )}
 
@@ -139,17 +139,17 @@ export default function PrescriptionDetailPage() {
               href={prescription.attachmentUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="w-fit rounded-lg bg-blue-50 px-4 py-2 font-semibold text-blue-700"
+              className="w-fit rounded-lg bg-blue-50 px-4 py-2 font-semibold text-blue-700 dark:bg-blue-500/10 dark:text-blue-400"
             >
               View Attachment
             </a>
           )}
         </div>
 
-        <div className="border-t border-gray-100 px-6 py-5">
+        <div className="border-t border-gray-100 px-6 py-5 dark:border-gray-800">
           <button
             onClick={handleDelete}
-            className="rounded-lg bg-red-50 px-4 py-2 text-sm font-semibold text-red-600 transition-colors hover:bg-red-100"
+            className="rounded-lg bg-red-50 px-4 py-2 text-sm font-semibold text-red-600 transition-colors hover:bg-red-100 dark:bg-red-500/10 dark:text-red-400 dark:hover:bg-red-500/20"
           >
             Delete Prescription
           </button>
