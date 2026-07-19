@@ -34,7 +34,11 @@ export function Timeline({ events }: TimelineProps) {
   }
 
   return (
-    <div className="flex flex-col gap-6">
+    <div className="relative flex flex-col gap-8">
+      <div
+        className="pointer-events-none absolute bottom-5 left-5 top-5 w-px bg-gray-200 dark:bg-gray-800"
+        aria-hidden="true"
+      />
       {groups.map((group) => (
         <TimelineGroup key={group.key} label={dayLabel(group.key)} events={group.events} />
       ))}

@@ -526,6 +526,66 @@ export default function LoginPage() {
           .auth-footer { padding: 2rem 1.5rem 1rem; }
           .footer-links-grid { gap: 2rem; flex-wrap: wrap; }
         }
+
+        :global(.dark) .auth-root {
+          background: #030712;
+          color: #f3f4f6;
+        }
+        :global(.dark) .nav,
+        :global(.dark) .form-card,
+        :global(.dark) .auth-footer {
+          background: #111827;
+          border-color: #1f2937;
+        }
+        :global(.dark) .logo,
+        :global(.dark) .form-card h1,
+        :global(.dark) .footer-logo {
+          color: #f9fafb;
+        }
+        :global(.dark) .form-sub,
+        :global(.dark) .switch-link,
+        :global(.dark) .footer-links-grid a,
+        :global(.dark) .footer-copy,
+        :global(.dark) .social-icons {
+          color: #9ca3af;
+        }
+        :global(.dark) .field label {
+          color: #d1d5db;
+        }
+        :global(.dark) .field input {
+          background: #1f2937;
+          border-color: #374151;
+          color: #f3f4f6;
+        }
+        :global(.dark) .remember-label {
+          color: #9ca3af;
+        }
+        :global(.dark) .eye-btn {
+          color: #9ca3af;
+        }
+        :global(.dark) .divider {
+          color: #6b7280;
+        }
+        :global(.dark) .divider::before,
+        :global(.dark) .divider::after {
+          background: #1f2937;
+        }
+        :global(.dark) .social-btn {
+          background: #1f2937;
+          border-color: #374151;
+        }
+        :global(.dark) .social-btn:hover {
+          background: #374151;
+          border-color: #4b5563;
+        }
+        :global(.dark) .secure-access-badge {
+          background: rgba(59, 130, 246, 0.1);
+          border-color: rgba(59, 130, 246, 0.2);
+          color: #60a5fa;
+        }
+        :global(.dark) .footer-copy {
+          border-color: #1f2937;
+        }
       `}</style>
     </div>
   );

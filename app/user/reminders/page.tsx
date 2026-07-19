@@ -163,6 +163,13 @@ export default function RemindersPage() {
             color: #64748b;
             font-size: 0.9rem;
           }
+          :global(.dark) .spinner {
+            border-color: #374151;
+            border-top-color: #3b82f6;
+          }
+          :global(.dark) p {
+            color: #9ca3af;
+          }
         `}</style>
       </div>
     );
@@ -533,6 +540,62 @@ export default function RemindersPage() {
           border: 1px solid #fecaca;
           color: #991b1b;
           font-weight: 600;
+        }
+
+        :global(.dark) .page-header h1,
+        :global(.dark) .empty-state h2,
+        :global(.dark) .reminder-title h3,
+        :global(.dark) .modal-header h2 {
+          color: #f9fafb;
+        }
+        :global(.dark) .page-header p,
+        :global(.dark) .empty-state p {
+          color: #9ca3af;
+        }
+        :global(.dark) .empty-state,
+        :global(.dark) .reminder-card,
+        :global(.dark) .modal-content {
+          background: #111827;
+          border-color: #1f2937;
+        }
+        :global(.dark) .edit-btn {
+          border-color: #1e3a8a;
+          color: #60a5fa;
+        }
+        :global(.dark) .edit-btn:hover {
+          background: rgba(37, 99, 235, 0.1);
+        }
+        :global(.dark) .delete-btn {
+          border-color: #7f1d1d;
+          color: #f87171;
+        }
+        :global(.dark) .reminder-time {
+          color: #9ca3af;
+        }
+        :global(.dark) .day-pill {
+          background: #1f2937;
+          color: #d1d5db;
+        }
+        :global(.dark) .close-btn {
+          color: #9ca3af;
+        }
+        :global(.dark) .modal-body label {
+          color: #d1d5db;
+        }
+        :global(.dark) .modal-body input,
+        :global(.dark) .day-btn {
+          background: #111827;
+          border-color: #374151;
+          color: #f3f4f6;
+        }
+        :global(.dark) .day-btn.selected {
+          background: #2563eb;
+          color: #fff;
+          border-color: #2563eb;
+        }
+        :global(.dark) .secondary-btn {
+          background: #1f2937;
+          color: #e5e7eb;
         }
       `}</style>
     </div>

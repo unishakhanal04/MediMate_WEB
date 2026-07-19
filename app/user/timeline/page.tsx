@@ -5,15 +5,27 @@ import { useRouter } from "next/navigation";
 import { useAuth } from "../../../contexts/AuthContext";
 import { useToast } from "../../../contexts/ToastContext";
 import { timelineService } from "../../../services/timeline.service";
-import { TimelineEvent, TimelineEventType } from "../../../types/timeline.types";
+import { TimelineEvent } from "../../../types/timeline.types";
 import { PageHeader } from "../../../components/common/PageHeader";
 import { Button } from "../../../components/Button";
 import { Timeline } from "../../../components/timeline/Timeline";
-import { TimelineFilters } from "../../../components/timeline/TimelineFilters";
+import {
+  TimelineFilters,
+  TimelineCategory,
+  TimelineRangePreset,
+  CATEGORY_TYPES,
+} from "../../../components/timeline/TimelineFilters";
 import { TimelineSkeleton } from "../../../components/timeline/TimelineSkeleton";
 import { TimelineEmptyState } from "../../../components/timeline/TimelineEmptyState";
 
 const PAGE_SIZE = 20;
+
+const rangeToFromDate = (preset: TimelineRangePreset): string | undefined => {
+  if (preset === "all") return undefined;
+  const from = new Date();
+  from.setDate(from.getDate() - Number(preset));
+  return from.toISOString().slice(0, 10);
+};
 
 export default function TimelinePage() {
   const router = useRouter();
@@ -26,9 +38,8 @@ export default function TimelinePage() {
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(false);
 
-  const [type, setType] = useState<TimelineEventType | "all">("all");
-  const [from, setFrom] = useState("");
-  const [to, setTo] = useState("");
+  const [category, setCategory] = useState<TimelineCategory>("all");
+  const [range, setRange] = useState<TimelineRangePreset>("30");
 
   useEffect(() => {
     if (!isAuthenticated) {
@@ -41,9 +52,8 @@ export default function TimelinePage() {
       .getTimeline({
         page: 1,
         pageSize: PAGE_SIZE,
-        types: type === "all" ? undefined : [type],
-        from: from || undefined,
-        to: to || undefined,
+        types: CATEGORY_TYPES[category],
+        from: rangeToFromDate(range),
       })
       .then((result) => {
         setEvents(result.items);
@@ -56,7 +66,7 @@ export default function TimelinePage() {
       })
       .finally(() => setLoading(false));
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isAuthenticated, router, type, from, to]);
+  }, [isAuthenticated, router, category, range]);
 
   const loadMore = async () => {
     setLoadingMore(true);
@@ -64,9 +74,8 @@ export default function TimelinePage() {
       const result = await timelineService.getTimeline({
         page: page + 1,
         pageSize: PAGE_SIZE,
-        types: type === "all" ? undefined : [type],
-        from: from || undefined,
-        to: to || undefined,
+        types: CATEGORY_TYPES[category],
+        from: rangeToFromDate(range),
       });
       setEvents((prev) => [...prev, ...result.items]);
       setPage(result.page);
@@ -88,16 +97,14 @@ export default function TimelinePage() {
       <PageHeader
         icon="🕒"
         title="Health Timeline"
-        description="A chronological view of your medications, prescriptions, appointments, and more."
+        description="A chronological journey of your health events and medical milestones."
       />
 
       <TimelineFilters
-        type={type}
-        onTypeChange={setType}
-        from={from}
-        onFromChange={setFrom}
-        to={to}
-        onToChange={setTo}
+        category={category}
+        onCategoryChange={setCategory}
+        range={range}
+        onRangeChange={setRange}
       />
 
       {loading ? (
@@ -108,11 +115,27 @@ export default function TimelinePage() {
         <>
           <Timeline events={events} />
 
-          {hasMore && (
+          {hasMore ? (
             <div className="mt-6 flex justify-center">
               <Button variant="outline" onClick={loadMore} disabled={loadingMore}>
                 {loadingMore ? "Loading..." : "Load more"}
               </Button>
+            </div>
+          ) : (
+            <div className="mt-8 flex flex-col items-center gap-2 rounded-xl border-2 border-dashed border-gray-200 py-10 text-center dark:border-gray-800">
+              <span className="text-2xl" aria-hidden="true">
+                🗄️
+              </span>
+              <p className="text-sm text-gray-500 dark:text-gray-400">No more records found for this period.</p>
+              {range !== "all" && (
+                <button
+                  type="button"
+                  onClick={() => setRange("all")}
+                  className="text-sm font-semibold text-blue-600 hover:underline dark:text-blue-400"
+                >
+                  Load older records
+                </button>
+              )}
             </div>
           )}
         </>

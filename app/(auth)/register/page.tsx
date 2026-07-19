@@ -667,6 +667,59 @@ export default function RegisterPage() {
           .auth-footer { padding: 2rem 1.5rem 1rem; }
           .footer-links-grid { gap: 2rem; flex-wrap: wrap; }
         }
+
+        :global(.dark) .auth-root {
+          background: #030712;
+          color: #f3f4f6;
+        }
+        :global(.dark) .nav,
+        :global(.dark) .form-panel,
+        :global(.dark) .auth-footer {
+          background: #111827;
+          border-color: #1f2937;
+        }
+        :global(.dark) .logo,
+        :global(.dark) .form-card h1,
+        :global(.dark) .hero-text h2,
+        :global(.dark) .footer-logo {
+          color: #f9fafb;
+        }
+        :global(.dark) .nav-login,
+        :global(.dark) .form-sub,
+        :global(.dark) .terms-text,
+        :global(.dark) .footer-links-grid a,
+        :global(.dark) .footer-copy,
+        :global(.dark) .social-icons {
+          color: #9ca3af;
+        }
+        :global(.dark) .field label {
+          color: #d1d5db;
+        }
+        :global(.dark) .field input,
+        :global(.dark) .field select {
+          background: #1f2937;
+          border-color: #374151;
+          color: #f3f4f6;
+        }
+        :global(.dark) .eye-btn {
+          color: #9ca3af;
+        }
+        :global(.dark) .checkbox-label,
+        :global(.dark) .checkbox-text {
+          color: #9ca3af;
+        }
+        :global(.dark) .feature-badge {
+          color: #d1d5db;
+        }
+        :global(.dark) .badge-icon {
+          background: #1f2937;
+        }
+        :global(.dark) .hero-panel {
+          background: linear-gradient(180deg, rgba(37, 99, 235, 0.08) 0%, rgba(37, 99, 235, 0.02) 100%);
+        }
+        :global(.dark) .footer-copy {
+          border-color: #1f2937;
+        }
       `}</style>
     </div>
   );
