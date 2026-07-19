@@ -46,7 +46,7 @@ export function QuickActions() {
       ))}
 
       <Link href="/user/ai" className="sm:col-span-1">
-        <div className="relative flex h-full flex-col justify-between gap-3 overflow-hidden rounded-2xl bg-violet-600 p-6 text-white shadow-sm transition-shadow hover:shadow-md">
+        <div className="relative flex h-full flex-col justify-between gap-3 overflow-hidden rounded-2xl bg-violet-500 p-6 text-white shadow-sm transition-shadow hover:shadow-md">
           <span
             className="flex h-10 w-10 items-center justify-center rounded-lg bg-white/15 text-lg"
             aria-hidden="true"

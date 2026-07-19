@@ -130,7 +130,7 @@ export default function UserLayout({ children }: { children: React.ReactNode }) 
                 aria-current={active ? "page" : undefined}
                 className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-semibold transition-colors ${
                   active
-                    ? "bg-violet-600 text-white"
+                    ? "bg-violet-500 text-white"
                     : "text-gray-600 hover:bg-white dark:text-gray-400 dark:hover:bg-gray-800"
                 }`}
               >
