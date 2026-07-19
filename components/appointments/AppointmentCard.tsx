@@ -1,4 +1,6 @@
-import { Card } from "../dashboard/Card";
+"use client";
+
+import { useEffect, useRef, useState } from "react";
 import { StatusBadge } from "../common/StatusBadge";
 import { Appointment, AppointmentStatus } from "../../types/appointment.types";
 
@@ -10,6 +12,23 @@ interface AppointmentCardProps {
   onReminderToggle: (id: string, reminderEnabled: boolean) => void;
 }
 
+const specialtyIcon = (specialization?: string): { icon: string; bg: string } => {
+  const s = (specialization ?? "").toLowerCase();
+  if (s.includes("dental") || s.includes("dentist"))
+    return { icon: "🦷", bg: "bg-purple-50 text-purple-600 dark:bg-purple-500/10 dark:text-purple-400" };
+  if (s.includes("eye") || s.includes("ophthal"))
+    return { icon: "👁️", bg: "bg-orange-50 text-orange-600 dark:bg-orange-500/10 dark:text-orange-400" };
+  if (s.includes("heart") || s.includes("cardio"))
+    return { icon: "❤️", bg: "bg-red-50 text-red-600 dark:bg-red-500/10 dark:text-red-400" };
+  if (s.includes("skin") || s.includes("derm"))
+    return { icon: "🌿", bg: "bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400" };
+  if (s.includes("neuro") || s.includes("brain"))
+    return { icon: "🧠", bg: "bg-indigo-50 text-indigo-600 dark:bg-indigo-500/10 dark:text-indigo-400" };
+  if (s.includes("child") || s.includes("pediatr"))
+    return { icon: "🧒", bg: "bg-blue-50 text-blue-600 dark:bg-blue-500/10 dark:text-blue-400" };
+  return { icon: "🩺", bg: "bg-blue-50 text-blue-600 dark:bg-blue-500/10 dark:text-blue-400" };
+};
+
 export function AppointmentCard({
   appointment,
   onEdit,
@@ -17,79 +36,144 @@ export function AppointmentCard({
   onStatusChange,
   onReminderToggle,
 }: AppointmentCardProps) {
+  const [menuOpen, setMenuOpen] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!menuOpen) return;
+    const handleClick = (e: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
+        setMenuOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClick);
+    return () => document.removeEventListener("mousedown", handleClick);
+  }, [menuOpen]);
+
+  const { icon, bg } = specialtyIcon(appointment.specialization);
+
   return (
-    <Card className="flex h-full flex-col gap-4">
-      <div className="flex items-start justify-between gap-3">
-        <div className="min-w-0">
-          <h3 className="truncate text-base font-bold text-gray-900 dark:text-white">{appointment.purpose}</h3>
-          <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-            {appointment.doctorName}
-            {appointment.specialization ? ` · ${appointment.specialization}` : ""}
-          </p>
+    <div className="flex items-center gap-4 rounded-xl border border-gray-200 bg-white p-4 transition-colors hover:border-gray-300 dark:border-gray-800 dark:bg-gray-900 dark:hover:border-gray-700">
+      <span
+        className={`flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-xl text-lg ${bg}`}
+        aria-hidden="true"
+      >
+        {icon}
+      </span>
+
+      <div className="min-w-0 flex-1">
+        <p className="truncate text-sm font-bold text-gray-900 dark:text-white">{appointment.purpose}</p>
+        <p className="truncate text-xs text-gray-500 dark:text-gray-400">
+          {appointment.doctorName}
+          {appointment.specialization ? ` · ${appointment.specialization}` : ""}
+        </p>
+        <div className="mt-1 flex flex-wrap items-center gap-3 text-xs text-gray-400 dark:text-gray-500">
+          <span className="inline-flex items-center gap-1">
+            <span aria-hidden="true">📅</span>
+            {new Date(appointment.appointmentDate).toLocaleDateString(undefined, {
+              month: "short",
+              day: "numeric",
+              year: "numeric",
+            })}
+          </span>
+          <span className="inline-flex items-center gap-1">
+            <span aria-hidden="true">🕒</span>
+            {appointment.appointmentTime}
+          </span>
+          {appointment.reminderEnabled && (
+            <span className="inline-flex items-center gap-1" title="Reminder on">
+              <span aria-hidden="true">🔔</span>
+            </span>
+          )}
         </div>
-        <StatusBadge status={appointment.status} className="shrink-0" />
       </div>
 
-      <div className="flex flex-col gap-2 text-sm">
-        <div className="flex items-center justify-between">
-          <span className="text-gray-500 dark:text-gray-400">Date &amp; Time</span>
-          <span className="font-medium text-gray-900 dark:text-white">
-            {new Date(appointment.appointmentDate).toLocaleDateString()} · {appointment.appointmentTime}
-          </span>
-        </div>
-        {appointment.hospital && (
-          <div className="flex items-center justify-between">
-            <span className="text-gray-500 dark:text-gray-400">Hospital</span>
-            <span className="font-medium text-gray-900 dark:text-white">{appointment.hospital}</span>
+      <StatusBadge status={appointment.status} className="hidden shrink-0 sm:inline-flex" />
+
+      <button
+        type="button"
+        onClick={() => onEdit(appointment)}
+        aria-label="Edit appointment"
+        title="Edit appointment"
+        className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-base text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-600 dark:hover:bg-gray-800 dark:hover:text-gray-300"
+      >
+        ✏️
+      </button>
+
+      <div className="relative shrink-0" ref={menuRef}>
+        <button
+          type="button"
+          onClick={() => setMenuOpen((v) => !v)}
+          aria-haspopup="menu"
+          aria-expanded={menuOpen}
+          aria-label="Appointment actions"
+          className="flex h-8 w-8 items-center justify-center rounded-full text-lg text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-600 dark:hover:bg-gray-800 dark:hover:text-gray-300"
+        >
+          ⋮
+        </button>
+
+        {menuOpen && (
+          <div
+            role="menu"
+            className="absolute right-0 z-20 mt-2 w-52 overflow-hidden rounded-xl border border-gray-200 bg-white py-1 shadow-lg dark:border-gray-800 dark:bg-gray-900"
+          >
+            <button
+              role="menuitem"
+              onClick={() => {
+                setMenuOpen(false);
+                onEdit(appointment);
+              }}
+              className="block w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-gray-800"
+            >
+              Edit / Reschedule
+            </button>
+            <button
+              role="menuitem"
+              onClick={() => {
+                setMenuOpen(false);
+                onReminderToggle(appointment._id, !appointment.reminderEnabled);
+              }}
+              className="block w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-gray-800"
+            >
+              {appointment.reminderEnabled ? "Turn Off Reminder" : "Turn On Reminder"}
+            </button>
+            {appointment.status === "scheduled" && (
+              <>
+                <button
+                  role="menuitem"
+                  onClick={() => {
+                    setMenuOpen(false);
+                    onStatusChange(appointment._id, "completed");
+                  }}
+                  className="block w-full px-4 py-2 text-left text-sm text-emerald-700 hover:bg-emerald-50 dark:text-emerald-400 dark:hover:bg-emerald-500/10"
+                >
+                  Mark Completed
+                </button>
+                <button
+                  role="menuitem"
+                  onClick={() => {
+                    setMenuOpen(false);
+                    onStatusChange(appointment._id, "cancelled");
+                  }}
+                  className="block w-full px-4 py-2 text-left text-sm text-amber-700 hover:bg-amber-50 dark:text-amber-400 dark:hover:bg-amber-500/10"
+                >
+                  Cancel Visit
+                </button>
+              </>
+            )}
+            <button
+              role="menuitem"
+              onClick={() => {
+                setMenuOpen(false);
+                onDelete(appointment._id);
+              }}
+              className="block w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-500/10"
+            >
+              Delete
+            </button>
           </div>
         )}
       </div>
-
-      {appointment.notes && <p className="text-sm text-gray-600 dark:text-gray-400">{appointment.notes}</p>}
-
-      <button
-        onClick={() => onReminderToggle(appointment._id, !appointment.reminderEnabled)}
-        aria-pressed={appointment.reminderEnabled}
-        className={`flex items-center gap-2 self-start rounded-full px-3 py-1.5 text-xs font-semibold transition-colors ${
-          appointment.reminderEnabled
-            ? "bg-amber-50 text-amber-700 hover:bg-amber-100 dark:bg-amber-500/10 dark:text-amber-400 dark:hover:bg-amber-500/20"
-            : "bg-gray-100 text-gray-500 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-gray-700"
-        }`}
-      >
-        <span aria-hidden="true">{appointment.reminderEnabled ? "🔔" : "🔕"}</span>
-        {appointment.reminderEnabled ? "Reminder On" : "Reminder Off"}
-      </button>
-
-      <div className="mt-auto flex flex-wrap gap-2">
-        {appointment.status === "scheduled" && (
-          <>
-            <button
-              onClick={() => onStatusChange(appointment._id, "completed")}
-              className="rounded-lg bg-emerald-50 px-3 py-2 text-sm font-semibold text-emerald-700 transition-colors hover:bg-emerald-100 dark:bg-emerald-500/10 dark:text-emerald-400 dark:hover:bg-emerald-500/20"
-            >
-              Mark Completed
-            </button>
-            <button
-              onClick={() => onStatusChange(appointment._id, "cancelled")}
-              className="rounded-lg bg-amber-50 px-3 py-2 text-sm font-semibold text-amber-700 transition-colors hover:bg-amber-100 dark:bg-amber-500/10 dark:text-amber-400 dark:hover:bg-amber-500/20"
-            >
-              Cancel
-            </button>
-          </>
-        )}
-        <button
-          onClick={() => onEdit(appointment)}
-          className="rounded-lg bg-gray-100 px-3 py-2 text-sm font-semibold text-gray-700 transition-colors hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
-        >
-          Edit
-        </button>
-        <button
-          onClick={() => onDelete(appointment._id)}
-          className="rounded-lg bg-red-50 px-3 py-2 text-sm font-semibold text-red-600 transition-colors hover:bg-red-100 dark:bg-red-500/10 dark:text-red-400 dark:hover:bg-red-500/20"
-        >
-          Delete
-        </button>
-      </div>
-    </Card>
+    </div>
   );
 }

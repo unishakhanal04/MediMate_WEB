@@ -17,6 +17,7 @@ import { AppointmentSkeleton } from "../../../components/appointments/Appointmen
 import { AppointmentFilters } from "../../../components/appointments/AppointmentFilters";
 import { AppointmentForm } from "../../../components/appointments/AppointmentForm";
 import { AppointmentCalendar } from "../../../components/appointments/AppointmentCalendar";
+import { AppointmentHeroCard } from "../../../components/appointments/AppointmentHeroCard";
 import { Button } from "../../../components/Button";
 import { Modal } from "../../../components/Modal";
 import { PageHeader } from "../../../components/common/PageHeader";
@@ -75,6 +76,13 @@ export default function AppointmentsPage() {
   }, [appointments, startOfToday]);
 
   const tabAppointments = activeTab === "upcoming" ? upcoming : past;
+
+  const nextAppointment = useMemo(() => {
+    if (upcoming.length === 0) return null;
+    return [...upcoming].sort(
+      (a, b) => new Date(a.appointmentDate).getTime() - new Date(b.appointmentDate).getTime()
+    )[0];
+  }, [upcoming]);
 
   const filteredAppointments = useMemo(() => {
     const result = tabAppointments.filter((appointment) => {
@@ -176,8 +184,8 @@ export default function AppointmentsPage() {
       <PageHeader
         icon="📅"
         title="Appointments"
-        description="Keep track of your upcoming and past doctor visits."
-        action={<Button onClick={openAddModal}>+ Schedule Appointment</Button>}
+        description="Manage your health schedule and upcoming clinical visits."
+        action={<Button onClick={openAddModal}>+ Schedule New Appointment</Button>}
       />
 
       <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
@@ -233,7 +241,7 @@ export default function AppointmentsPage() {
           <AppointmentCalendar appointments={appointments} onSelectAppointment={openEditModal} />
         )
       ) : loading ? (
-        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="flex flex-col gap-3">
           {Array.from({ length: 3 }).map((_, index) => (
             <AppointmentSkeleton key={index} />
           ))}
@@ -254,13 +262,41 @@ export default function AppointmentsPage() {
           ) : filteredAppointments.length === 0 ? (
             <AppointmentEmptyState variant="no-results" />
           ) : (
-            <AppointmentList
-              appointments={filteredAppointments}
-              onEdit={openEditModal}
-              onDelete={handleDelete}
-              onStatusChange={handleStatusChange}
-              onReminderToggle={handleReminderToggle}
-            />
+            <>
+              {activeTab === "upcoming" && nextAppointment && (
+                <div className="mb-8">
+                  <AppointmentHeroCard
+                    appointment={nextAppointment}
+                    onReschedule={openEditModal}
+                    onCancel={(id) => handleStatusChange(id, "cancelled")}
+                  />
+                </div>
+              )}
+
+              {(() => {
+                const restAppointments =
+                  activeTab === "upcoming" && nextAppointment
+                    ? filteredAppointments.filter((a) => a._id !== nextAppointment._id)
+                    : filteredAppointments;
+
+                if (restAppointments.length === 0) return null;
+
+                return (
+                  <>
+                    <h2 className="mb-3 text-sm font-bold text-gray-900 dark:text-white">
+                      {activeTab === "upcoming" ? "Upcoming Schedule" : "Past Visits"}
+                    </h2>
+                    <AppointmentList
+                      appointments={restAppointments}
+                      onEdit={openEditModal}
+                      onDelete={handleDelete}
+                      onStatusChange={handleStatusChange}
+                      onReminderToggle={handleReminderToggle}
+                    />
+                  </>
+                );
+              })()}
+            </>
           )}
         </>
       )}
