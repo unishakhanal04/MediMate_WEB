@@ -60,7 +60,4 @@ export const getPrescriptionDisplayStatus = (
 export interface PrescriptionFilterParams {
   search?: string;
   status?: PrescriptionDisplayStatus;
-  doctorName?: string;
-  fromDate?: string;
-  toDate?: string;
 }
