@@ -12,6 +12,7 @@ import {
 } from "../../../types/prescription.types";
 import { PrescriptionFormData } from "../../../schemas/prescription.schema";
 import { PrescriptionList } from "../../../components/prescriptions/PrescriptionList";
+import { PastPrescriptionsTable } from "../../../components/prescriptions/PastPrescriptionsTable";
 import { PrescriptionEmptyState } from "../../../components/prescriptions/PrescriptionEmptyState";
 import { PrescriptionSkeleton } from "../../../components/prescriptions/PrescriptionSkeleton";
 import { PrescriptionFilters } from "../../../components/prescriptions/PrescriptionFilters";
@@ -116,20 +117,15 @@ export default function PrescriptionsPage() {
     if (filters.status && getPrescriptionDisplayStatus(prescription) !== filters.status) {
       return false;
     }
-    if (
-      filters.doctorName &&
-      !prescription.doctorName.toLowerCase().includes(filters.doctorName.toLowerCase())
-    ) {
-      return false;
-    }
-    if (filters.fromDate && new Date(prescription.prescriptionDate) < new Date(filters.fromDate)) {
-      return false;
-    }
-    if (filters.toDate && new Date(prescription.prescriptionDate) > new Date(filters.toDate)) {
-      return false;
-    }
     return true;
   });
+
+  const activePrescriptions = filteredPrescriptions.filter(
+    (prescription) => getPrescriptionDisplayStatus(prescription) === "active"
+  );
+  const pastPrescriptions = filteredPrescriptions.filter(
+    (prescription) => getPrescriptionDisplayStatus(prescription) === "expired"
+  );
 
   if (!isAuthenticated) {
     return null;
@@ -172,11 +168,31 @@ export default function PrescriptionsPage() {
           ) : filteredPrescriptions.length === 0 ? (
             <PrescriptionEmptyState variant="no-results" />
           ) : (
-            <PrescriptionList
-              prescriptions={filteredPrescriptions}
-              onEdit={openEditModal}
-              onDelete={handleDelete}
-            />
+            <>
+              <div className="mb-4 flex items-center gap-2">
+                <h2 className="text-lg font-bold text-gray-900 dark:text-white">Active Prescriptions</h2>
+                <span className="inline-flex items-center rounded-full bg-blue-50 px-2.5 py-0.5 text-xs font-semibold text-blue-700 dark:bg-blue-500/10 dark:text-blue-400">
+                  {activePrescriptions.length} Active
+                </span>
+              </div>
+
+              {activePrescriptions.length > 0 ? (
+                <PrescriptionList
+                  prescriptions={activePrescriptions}
+                  onEdit={openEditModal}
+                  onDelete={handleDelete}
+                />
+              ) : (
+                <p className="text-sm text-gray-500 dark:text-gray-400">No active prescriptions.</p>
+              )}
+
+              {pastPrescriptions.length > 0 && (
+                <div className="mt-10">
+                  <h2 className="mb-4 text-lg font-bold text-gray-900 dark:text-white">Past Prescriptions</h2>
+                  <PastPrescriptionsTable prescriptions={pastPrescriptions} onDelete={handleDelete} />
+                </div>
+              )}
+            </>
           )}
         </>
       )}
