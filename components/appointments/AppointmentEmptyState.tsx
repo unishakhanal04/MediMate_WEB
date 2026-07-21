@@ -1,7 +1,7 @@
 import { EmptyState } from "../common/EmptyState";
 import { Button } from "../Button";
 
-type AppointmentEmptyStateVariant = "no-appointments" | "no-upcoming" | "no-past" | "no-results";
+type AppointmentEmptyStateVariant = "no-appointments" | "no-upcoming" | "no-completed" | "no-cancelled" | "no-results";
 
 interface AppointmentEmptyStateProps {
   variant: AppointmentEmptyStateVariant;
@@ -22,10 +22,15 @@ const content: Record<
     title: "No upcoming appointments",
     description: "Schedule your next doctor visit to keep track of it here.",
   },
-  "no-past": {
+  "no-completed": {
     icon: "🗂️",
-    title: "No past appointments",
-    description: "Appointments that have passed will show up here.",
+    title: "No completed appointments",
+    description: "Visits you mark as completed will show up here.",
+  },
+  "no-cancelled": {
+    icon: "🚫",
+    title: "No cancelled appointments",
+    description: "Visits you cancel will show up here.",
   },
   "no-results": {
     icon: "🔍",
