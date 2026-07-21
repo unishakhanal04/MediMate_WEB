@@ -5,6 +5,8 @@ import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { useAuth } from "../../contexts/AuthContext";
 import { authService } from "../../services/auth.service";
+import { notificationService } from "../../services/notification.service";
+import { systemService } from "../../services/system.service";
 import { LoadingSpinner } from "../../components/common/LoadingSpinner";
 
 const isActivePath = (pathname: string, href: string) => {
@@ -22,7 +24,10 @@ const navItems = [
   { href: "/user/appointments", label: "Appointments", icon: "📅" },
   { href: "/user/reports", label: "Reports", icon: "📈" },
   { href: "/user/timeline", label: "Timeline", icon: "🕒" },
+  { href: "/user/notifications", label: "Notifications", icon: "🔔" },
   { href: "/user/ai", label: "AI Assistant", icon: "✨" },
+  { href: "/user/subscription", label: "Subscription", icon: "⭐" },
+  { href: "/user/feedback", label: "Feedback", icon: "💬" },
 ];
 
 export default function UserLayout({ children }: { children: React.ReactNode }) {
@@ -31,6 +36,15 @@ export default function UserLayout({ children }: { children: React.ReactNode }) 
   const { user, isAuthenticated, authReady, logout, updateUser } = useAuth();
   const [accessReady, setAccessReady] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [unreadCount, setUnreadCount] = useState(0);
+  const [maintenanceMode, setMaintenanceMode] = useState(false);
+
+  useEffect(() => {
+    systemService
+      .getMaintenanceStatus()
+      .then((data) => setMaintenanceMode(data.maintenanceMode))
+      .catch((err) => console.error("Failed to check maintenance status:", err));
+  }, []);
 
   useEffect(() => {
     if (!authReady) return;
@@ -67,6 +81,14 @@ export default function UserLayout({ children }: { children: React.ReactNode }) 
     setSidebarOpen(false);
   }, [pathname]);
 
+  useEffect(() => {
+    if (!accessReady) return;
+    notificationService
+      .getNotifications()
+      .then((data) => setUnreadCount(data.unreadCount))
+      .catch((err) => console.error("Failed to fetch notification count:", err));
+  }, [accessReady, pathname]);
+
   const handleLogout = () => {
     logout();
     router.push("/login");
@@ -76,6 +98,18 @@ export default function UserLayout({ children }: { children: React.ReactNode }) 
     if (!user?.username) return "";
     return user.username.trim().slice(0, 1).toUpperCase();
   }, [user?.username]);
+
+  if (maintenanceMode) {
+    return (
+      <div className="flex min-h-screen flex-col items-center justify-center gap-4 bg-white px-6 text-center dark:bg-gray-950">
+        <span className="text-5xl" aria-hidden="true">🛠️</span>
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-white">MediMate is under maintenance</h1>
+        <p className="max-w-sm text-sm text-gray-500 dark:text-gray-400">
+          We&apos;re making some improvements. Please check back shortly.
+        </p>
+      </div>
+    );
+  }
 
   if (!authReady || !isAuthenticated || !accessReady) {
     return <LoadingSpinner message="Loading your dashboard..." />;
@@ -135,7 +169,12 @@ export default function UserLayout({ children }: { children: React.ReactNode }) 
                 }`}
               >
                 <span aria-hidden="true">{item.icon}</span>
-                {item.label}
+                <span className="flex-1">{item.label}</span>
+                {item.href === "/user/notifications" && unreadCount > 0 && (
+                  <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-red-500 px-1 text-[11px] font-bold text-white">
+                    {unreadCount > 9 ? "9+" : unreadCount}
+                  </span>
+                )}
               </Link>
             );
           })}
