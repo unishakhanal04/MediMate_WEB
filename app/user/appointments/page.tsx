@@ -32,7 +32,7 @@ export default function AppointmentsPage() {
   const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [loading, setLoading] = useState(true);
   const [viewMode, setViewMode] = useState<ViewMode>("list");
-  const [activeTab, setActiveTab] = useState<"upcoming" | "past">("upcoming");
+  const [activeTab, setActiveTab] = useState<"upcoming" | "completed" | "cancelled">("upcoming");
   const [showModal, setShowModal] = useState(false);
   const [editingAppointment, setEditingAppointment] = useState<Appointment | null>(null);
   const [submitting, setSubmitting] = useState(false);
@@ -64,25 +64,28 @@ export default function AppointmentsPage() {
     return d;
   }, []);
 
-  const { upcoming, past } = useMemo(() => {
+  const { upcoming, completed, cancelled } = useMemo(() => {
     const upcomingList: Appointment[] = [];
-    const pastList: Appointment[] = [];
+    const completedList: Appointment[] = [];
+    const cancelledList: Appointment[] = [];
     appointments.forEach((appointment) => {
-      const isUpcoming =
-        appointment.status === "scheduled" && new Date(appointment.appointmentDate) >= startOfToday;
-      (isUpcoming ? upcomingList : pastList).push(appointment);
+      if (appointment.status === "completed") completedList.push(appointment);
+      else if (appointment.status === "cancelled") cancelledList.push(appointment);
+      else upcomingList.push(appointment);
     });
-    return { upcoming: upcomingList, past: pastList };
-  }, [appointments, startOfToday]);
+    return { upcoming: upcomingList, completed: completedList, cancelled: cancelledList };
+  }, [appointments]);
 
-  const tabAppointments = activeTab === "upcoming" ? upcoming : past;
+  const tabAppointments =
+    activeTab === "upcoming" ? upcoming : activeTab === "completed" ? completed : cancelled;
 
   const nextAppointment = useMemo(() => {
-    if (upcoming.length === 0) return null;
-    return [...upcoming].sort(
+    const future = upcoming.filter((a) => new Date(a.appointmentDate) >= startOfToday);
+    if (future.length === 0) return null;
+    return [...future].sort(
       (a, b) => new Date(a.appointmentDate).getTime() - new Date(b.appointmentDate).getTime()
     )[0];
-  }, [upcoming]);
+  }, [upcoming, startOfToday]);
 
   const filteredAppointments = useMemo(() => {
     const result = tabAppointments.filter((appointment) => {
@@ -202,15 +205,26 @@ export default function AppointmentsPage() {
             Upcoming ({upcoming.length})
           </button>
           <button
-            onClick={() => setActiveTab("past")}
+            onClick={() => setActiveTab("completed")}
             disabled={viewMode === "calendar"}
             className={`border-b-2 px-4 py-3 text-sm font-semibold transition-colors disabled:opacity-40 ${
-              activeTab === "past"
+              activeTab === "completed"
                 ? "border-blue-600 text-blue-600"
                 : "border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
             }`}
           >
-            Past ({past.length})
+            Completed ({completed.length})
+          </button>
+          <button
+            onClick={() => setActiveTab("cancelled")}
+            disabled={viewMode === "calendar"}
+            className={`border-b-2 px-4 py-3 text-sm font-semibold transition-colors disabled:opacity-40 ${
+              activeTab === "cancelled"
+                ? "border-blue-600 text-blue-600"
+                : "border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+            }`}
+          >
+            Cancelled ({cancelled.length})
           </button>
         </div>
 
@@ -256,7 +270,9 @@ export default function AppointmentsPage() {
             <AppointmentEmptyState variant="no-appointments" onAddAppointment={openAddModal} />
           ) : tabAppointments.length === 0 ? (
             <AppointmentEmptyState
-              variant={activeTab === "upcoming" ? "no-upcoming" : "no-past"}
+              variant={
+                activeTab === "upcoming" ? "no-upcoming" : activeTab === "completed" ? "no-completed" : "no-cancelled"
+              }
               onAddAppointment={activeTab === "upcoming" ? openAddModal : undefined}
             />
           ) : filteredAppointments.length === 0 ? (
@@ -284,7 +300,11 @@ export default function AppointmentsPage() {
                 return (
                   <>
                     <h2 className="mb-3 text-sm font-bold text-gray-900 dark:text-white">
-                      {activeTab === "upcoming" ? "Upcoming Schedule" : "Past Visits"}
+                      {activeTab === "upcoming"
+                        ? "Upcoming Schedule"
+                        : activeTab === "completed"
+                        ? "Completed Visits"
+                        : "Cancelled Visits"}
                     </h2>
                     <AppointmentList
                       appointments={restAppointments}
