@@ -46,6 +46,8 @@ export interface Medicine {
   status: "active" | "inactive" | "completed";
   quantity?: number;
   refillThreshold?: number;
+  expiryDate?: string;
+  mealInstruction?: "before_food" | "after_food" | "empty_stomach";
   createdAt: string;
   updatedAt: string;
 }
@@ -60,11 +62,30 @@ export interface CreateMedicineDTO {
   notes?: string;
   quantity?: number;
   refillThreshold?: number;
+  expiryDate?: string;
+  mealInstruction?: "before_food" | "after_food" | "empty_stomach";
+}
+
+export interface InteractionWarning {
+  otherMedicineName: string;
+  otherMedicineId?: string;
+  snippet: string;
 }
 
 export const medicineService = {
   async getTodayMedicines(): Promise<TodayMedicine[]> {
     return apiFetch<TodayMedicine[]>("/api/v1/medicines/today/list");
+  },
+
+  async checkInteractions(name: string, excludeMedicineId?: string): Promise<InteractionWarning[]> {
+    const { warnings } = await apiFetch<{ warnings: InteractionWarning[] }>(
+      "/api/v1/medicines/check-interactions",
+      {
+        method: "POST",
+        body: JSON.stringify({ name, excludeMedicineId }),
+      }
+    );
+    return warnings;
   },
 
   async markMedicineAsTaken(medicineId: string, scheduledTime: string): Promise<MedicineLog> {
