@@ -13,9 +13,10 @@ interface TodayScheduleProps {
   busyId: string | null;
   onMarkTaken: (id: string) => void;
   onMarkSnooze: (id: string) => void;
+  onMarkSkip: (id: string) => void;
 }
 
-export function TodaySchedule({ entries, busyId, onMarkTaken, onMarkSnooze }: TodayScheduleProps) {
+export function TodaySchedule({ entries, busyId, onMarkTaken, onMarkSnooze, onMarkSkip }: TodayScheduleProps) {
   const remaining = entries.filter((entry) => entry.status !== "taken").length;
   const nextId = entries.find((entry) => entry.status !== "taken")?.id;
 
@@ -49,6 +50,7 @@ export function TodaySchedule({ entries, busyId, onMarkTaken, onMarkSnooze }: To
               busy={busyId === entry.id}
               onMarkTaken={() => onMarkTaken(entry.id)}
               onMarkSnooze={() => onMarkSnooze(entry.id)}
+              onMarkSkip={() => onMarkSkip(entry.id)}
             />
           ))}
         </div>

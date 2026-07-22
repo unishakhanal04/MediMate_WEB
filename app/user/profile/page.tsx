@@ -6,6 +6,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
 import { useAuth } from "../../../contexts/AuthContext";
 import { useToast } from "../../../contexts/ToastContext";
+import { useConfirmDialog } from "../../../contexts/ConfirmDialogContext";
 import { useTheme } from "../../../contexts/ThemeContext";
 import { profileService } from "../../../services/profile.service";
 import { authService } from "../../../services/auth.service";
@@ -28,6 +29,7 @@ import { MedicalInfoForm } from "../../../components/profile/MedicalInfoForm";
 import { PreferencesForm } from "../../../components/profile/PreferencesForm";
 import { PasswordForm } from "../../../components/profile/PasswordForm";
 import { ProfileSkeleton } from "../../../components/profile/ProfileSkeleton";
+import { EmptyState } from "../../../components/common/EmptyState";
 import { Card } from "../../../components/dashboard/Card";
 import { Modal } from "../../../components/Modal";
 
@@ -36,9 +38,11 @@ export default function ProfilePage() {
   const { isAuthenticated, updateUser } = useAuth();
   const { setDarkMode } = useTheme();
   const toast = useToast();
+  const confirmDialog = useConfirmDialog();
 
   const [profile, setProfile] = useState<ProfileData | null>(null);
   const [loading, setLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState<"profile" | "account">("profile");
 
   const [savingPersonal, setSavingPersonal] = useState(false);
   const [savingMedical, setSavingMedical] = useState(false);
@@ -58,7 +62,7 @@ export default function ProfilePage() {
     reset: resetContactForm,
   } = useForm<EmergencyContactFormData>({
     resolver: zodResolver(emergencyContactSchema),
-    defaultValues: { name: "", relationship: "", phone: "", email: "", isPrimary: false },
+    defaultValues: { name: "", relationship: "", phone: "", email: "", isPrimary: false, notes: "" },
   });
 
   useEffect(() => {
@@ -182,7 +186,7 @@ export default function ProfilePage() {
 
   const openAddContactModal = () => {
     setEditingContact(null);
-    resetContactForm({ name: "", relationship: "", phone: "", email: "", isPrimary: false });
+    resetContactForm({ name: "", relationship: "", phone: "", email: "", isPrimary: false, notes: "" });
     setShowContactModal(true);
   };
 
@@ -194,6 +198,7 @@ export default function ProfilePage() {
       phone: contact.phone,
       email: contact.email ?? "",
       isPrimary: contact.isPrimary,
+      notes: contact.notes ?? "",
     });
     setShowContactModal(true);
   };
@@ -226,7 +231,11 @@ export default function ProfilePage() {
   };
 
   const handleDeleteContact = async (id: string) => {
-    if (!confirm("Are you sure you want to delete this emergency contact?")) return;
+    const confirmed = await confirmDialog({
+      title: "Delete emergency contact",
+      message: "Are you sure you want to delete this emergency contact?",
+    });
+    if (!confirmed) return;
 
     try {
       await emergencyContactService.remove(id);
@@ -254,6 +263,31 @@ export default function ProfilePage() {
         <ProfileSkeleton />
       ) : (
         <div className="flex flex-col gap-6">
+          <div className="flex gap-2 border-b border-gray-200 dark:border-gray-800">
+            <button
+              onClick={() => setActiveTab("profile")}
+              className={`border-b-2 px-4 py-3 text-sm font-semibold transition-colors ${
+                activeTab === "profile"
+                  ? "border-blue-600 text-blue-600"
+                  : "border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+              }`}
+            >
+              Profile
+            </button>
+            <button
+              onClick={() => setActiveTab("account")}
+              className={`border-b-2 px-4 py-3 text-sm font-semibold transition-colors ${
+                activeTab === "account"
+                  ? "border-blue-600 text-blue-600"
+                  : "border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+              }`}
+            >
+              Account Settings
+            </button>
+          </div>
+
+          {activeTab === "profile" && (
+          <>
           <ProfileCard profile={profile} onImageChange={handleImageChange} />
           <ProfileCompletion profile={profile} />
 
@@ -277,7 +311,19 @@ export default function ProfilePage() {
             {contactsLoading ? (
               <p className="text-sm text-gray-400 dark:text-gray-500">Loading contacts...</p>
             ) : contacts.length === 0 ? (
-              <p className="text-sm text-gray-400 dark:text-gray-500">No emergency contacts added yet.</p>
+              <EmptyState
+                icon="🆘"
+                title="No emergency contacts yet"
+                description="Add someone we can reach if there's a health emergency."
+                action={
+                  <button
+                    onClick={openAddContactModal}
+                    className="rounded-full bg-blue-600 px-6 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-blue-700"
+                  >
+                    Add Emergency Contact
+                  </button>
+                }
+              />
             ) : (
               <div className="flex flex-col divide-y divide-gray-100 dark:divide-gray-800">
                 {contacts.map((contact) => (
@@ -294,6 +340,9 @@ export default function ProfilePage() {
                       <p className="text-xs text-gray-500 dark:text-gray-400">
                         {contact.relationship} · {contact.phone}
                       </p>
+                      {contact.notes && (
+                        <p className="mt-0.5 text-xs italic text-gray-400 dark:text-gray-500">{contact.notes}</p>
+                      )}
                     </div>
                     <div className="flex gap-2">
                       <button
@@ -314,13 +363,19 @@ export default function ProfilePage() {
               </div>
             )}
           </Card>
+          </>
+          )}
 
+          {activeTab === "account" && (
+          <>
           <PreferencesForm
             preferences={profile.preferences}
             onSubmit={handlePreferencesSubmit}
             submitting={savingPreferences}
           />
           <PasswordForm onSubmit={handlePasswordSubmit} submitting={savingPassword} />
+          </>
+          )}
         </div>
       )}
 
@@ -383,6 +438,16 @@ export default function ProfilePage() {
             />
             Set as primary contact
           </label>
+
+          <div>
+            <label className="mb-1 block text-sm font-semibold text-gray-700 dark:text-gray-300">Medical Notes (Optional)</label>
+            <textarea
+              rows={3}
+              placeholder="e.g., Allergic to penicillin, carries an EpiPen"
+              className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm outline-none transition-colors focus:border-blue-500 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100"
+              {...registerContactField("notes")}
+            />
+          </div>
 
           <div className="mt-2 flex gap-3">
             <button

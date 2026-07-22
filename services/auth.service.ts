@@ -59,6 +59,28 @@ export const authService = {
     return result;
   },
 
+  async loginWithGoogle(credential: string) {
+    const response = await fetch(getApiUrl("/api/auth/google"), {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ credential }),
+    });
+
+    const result = await parseResponse<{ token: string; user: AuthUser }>(response);
+
+    if (result.token) {
+      localStorage.setItem("token", result.token);
+      Cookies.set("token", result.token, {
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "lax",
+      });
+    }
+
+    return result;
+  },
+
   async whoami() {
     const response = await fetch(getApiUrl("/api/auth/whoami"), {
       method: "GET",

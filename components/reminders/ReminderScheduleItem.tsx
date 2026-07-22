@@ -9,6 +9,7 @@ interface ReminderScheduleItemProps {
   busy: boolean;
   onMarkTaken: () => void;
   onMarkSnooze: () => void;
+  onMarkSkip: () => void;
 }
 
 export function ReminderScheduleItem({
@@ -20,9 +21,11 @@ export function ReminderScheduleItem({
   busy,
   onMarkTaken,
   onMarkSnooze,
+  onMarkSkip,
 }: ReminderScheduleItemProps) {
   const taken = status === "taken";
   const snoozed = status === "snoozed";
+  const skipped = status === "skipped";
 
   return (
     <div className="relative flex gap-4 pb-6 last:pb-0">
@@ -88,6 +91,17 @@ export function ReminderScheduleItem({
                 className="rounded-lg border border-gray-300 bg-white px-3 py-1.5 text-xs font-semibold text-gray-700 transition-colors hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 dark:hover:bg-gray-800"
               >
                 {snoozed ? "Snoozed" : "Snooze 15m"}
+              </button>
+              <button
+                disabled={busy}
+                onClick={onMarkSkip}
+                className={`rounded-lg border px-3 py-1.5 text-xs font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-50 ${
+                  skipped
+                    ? "border-amber-300 bg-amber-50 text-amber-700 dark:border-amber-500/30 dark:bg-amber-500/10 dark:text-amber-400"
+                    : "border-gray-300 bg-white text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 dark:hover:bg-gray-800"
+                }`}
+              >
+                {skipped ? "Skipped" : "Skip"}
               </button>
             </>
           )}

@@ -5,9 +5,11 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useAuth } from "../../../contexts/AuthContext";
 import { useToast } from "../../../contexts/ToastContext";
+import { useConfirmDialog } from "../../../contexts/ConfirmDialogContext";
 import { medicineService, Medicine } from "../../../services/medicine.service";
 import { reportsService, RefillAlert as RefillAlertData } from "../../../services/reports.service";
 import { TodayMedicine, AdherenceStats } from "../../../types/medicine.types";
+import { offlineStore, isNetworkFailure } from "../../../lib/offline-store";
 import { MedicineModal } from "../../../components/medicines/MedicineModal";
 import { MedicineStats } from "../../../components/medicines/MedicineStats";
 import { MedicineSearch } from "../../../components/medicines/MedicineSearch";
@@ -22,6 +24,7 @@ export default function MedicinesPage() {
   const router = useRouter();
   const { isAuthenticated } = useAuth();
   const toast = useToast();
+  const confirmDialog = useConfirmDialog();
   const [medicines, setMedicines] = useState<Medicine[]>([]);
   const [todayMedicines, setTodayMedicines] = useState<TodayMedicine[]>([]);
   const [refillAlerts, setRefillAlerts] = useState<RefillAlertData[]>([]);
@@ -36,6 +39,7 @@ export default function MedicinesPage() {
   const [editingMedicine, setEditingMedicine] = useState<Medicine | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedFilter, setSelectedFilter] = useState<MedicineFilterValue>("all");
+  const [isOffline, setIsOffline] = useState(false);
 
   useEffect(() => {
     if (!isAuthenticated) {
@@ -45,8 +49,31 @@ export default function MedicinesPage() {
       fetchTodayMedicines();
       fetchStats();
       fetchRefillAlerts();
+      if (typeof navigator !== "undefined" && navigator.onLine) {
+        syncPendingTakes();
+      }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isAuthenticated, router]);
+
+  useEffect(() => {
+    if (typeof navigator === "undefined") return;
+    setIsOffline(!navigator.onLine);
+
+    const handleOnline = () => {
+      setIsOffline(false);
+      syncPendingTakes();
+    };
+    const handleOffline = () => setIsOffline(true);
+
+    window.addEventListener("online", handleOnline);
+    window.addEventListener("offline", handleOffline);
+    return () => {
+      window.removeEventListener("online", handleOnline);
+      window.removeEventListener("offline", handleOffline);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const fetchMedicines = async () => {
     try {
@@ -64,9 +91,46 @@ export default function MedicinesPage() {
     try {
       const data = await medicineService.getTodayMedicines();
       setTodayMedicines(data);
+      offlineStore.saveTodayMedicines(data);
     } catch (error) {
       console.error("Failed to fetch today's medicines:", error);
+      if (isNetworkFailure(error)) {
+        const cached = offlineStore.loadTodayMedicines();
+        if (cached) {
+          setTodayMedicines(cached);
+          return;
+        }
+      }
       toast.error("Unable to load today's medicines. Please try again.");
+    }
+  };
+
+  // Retries any "mark as taken" taps that were queued while offline. Actions that
+  // still fail for a network reason are kept for the next retry; anything that fails
+  // for another reason (e.g. the medicine was deleted) is dropped rather than retried forever.
+  const syncPendingTakes = async () => {
+    const pending = offlineStore.getPendingTakes();
+    if (pending.length === 0) return;
+
+    const stillPending: typeof pending = [];
+    let succeeded = 0;
+
+    for (const action of pending) {
+      try {
+        await medicineService.markMedicineAsTaken(action.medicineId, action.scheduledTime);
+        succeeded++;
+      } catch (error) {
+        console.error("Failed to sync offline medicine update:", error);
+        if (isNetworkFailure(error)) {
+          stillPending.push(action);
+        }
+      }
+    }
+
+    offlineStore.setPendingTakes(stillPending);
+    if (succeeded > 0) {
+      toast.success(`Synced ${succeeded} offline update${succeeded > 1 ? "s" : ""}.`);
+      fetchTodayMedicines();
     }
   };
 
@@ -91,7 +155,11 @@ export default function MedicinesPage() {
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm("Are you sure you want to delete this medicine?")) return;
+    const confirmed = await confirmDialog({
+      title: "Delete medicine",
+      message: "Are you sure you want to delete this medicine?",
+    });
+    if (!confirmed) return;
     
     try {
       await medicineService.deleteMedicine(id);
@@ -110,6 +178,22 @@ export default function MedicinesPage() {
       fetchTodayMedicines();
     } catch (error) {
       console.error("Failed to mark medicine as taken:", error);
+
+      if (isNetworkFailure(error)) {
+        offlineStore.queueTake({ medicineId, scheduledTime, queuedAt: new Date().toISOString() });
+        setTodayMedicines((current) => {
+          const next = current.map((medicine) =>
+            medicine._id === medicineId && medicine.time === scheduledTime
+              ? { ...medicine, status: "taken" as const }
+              : medicine
+          );
+          offlineStore.saveTodayMedicines(next);
+          return next;
+        });
+        toast.info("You're offline — saved and will sync automatically once you're back online.");
+        return;
+      }
+
       toast.error("Unable to mark medicine as taken. Please try again.");
     }
   };
@@ -119,14 +203,29 @@ export default function MedicinesPage() {
     setEditingMedicine(null);
   };
 
+  const now = new Date();
+  const currentTime = `${String(now.getHours()).padStart(2, "0")}:${String(now.getMinutes()).padStart(2, "0")}`;
+  const todayMedicineIds = new Set(todayMedicines.map((m) => m._id));
+  const missedTodayMedicineIds = new Set(
+    todayMedicines.filter((m) => m.status === "pending" && m.time < currentTime).map((m) => m._id)
+  );
+
   const filteredMedicines = medicines
-    .filter((medicine) => medicine.name.toLowerCase().includes(searchTerm.toLowerCase()))
+    .filter((medicine) => {
+      const query = searchTerm.toLowerCase();
+      if (!query) return true;
+      return (
+        medicine.name.toLowerCase().includes(query) ||
+        medicine.dosage.toLowerCase().includes(query) ||
+        (medicine.notes ?? "").toLowerCase().includes(query)
+      );
+    })
     .filter((medicine) => {
       if (selectedFilter === "all") return true;
-      if (selectedFilter === "active" || selectedFilter === "completed") {
-        return medicine.status === selectedFilter;
-      }
-      return medicine.frequency === selectedFilter;
+      if (selectedFilter === "completed") return medicine.status === "completed";
+      if (selectedFilter === "today") return todayMedicineIds.has(medicine._id);
+      if (selectedFilter === "missed") return missedTodayMedicineIds.has(medicine._id);
+      return true;
     });
 
   if (!isAuthenticated) {
@@ -164,6 +263,12 @@ export default function MedicinesPage() {
           + Add Medicine
         </button>
       </div>
+
+      {isOffline && (
+        <div className="mb-6 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm font-medium text-amber-800 dark:border-amber-500/30 dark:bg-amber-500/10 dark:text-amber-400">
+          📴 You're offline. Showing your last saved data — any changes will sync automatically once you're back online.
+        </div>
+      )}
 
       <div className="mb-8">
         <TodayMedicines medicines={todayMedicines} onMedicineTaken={handleMedicineTaken} />

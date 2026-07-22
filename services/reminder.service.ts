@@ -63,7 +63,7 @@ export interface CreateReminderDTO {
 
 export type UpdateReminderDTO = Partial<CreateReminderDTO>;
 
-export type ReminderLogStatus = "taken" | "snoozed";
+export type ReminderLogStatus = "taken" | "snoozed" | "skipped";
 
 export interface ReminderLog {
   _id: string;
@@ -78,6 +78,8 @@ const dayAbbreviations = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 // Local-time day/date keys, kept in sync with the "Mon".."Sun" values stored on
 // a reminder's `days` array and the YYYY-MM-DD keys used by reminder logs.
 export const getTodayDayAbbrev = (): string => dayAbbreviations[new Date().getDay()];
+
+export const getDayAbbrev = (date: Date): string => dayAbbreviations[date.getDay()];
 
 export const toDateKey = (date: Date): string => {
   const month = String(date.getMonth() + 1).padStart(2, "0");
@@ -133,6 +135,14 @@ export const reminderService = {
 
   async getLogsForDate(date: string): Promise<ReminderLog[]> {
     const response = await fetch(getApiUrl(`/api/reminders/logs?date=${date}`), {
+      method: "GET",
+      headers: getAuthHeaders(),
+    });
+    return parseResponse<ReminderLog[]>(response);
+  },
+
+  async getLogsHistory(days: number = 7): Promise<ReminderLog[]> {
+    const response = await fetch(getApiUrl(`/api/reminders/logs/range?days=${days}`), {
       method: "GET",
       headers: getAuthHeaders(),
     });
