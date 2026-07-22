@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "../../../contexts/AuthContext";
 import { useToast } from "../../../contexts/ToastContext";
+import { useConfirmDialog } from "../../../contexts/ConfirmDialogContext";
 import {
   reminderService,
   Reminder,
@@ -20,6 +21,8 @@ import { TodaySchedule, ScheduleEntry } from "../../../components/reminders/Toda
 import { AppointmentSchedule } from "../../../components/reminders/AppointmentSchedule";
 import { UpcomingAppointments } from "../../../components/reminders/UpcomingAppointments";
 import { ReminderList } from "../../../components/reminders/ReminderList";
+import { ReminderHistory } from "../../../components/reminders/ReminderHistory";
+import { SearchBar } from "../../../components/common/SearchBar";
 import { ReminderForm } from "../../../components/reminders/ReminderForm";
 import { ReminderEmptyState } from "../../../components/reminders/ReminderEmptyState";
 import { ReminderSkeleton } from "../../../components/reminders/ReminderSkeleton";
@@ -36,15 +39,18 @@ export default function RemindersPage() {
   const router = useRouter();
   const { isAuthenticated } = useAuth();
   const toast = useToast();
+  const confirmDialog = useConfirmDialog();
   const [loading, setLoading] = useState(true);
   const [reminders, setReminders] = useState<Reminder[]>([]);
   const [logs, setLogs] = useState<ReminderLog[]>([]);
+  const [historyLogs, setHistoryLogs] = useState<ReminderLog[]>([]);
   const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [busyId, setBusyId] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<"medication" | "appointments">("medication");
   const [showModal, setShowModal] = useState(false);
   const [editingReminder, setEditingReminder] = useState<Reminder | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
     if (!isAuthenticated) {
@@ -53,6 +59,7 @@ export default function RemindersPage() {
     }
     fetchReminders();
     fetchTodayLogs();
+    fetchHistoryLogs();
     fetchAppointments();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isAuthenticated, router]);
@@ -76,6 +83,15 @@ export default function RemindersPage() {
       setLogs(data);
     } catch (err) {
       console.error("Failed to fetch today's reminder logs:", err);
+    }
+  };
+
+  const fetchHistoryLogs = async () => {
+    try {
+      const data = await reminderService.getLogsHistory(7);
+      setHistoryLogs(data);
+    } catch (err) {
+      console.error("Failed to fetch reminder history:", err);
     }
   };
 
@@ -125,7 +141,11 @@ export default function RemindersPage() {
   };
 
   const handleDeleteReminder = async (id: string) => {
-    if (!confirm("Delete this reminder?")) return;
+    const confirmed = await confirmDialog({
+      title: "Delete reminder",
+      message: "Are you sure you want to delete this reminder?",
+    });
+    if (!confirmed) return;
 
     try {
       await reminderService.deleteReminder(id);
@@ -169,6 +189,10 @@ export default function RemindersPage() {
       time: reminder.time,
       status: logs.find((log) => log.reminderId === reminder._id)?.status,
     }));
+
+  const filteredReminders = reminders.filter((reminder) =>
+    reminder.title.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   const reminderEnabledAppointments = appointments.filter(
     (appointment) => appointment.reminderEnabled && appointment.status === "scheduled"
@@ -245,15 +269,32 @@ export default function RemindersPage() {
             busyId={busyId}
             onMarkTaken={(id) => handleMarkStatus(id, "taken")}
             onMarkSnooze={(id) => handleMarkStatus(id, "snoozed")}
+            onMarkSkip={(id) => handleMarkStatus(id, "skipped")}
           />
 
           <div className="mt-10">
-            <h2 className="mb-4 text-lg font-bold text-gray-900 dark:text-white">All Reminders</h2>
+            <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <h2 className="text-lg font-bold text-gray-900 dark:text-white">All Reminders</h2>
+              {reminders.length > 0 && (
+                <SearchBar
+                  value={searchTerm}
+                  onChange={setSearchTerm}
+                  placeholder="Search reminders..."
+                  className="w-full sm:max-w-xs"
+                />
+              )}
+            </div>
             {reminders.length === 0 ? (
               <ReminderEmptyState onAddReminder={openAddModal} />
+            ) : filteredReminders.length === 0 ? (
+              <p className="text-sm text-gray-500 dark:text-gray-400">No reminders match your search.</p>
             ) : (
-              <ReminderList reminders={reminders} onEdit={openEditModal} onDelete={handleDeleteReminder} />
+              <ReminderList reminders={filteredReminders} onEdit={openEditModal} onDelete={handleDeleteReminder} />
             )}
+          </div>
+
+          <div className="mt-10">
+            <ReminderHistory reminders={reminders} logs={historyLogs} days={7} />
           </div>
         </>
       )}
