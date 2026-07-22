@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "../../../contexts/AuthContext";
 import { useToast } from "../../../contexts/ToastContext";
+import { useConfirmDialog } from "../../../contexts/ConfirmDialogContext";
 import { appointmentService } from "../../../services/appointment.service";
 import {
   Appointment,
@@ -29,6 +30,7 @@ export default function AppointmentsPage() {
   const router = useRouter();
   const { isAuthenticated } = useAuth();
   const toast = useToast();
+  const confirmDialog = useConfirmDialog();
   const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [loading, setLoading] = useState(true);
   const [viewMode, setViewMode] = useState<ViewMode>("list");
@@ -166,7 +168,11 @@ export default function AppointmentsPage() {
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm("Are you sure you want to delete this appointment?")) return;
+    const confirmed = await confirmDialog({
+      title: "Delete appointment",
+      message: "Are you sure you want to delete this appointment?",
+    });
+    if (!confirmed) return;
 
     try {
       await appointmentService.deleteAppointment(id);
