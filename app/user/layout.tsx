@@ -24,7 +24,6 @@ const navItems = [
   { href: "/user/appointments", label: "Appointments", icon: "📅" },
   { href: "/user/reports", label: "Reports", icon: "📈" },
   { href: "/user/timeline", label: "Timeline", icon: "🕒" },
-  { href: "/user/notifications", label: "Notifications", icon: "🔔" },
   { href: "/user/ai", label: "AI Assistant", icon: "✨" },
   { href: "/user/subscription", label: "Subscription", icon: "⭐" },
   { href: "/user/feedback", label: "Feedback", icon: "💬" },
@@ -170,11 +169,6 @@ export default function UserLayout({ children }: { children: React.ReactNode }) 
               >
                 <span aria-hidden="true">{item.icon}</span>
                 <span className="flex-1">{item.label}</span>
-                {item.href === "/user/notifications" && unreadCount > 0 && (
-                  <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-red-500 px-1 text-[11px] font-bold text-white">
-                    {unreadCount > 9 ? "9+" : unreadCount}
-                  </span>
-                )}
               </Link>
             );
           })}
@@ -199,13 +193,38 @@ export default function UserLayout({ children }: { children: React.ReactNode }) 
       </aside>
 
       <div className="flex min-h-screen flex-1 flex-col">
-        <header className="flex items-center border-b border-gray-100 px-4 py-3 dark:border-gray-800 lg:hidden">
+        <header className="flex items-center justify-between border-b border-gray-100 px-4 py-3 dark:border-gray-800 sm:px-6 lg:px-8">
           <button
-            className="text-xl text-gray-600 dark:text-gray-400"
+            className="text-xl text-gray-600 dark:text-gray-400 lg:hidden"
             onClick={() => setSidebarOpen(true)}
             aria-label="Open menu"
           >
             ☰
+          </button>
+
+          <button
+            onClick={() => router.push("/user/notifications")}
+            aria-label={`Notifications${unreadCount > 0 ? ` (${unreadCount} unread)` : ""}`}
+            className="relative ml-auto flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full text-gray-500 transition-colors hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800"
+          >
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.8"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              className="h-5 w-5"
+              aria-hidden="true"
+            >
+              <path d="M18 16v-5a6 6 0 1 0-12 0v5l-1.5 2.5h15Z" />
+              <path d="M9.5 20.5a2.5 2.5 0 0 0 5 0" />
+            </svg>
+            {unreadCount > 0 && (
+              <span className="absolute right-1 top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-bold text-white">
+                {unreadCount > 9 ? "9+" : unreadCount}
+              </span>
+            )}
           </button>
         </header>
 
