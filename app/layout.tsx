@@ -3,6 +3,7 @@ import "./globals.css";
 import { AuthProvider } from "../contexts/AuthContext";
 import { ToastProvider } from "../contexts/ToastContext";
 import { ThemeProvider } from "../contexts/ThemeContext";
+import { ConfirmDialogProvider } from "../contexts/ConfirmDialogContext";
 
 export const metadata: Metadata = {
   title: "Medimate",
@@ -32,7 +33,9 @@ export default function RootLayout({
       <body>
         <ThemeProvider>
           <ToastProvider>
-            <AuthProvider>{children}</AuthProvider>
+            <ConfirmDialogProvider>
+              <AuthProvider>{children}</AuthProvider>
+            </ConfirmDialogProvider>
           </ToastProvider>
         </ThemeProvider>
       </body>
