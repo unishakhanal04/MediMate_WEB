@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "../../../contexts/AuthContext";
 import { useToast } from "../../../contexts/ToastContext";
+import { useConfirmDialog } from "../../../contexts/ConfirmDialogContext";
 import { prescriptionService } from "../../../services/prescription.service";
 import {
   Prescription,
@@ -24,6 +25,7 @@ export default function PrescriptionsPage() {
   const router = useRouter();
   const { isAuthenticated } = useAuth();
   const toast = useToast();
+  const confirmDialog = useConfirmDialog();
   const [prescriptions, setPrescriptions] = useState<Prescription[]>([]);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
@@ -52,7 +54,11 @@ export default function PrescriptionsPage() {
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm("Are you sure you want to delete this prescription?")) return;
+    const confirmed = await confirmDialog({
+      title: "Delete prescription",
+      message: "Are you sure you want to delete this prescription?",
+    });
+    if (!confirmed) return;
 
     try {
       await prescriptionService.deletePrescription(id);
@@ -111,8 +117,14 @@ export default function PrescriptionsPage() {
   };
 
   const filteredPrescriptions = prescriptions.filter((prescription) => {
-    if (filters.search && !prescription.title.toLowerCase().includes(filters.search.toLowerCase())) {
-      return false;
+    if (filters.search) {
+      const query = filters.search.toLowerCase();
+      const matches =
+        prescription.title.toLowerCase().includes(query) ||
+        prescription.doctorName.toLowerCase().includes(query) ||
+        (prescription.hospital ?? "").toLowerCase().includes(query) ||
+        (prescription.diagnosis ?? "").toLowerCase().includes(query);
+      if (!matches) return false;
     }
     if (filters.status && getPrescriptionDisplayStatus(prescription) !== filters.status) {
       return false;
