@@ -9,6 +9,7 @@ import { StatsCards, StatItem } from "../../../components/admin/StatsCards";
 import { AdminSkeleton } from "../../../components/admin/AdminSkeleton";
 import { AdminEmptyState } from "../../../components/admin/AdminEmptyState";
 import { Card } from "../../../components/dashboard/Card";
+import { WeeklyTrendChart } from "../../../components/admin/WeeklyTrendChart";
 
 export default function AdminReportsPage() {
   const toast = useToast();
@@ -56,7 +57,12 @@ export default function AdminReportsPage() {
     );
   }
 
-  const maxGrowth = Math.max(...overview.userGrowth.map((point) => point.count), 1);
+  const kpis: StatItem[] = [
+    { label: "Today's Registrations", value: overview.kpis.todaysRegistrations, icon: "🆕" },
+    { label: "Weekly Active Users", value: overview.kpis.weeklyActiveUsers, icon: "✅" },
+    { label: "Monthly AI Requests", value: overview.kpis.monthlyAiRequests, icon: "💬" },
+    { label: "Medicine Completion Rate", value: `${overview.kpis.medicineCompletionRate}%`, icon: "💊" },
+  ];
 
   const stats: StatItem[] = [
     { label: "Total Prescriptions", value: overview.totalPrescriptions, icon: "📄" },
@@ -83,24 +89,61 @@ export default function AdminReportsPage() {
     <div className="flex flex-col gap-6">
       <PageHeader icon="📈" title="Reports Overview" description="System-wide trends across MediMate." />
 
-      <StatsCards stats={stats} />
-
-      <Card className="flex flex-col gap-4">
-        <h2 className="text-base font-bold text-gray-900 dark:text-white">User Growth (last 8 weeks)</h2>
-        <div className="flex items-end gap-2 overflow-x-auto pb-2" style={{ minHeight: "9rem" }}>
-          {overview.userGrowth.map((point) => (
-            <div key={point.label} className="flex flex-1 flex-col items-center gap-2">
-              <div
-                className="w-full min-w-[1.5rem] rounded-t-md bg-blue-500"
-                style={{ height: `${Math.max((point.count / maxGrowth) * 100, 4)}px` }}
-                title={`${point.count} new users`}
-              />
-              <span className="text-[11px] font-semibold text-gray-500 dark:text-gray-400">{point.count}</span>
-              <span className="whitespace-nowrap text-[11px] text-gray-400 dark:text-gray-500">{point.label}</span>
-            </div>
+      <div className="flex flex-col gap-3">
+        <h2 className="text-sm font-bold text-gray-900 dark:text-white">Key Performance Indicators</h2>
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          {kpis.map((kpi) => (
+            <Card key={kpi.label} className="flex items-center gap-4">
+              <span
+                className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-xl bg-blue-50 text-xl dark:bg-blue-500/10"
+                aria-hidden="true"
+              >
+                {kpi.icon}
+              </span>
+              <div className="min-w-0">
+                <p className="text-2xl font-bold text-gray-900 dark:text-white">{kpi.value}</p>
+                <p className="truncate text-sm text-gray-500 dark:text-gray-400">{kpi.label}</p>
+              </div>
+            </Card>
           ))}
         </div>
-      </Card>
+      </div>
+
+      <StatsCards stats={stats} />
+
+      <WeeklyTrendChart
+        title="User Registration Trend (last 8 weeks)"
+        points={overview.userGrowth}
+        unitLabel="new users"
+        color="bg-blue-500"
+      />
+
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+        <WeeklyTrendChart
+          title="Medicine Usage Trend"
+          points={overview.medicineUsageTrend}
+          unitLabel="doses taken"
+          color="bg-emerald-500"
+        />
+        <WeeklyTrendChart
+          title="Appointment Trend"
+          points={overview.appointmentTrend}
+          unitLabel="appointments booked"
+          color="bg-violet-500"
+        />
+        <WeeklyTrendChart
+          title="Prescription Upload Trend"
+          points={overview.prescriptionUploadTrend}
+          unitLabel="prescriptions uploaded"
+          color="bg-indigo-500"
+        />
+        <WeeklyTrendChart
+          title="AI Usage Trend"
+          points={overview.aiUsageTrend}
+          unitLabel="conversations started"
+          color="bg-purple-500"
+        />
+      </div>
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
         <Card className="flex flex-col gap-4">
