@@ -8,6 +8,7 @@ export type EmergencyContact = {
   phone: string;
   email?: string;
   isPrimary: boolean;
+  notes?: string;
   createdAt?: string;
   updatedAt?: string;
 };
@@ -18,6 +19,7 @@ export type EmergencyContactDTO = {
   phone: string;
   email?: string;
   isPrimary?: boolean;
+  notes?: string;
 };
 
 export const emergencyContactService = {

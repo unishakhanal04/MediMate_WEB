@@ -7,7 +7,7 @@ export const CATEGORY_TYPES: Record<TimelineCategory, TimelineEventType[] | unde
   all: undefined,
   medications: ["medicine_added", "medicine_taken", "medicine_skipped", "medicine_missed"],
   prescriptions: ["prescription_uploaded"],
-  appointments: ["appointment"],
+  appointments: ["appointment_created", "appointment_completed"],
 };
 
 const categoryTabs: { key: TimelineCategory; label: string }[] = [

@@ -6,6 +6,7 @@ import {
   PrescriptionsReport,
   AppointmentsReport,
   ReportPeriod,
+  InsightsResponse,
 } from "../types/report.types";
 
 export const reportService = {
@@ -27,5 +28,9 @@ export const reportService = {
 
   async getAppointments(): Promise<AppointmentsReport> {
     return apiFetch<AppointmentsReport>("/api/v1/reports/appointments");
+  },
+
+  async getInsights(): Promise<InsightsResponse> {
+    return apiFetch<InsightsResponse>("/api/v1/reports/insights");
   },
 };

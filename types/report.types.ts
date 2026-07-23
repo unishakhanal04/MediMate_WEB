@@ -60,3 +60,21 @@ export interface AppointmentsReport {
 }
 
 export type ReportPeriod = "daily" | "weekly";
+
+export interface InsightsResponse {
+  unlocked: boolean;
+  insights: ReportsInsights | null;
+}
+
+export interface ReportsInsights {
+  adherenceTrend: {
+    currentPercent: number;
+    previousPercent: number;
+    deltaPercent: number;
+    direction: "up" | "down" | "flat";
+  };
+  mostMissedMedicine: { name: string; missedCount: number } | null;
+  bestAdherenceDay: { day: string; percentage: number } | null;
+  totalMedicinesCompleted: number;
+  appointmentAttendanceRate: number;
+}

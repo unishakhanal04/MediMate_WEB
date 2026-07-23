@@ -70,6 +70,9 @@ export function PrescriptionCard({ prescription, onEdit, onDelete }: Prescriptio
           {prescription.doctorName}
           {prescription.hospital ? ` · ${prescription.hospital}` : ""}
         </p>
+        {prescription.diagnosis && (
+          <p className="mt-1 truncate text-xs text-gray-400 dark:text-gray-500">{prescription.diagnosis}</p>
+        )}
       </div>
 
       {prescription.medicines.length > 0 && (

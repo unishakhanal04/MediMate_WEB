@@ -1,10 +1,4 @@
-export type MedicineFilterValue =
-  | "all"
-  | "active"
-  | "completed"
-  | "daily"
-  | "weekly"
-  | "as_needed";
+export type MedicineFilterValue = "all" | "today" | "completed" | "missed";
 
 interface MedicineFiltersProps {
   selectedFilter: MedicineFilterValue;
@@ -13,11 +7,9 @@ interface MedicineFiltersProps {
 
 const filters: { label: string; value: MedicineFilterValue }[] = [
   { label: "All", value: "all" },
-  { label: "Active", value: "active" },
+  { label: "Today's", value: "today" },
   { label: "Completed", value: "completed" },
-  { label: "Daily", value: "daily" },
-  { label: "Weekly", value: "weekly" },
-  { label: "As Needed", value: "as_needed" },
+  { label: "Missed", value: "missed" },
 ];
 
 export function MedicineFilters({ selectedFilter, onFilterChange }: MedicineFiltersProps) {
