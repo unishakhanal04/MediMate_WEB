@@ -10,10 +10,14 @@ const dotStyleFor: Record<TimelineEventType, { bg: string; icon: string }> = {
   medicine_added: { bg: "bg-amber-500", icon: "+" },
   medicine_skipped: { bg: "bg-amber-500", icon: "!" },
   medicine_missed: { bg: "bg-amber-500", icon: "!" },
+  reminder_snoozed: { bg: "bg-amber-500", icon: "⏰" },
   prescription_uploaded: { bg: "bg-violet-600", icon: "" },
-  appointment: { bg: "bg-blue-600", icon: "" },
+  appointment_created: { bg: "bg-blue-600", icon: "" },
+  appointment_completed: { bg: "bg-emerald-600", icon: "✓" },
+  emergency_contact_added: { bg: "bg-rose-500", icon: "" },
   ai_conversation: { bg: "bg-violet-600", icon: "" },
   profile_updated: { bg: "bg-gray-400", icon: "" },
+  password_changed: { bg: "bg-gray-400", icon: "🔒" },
 };
 
 export function RecentActivity({ events }: RecentActivityProps) {
