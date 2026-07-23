@@ -133,6 +133,16 @@ export const authService = {
     return parseResponse<{ message: string }>(response);
   },
 
+  async verifyResetOtp(email: string, otp: string) {
+    const response = await fetch(getApiUrl("/api/auth/verify-otp"), {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, otp }),
+    });
+
+    return parseResponse<{ message: string; resetToken: string }>(response);
+  },
+
   async resetPassword(token: string, newPassword: string) {
     const response = await fetch(getApiUrl("/api/auth/reset-password"), {
       method: "POST",
