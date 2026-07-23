@@ -5,6 +5,7 @@ import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { useAuth } from "../../../../contexts/AuthContext";
 import { useToast } from "../../../../contexts/ToastContext";
+import { useConfirmDialog } from "../../../../contexts/ConfirmDialogContext";
 import { prescriptionService } from "../../../../services/prescription.service";
 import { Prescription, getPrescriptionDisplayStatus } from "../../../../types/prescription.types";
 import { LoadingPrescriptions } from "../../../../components/prescriptions/LoadingPrescriptions";
@@ -19,6 +20,7 @@ export default function PrescriptionDetailPage() {
   const router = useRouter();
   const { isAuthenticated } = useAuth();
   const toast = useToast();
+  const confirmDialog = useConfirmDialog();
   const [prescription, setPrescription] = useState<Prescription | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -40,7 +42,11 @@ export default function PrescriptionDetailPage() {
   }, [isAuthenticated, params.id, router]);
 
   const handleDelete = async () => {
-    if (!confirm("Are you sure you want to delete this prescription?")) return;
+    const confirmed = await confirmDialog({
+      title: "Delete prescription",
+      message: "Are you sure you want to delete this prescription?",
+    });
+    if (!confirmed) return;
 
     try {
       await prescriptionService.deletePrescription(params.id);
@@ -108,6 +114,22 @@ export default function PrescriptionDetailPage() {
               <span className="font-medium text-gray-900 dark:text-white">
                 {new Date(prescription.expiryDate).toLocaleDateString()}
               </span>
+            </div>
+          )}
+
+          {prescription.reviewDate && (
+            <div className="flex items-center justify-between">
+              <span className="text-gray-500 dark:text-gray-400">Review Date</span>
+              <span className="font-medium text-gray-900 dark:text-white">
+                {new Date(prescription.reviewDate).toLocaleDateString()}
+              </span>
+            </div>
+          )}
+
+          {prescription.diagnosis && (
+            <div>
+              <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-gray-400 dark:text-gray-500">Diagnosis</p>
+              <p className="text-gray-700 dark:text-gray-300">{prescription.diagnosis}</p>
             </div>
           )}
 

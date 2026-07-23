@@ -1,10 +1,12 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useForm, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { prescriptionFormSchema, PrescriptionFormData } from "../../schemas/prescription.schema";
 import { Prescription } from "../../types/prescription.types";
+import { prescriptionService } from "../../services/prescription.service";
+import { useToast } from "../../contexts/ToastContext";
 import { Button } from "../Button";
 
 interface PrescriptionFormProps {
@@ -24,6 +26,10 @@ const buildDefaults = (prescription?: Prescription | null): PrescriptionFormData
   expiryDate: prescription?.expiryDate
     ? new Date(prescription.expiryDate).toISOString().split("T")[0]
     : "",
+  diagnosis: prescription?.diagnosis ?? "",
+  reviewDate: prescription?.reviewDate
+    ? new Date(prescription.reviewDate).toISOString().split("T")[0]
+    : "",
   notes: prescription?.notes ?? "",
   medicines: prescription?.medicines.length
     ? prescription.medicines.map((value) => ({ value }))
@@ -36,11 +42,16 @@ export function PrescriptionForm({
   onCancel,
   submitting = false,
 }: PrescriptionFormProps) {
+  const toast = useToast();
+  const [extracting, setExtracting] = useState(false);
+
   const {
     register,
     control,
     handleSubmit,
     reset,
+    setValue,
+    watch,
     formState: { errors },
   } = useForm<PrescriptionFormData>({
     resolver: zodResolver(prescriptionFormSchema),
@@ -51,7 +62,32 @@ export function PrescriptionForm({
     reset(buildDefaults(existingPrescription));
   }, [existingPrescription, reset]);
 
-  const { fields, append, remove } = useFieldArray({ control, name: "medicines" });
+  const { fields, append, remove, replace } = useFieldArray({ control, name: "medicines" });
+
+  const selectedFile = watch("attachment")?.[0];
+
+  const handleScanWithAI = async () => {
+    if (!selectedFile) return;
+    setExtracting(true);
+    try {
+      const data = await prescriptionService.extractPrescriptionData(selectedFile);
+      if (data.doctorName) setValue("doctorName", data.doctorName);
+      if (data.hospital) setValue("hospital", data.hospital);
+      if (data.prescriptionDate) setValue("prescriptionDate", data.prescriptionDate);
+      if (data.diagnosis) setValue("diagnosis", data.diagnosis);
+      if (data.notes) setValue("notes", data.notes);
+      if (data.medicines.length > 0) {
+        replace(data.medicines.map((value) => ({ value })));
+      }
+      toast.success("Filled fields from your prescription — please review before saving.");
+    } catch (error) {
+      console.error("Failed to extract prescription data:", error);
+      const message = error instanceof Error ? error.message : "Could not read the prescription.";
+      toast.error(message);
+    } finally {
+      setExtracting(false);
+    }
+  };
 
   const inputClass =
     "w-full rounded-lg border border-gray-200 px-3 py-2 text-sm outline-none transition-colors focus:border-blue-500 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100";
@@ -87,6 +123,16 @@ export function PrescriptionForm({
           <label className="mb-1 block text-sm font-semibold text-gray-700 dark:text-gray-300">Expiry Date (Optional)</label>
           <input type="date" className={inputClass} {...register("expiryDate")} />
         </div>
+      </div>
+
+      <div>
+        <label className="mb-1 block text-sm font-semibold text-gray-700 dark:text-gray-300">Diagnosis (Optional)</label>
+        <input type="text" placeholder="e.g., Seasonal flu" className={inputClass} {...register("diagnosis")} />
+      </div>
+
+      <div>
+        <label className="mb-1 block text-sm font-semibold text-gray-700 dark:text-gray-300">Review Date (Optional)</label>
+        <input type="date" className={inputClass} {...register("reviewDate")} />
       </div>
 
       <div>
@@ -132,6 +178,21 @@ export function PrescriptionForm({
           Attachment {existingPrescription ? "(leave blank to keep current file)" : "(Optional)"}
         </label>
         <input type="file" accept="image/*,.pdf" className="w-full text-sm" {...register("attachment")} />
+        {selectedFile && (
+          <div className="mt-2">
+            <button
+              type="button"
+              onClick={handleScanWithAI}
+              disabled={extracting}
+              className="rounded-lg bg-blue-50 px-3 py-2 text-sm font-semibold text-blue-700 transition-colors hover:bg-blue-100 disabled:cursor-not-allowed disabled:opacity-60 dark:bg-blue-500/10 dark:text-blue-400"
+            >
+              {extracting ? "Reading prescription…" : "✨ Scan with AI to fill fields"}
+            </button>
+            <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+              AI-extracted details may be inaccurate — please review before saving.
+            </p>
+          </div>
+        )}
       </div>
 
       <div className="mt-2 flex gap-3">

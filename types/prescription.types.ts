@@ -6,6 +6,8 @@ export interface Prescription {
   hospital?: string;
   prescriptionDate: string;
   expiryDate?: string;
+  diagnosis?: string;
+  reviewDate?: string;
   medicines: string[];
   notes?: string;
   attachmentUrl?: string;
@@ -19,6 +21,8 @@ export interface CreatePrescriptionRequest {
   hospital?: string;
   prescriptionDate: string;
   expiryDate?: string;
+  diagnosis?: string;
+  reviewDate?: string;
   medicines?: string[];
   notes?: string;
   attachment?: File;
@@ -60,4 +64,16 @@ export const getPrescriptionDisplayStatus = (
 export interface PrescriptionFilterParams {
   search?: string;
   status?: PrescriptionDisplayStatus;
+}
+
+// Returned by POST /api/v1/prescriptions/extract — an AI-read best guess at the
+// document's fields. Every field may be null/empty when the model wasn't confident,
+// so the caller must treat this as a prefill to review, not a finished record.
+export interface ExtractedPrescriptionData {
+  doctorName: string | null;
+  hospital: string | null;
+  prescriptionDate: string | null;
+  diagnosis: string | null;
+  medicines: string[];
+  notes: string | null;
 }

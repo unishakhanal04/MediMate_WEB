@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { medicineService, Medicine } from "../../services/medicine.service";
+import { medicineService, Medicine, InteractionWarning } from "../../services/medicine.service";
 
 export function AddMedicineForm({
   existingMedicine,
@@ -27,8 +27,14 @@ export function AddMedicineForm({
     quantity: existingMedicine?.quantity !== undefined ? String(existingMedicine.quantity) : "",
     refillThreshold:
       existingMedicine?.refillThreshold !== undefined ? String(existingMedicine.refillThreshold) : "",
+    expiryDate: existingMedicine?.expiryDate
+      ? new Date(existingMedicine.expiryDate).toISOString().split("T")[0]
+      : "",
+    mealInstruction: existingMedicine?.mealInstruction ?? ("" as "" | "before_food" | "after_food" | "empty_stomach"),
   });
   const [loading, setLoading] = useState(false);
+  const [interactionWarnings, setInteractionWarnings] = useState<InteractionWarning[]>([]);
+  const [checkingInteractions, setCheckingInteractions] = useState(false);
 
   useEffect(() => {
     setFormData({
@@ -46,10 +52,33 @@ export function AddMedicineForm({
       quantity: existingMedicine?.quantity !== undefined ? String(existingMedicine.quantity) : "",
       refillThreshold:
         existingMedicine?.refillThreshold !== undefined ? String(existingMedicine.refillThreshold) : "",
+      expiryDate: existingMedicine?.expiryDate
+        ? new Date(existingMedicine.expiryDate).toISOString().split("T")[0]
+        : "",
+      mealInstruction: existingMedicine?.mealInstruction ?? ("" as "" | "before_food" | "after_food" | "empty_stomach"),
     });
+    setInteractionWarnings([]);
   }, [existingMedicine]);
 
   const [formError, setFormError] = useState<string | null>(null);
+
+  const handleNameBlur = async () => {
+    const name = formData.name.trim();
+    if (!name) {
+      setInteractionWarnings([]);
+      return;
+    }
+
+    setCheckingInteractions(true);
+    try {
+      const warnings = await medicineService.checkInteractions(name, existingMedicine?._id);
+      setInteractionWarnings(warnings);
+    } catch (error) {
+      console.error("Failed to check medicine interactions:", error);
+    } finally {
+      setCheckingInteractions(false);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -79,6 +108,8 @@ export function AddMedicineForm({
         endDate: formData.endDate || undefined,
         quantity: formData.quantity ? Number(formData.quantity) : undefined,
         refillThreshold: formData.refillThreshold ? Number(formData.refillThreshold) : undefined,
+        expiryDate: formData.expiryDate || undefined,
+        mealInstruction: formData.mealInstruction || undefined,
       };
 
       if (existingMedicine) {
@@ -122,8 +153,24 @@ export function AddMedicineForm({
           type="text"
           value={formData.name}
           onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+          onBlur={handleNameBlur}
           required
         />
+        {checkingInteractions && <p className="interaction-status">Checking for interactions…</p>}
+        {!checkingInteractions && interactionWarnings.length > 0 && (
+          <div className="interaction-warning">
+            <p className="interaction-warning-title">⚠️ Possible interaction</p>
+            {interactionWarnings.map((warning, index) => (
+              <p key={index}>
+                This medicine may interact with <strong>{warning.otherMedicineName}</strong>. Confirm with your
+                doctor or pharmacist before taking both.
+              </p>
+            ))}
+            <p className="interaction-warning-note">
+              Based on automated FDA label text matching — not a clinical review.
+            </p>
+          </div>
+        )}
       </div>
 
       <div className="form-group">
@@ -146,6 +193,19 @@ export function AddMedicineForm({
           <option value="daily">Daily</option>
           <option value="weekly">Weekly</option>
           <option value="as_needed">As Needed</option>
+        </select>
+      </div>
+
+      <div className="form-group">
+        <label>Meal Instruction (Optional)</label>
+        <select
+          value={formData.mealInstruction}
+          onChange={(e) => setFormData({ ...formData, mealInstruction: e.target.value as any })}
+        >
+          <option value="">Not specified</option>
+          <option value="before_food">Before Food</option>
+          <option value="after_food">After Food</option>
+          <option value="empty_stomach">Empty Stomach</option>
         </select>
       </div>
 
@@ -218,6 +278,15 @@ export function AddMedicineForm({
           placeholder="Alert when quantity falls to this number (default 5)"
           value={formData.refillThreshold}
           onChange={(e) => setFormData({ ...formData, refillThreshold: e.target.value })}
+        />
+      </div>
+
+      <div className="form-group">
+        <label>Expiry Date (Optional)</label>
+        <input
+          type="date"
+          value={formData.expiryDate}
+          onChange={(e) => setFormData({ ...formData, expiryDate: e.target.value })}
         />
       </div>
 
@@ -319,6 +388,42 @@ export function AddMedicineForm({
           border: 1px solid #fecaca;
           color: #b91c1c;
           font-weight: 600;
+        }
+
+        .interaction-status {
+          margin-top: 0.5rem;
+          font-size: 0.8rem;
+          color: #6b7280;
+        }
+
+        .interaction-warning {
+          margin-top: 0.5rem;
+          padding: 0.75rem 1rem;
+          border-radius: 10px;
+          background: #fffbeb;
+          border: 1px solid #fde68a;
+          color: #92400e;
+          font-size: 0.85rem;
+        }
+
+        .interaction-warning-title {
+          font-weight: 700;
+          margin-bottom: 0.25rem;
+        }
+
+        .interaction-warning-note {
+          margin-top: 0.5rem;
+          font-size: 0.75rem;
+          opacity: 0.8;
+        }
+
+        :global(.dark) .interaction-status {
+          color: #9ca3af;
+        }
+        :global(.dark) .interaction-warning {
+          background: rgba(245, 158, 11, 0.1);
+          border-color: rgba(245, 158, 11, 0.3);
+          color: #fbbf24;
         }
 
         .cancel-btn {

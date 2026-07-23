@@ -6,6 +6,7 @@ export const emergencyContactSchema = z.object({
   phone: z.string().min(6, "A valid phone number is required"),
   email: z.union([z.string().email("Invalid email address"), z.literal("")]).optional(),
   isPrimary: z.boolean().optional(),
+  notes: z.string().optional(),
 });
 
 export type EmergencyContactFormData = z.infer<typeof emergencyContactSchema>;

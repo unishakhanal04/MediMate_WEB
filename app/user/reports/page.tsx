@@ -2,9 +2,11 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { useAuth } from "../../../contexts/AuthContext";
 import { useToast } from "../../../contexts/ToastContext";
 import { reportService } from "../../../services/report.service";
+import { subscriptionService } from "../../../services/subscription.service";
 import {
   ReportsOverview as ReportsOverviewData,
   AdherenceReport,
@@ -12,9 +14,13 @@ import {
   PrescriptionsReport,
   AppointmentsReport,
   ReportPeriod,
+  InsightsResponse,
 } from "../../../types/report.types";
+import { downloadUserReportPdf } from "../../../lib/pdf";
 import { PageHeader } from "../../../components/common/PageHeader";
 import { ReportsOverview } from "../../../components/reports/ReportsOverview";
+import { InsightsSection } from "../../../components/reports/InsightsSection";
+import { InsightsLocked } from "../../../components/reports/InsightsLocked";
 import { ReportsFilters } from "../../../components/reports/ReportsFilters";
 import { AdherenceChart } from "../../../components/reports/AdherenceChart";
 import { MedicineChart } from "../../../components/reports/MedicineChart";
@@ -22,6 +28,7 @@ import { PrescriptionChart } from "../../../components/reports/PrescriptionChart
 import { AppointmentChart } from "../../../components/reports/AppointmentChart";
 import { ReportsSkeleton } from "../../../components/reports/ReportsSkeleton";
 import { ReportsEmptyState } from "../../../components/reports/ReportsEmptyState";
+import { Button } from "../../../components/Button";
 
 export default function ReportsPage() {
   const router = useRouter();
@@ -37,6 +44,9 @@ export default function ReportsPage() {
   const [medicines, setMedicines] = useState<MedicinesReport | null>(null);
   const [prescriptions, setPrescriptions] = useState<PrescriptionsReport | null>(null);
   const [appointments, setAppointments] = useState<AppointmentsReport | null>(null);
+  const [insightsResponse, setInsightsResponse] = useState<InsightsResponse | null>(null);
+  const [isPremium, setIsPremium] = useState(false);
+  const [exportingPdf, setExportingPdf] = useState(false);
 
   useEffect(() => {
     if (!isAuthenticated) {
@@ -49,19 +59,23 @@ export default function ReportsPage() {
 
   const fetchAll = async () => {
     try {
-      const [overviewData, adherenceData, medicinesData, prescriptionsData, appointmentsData] =
+      const [overviewData, adherenceData, medicinesData, prescriptionsData, appointmentsData, insightsData, subscriptionData] =
         await Promise.all([
           reportService.getOverview(),
           reportService.getAdherence(period, period === "daily" ? 14 : 8),
           reportService.getMedicines(days),
           reportService.getPrescriptions(),
           reportService.getAppointments(),
+          reportService.getInsights(),
+          subscriptionService.getCurrent(),
         ]);
       setOverview(overviewData);
       setAdherence(adherenceData);
       setMedicines(medicinesData);
       setPrescriptions(prescriptionsData);
       setAppointments(appointmentsData);
+      setInsightsResponse(insightsData);
+      setIsPremium(subscriptionData.plan === "premium");
     } catch (error) {
       console.error("Failed to load reports:", error);
       toast.error("Unable to load reports. Please try again.");
@@ -103,21 +117,64 @@ export default function ReportsPage() {
   const hasNoData =
     overview !== null && overview.totalMedicines === 0 && overview.totalPrescriptions === 0;
 
+  const handleExportPdf = () => {
+    if (!overview || !adherence || !medicines || !prescriptions || !appointments) return;
+    setExportingPdf(true);
+    try {
+      downloadUserReportPdf({
+        overview,
+        adherence,
+        medicines,
+        prescriptions,
+        appointments,
+        insights: insightsResponse?.insights ?? null,
+      });
+      toast.success("Report exported.");
+    } catch (error) {
+      console.error("Failed to export PDF report:", error);
+      toast.error("Unable to export the report.");
+    } finally {
+      setExportingPdf(false);
+    }
+  };
+
   return (
     <div>
       <PageHeader
         icon="📊"
         title="Reports & Insights"
         description="Track your medication adherence, prescriptions, and appointments over time."
+        action={
+          !loading && overview && !hasNoData ? (
+            isPremium ? (
+              <Button onClick={handleExportPdf} disabled={exportingPdf}>
+                {exportingPdf ? "Exporting..." : "⬇️ Download PDF Report"}
+              </Button>
+            ) : (
+              <Link
+                href="/user/subscription"
+                className="inline-flex items-center gap-1.5 rounded-full bg-gray-100 px-4 py-2.5 text-sm font-semibold text-gray-500 transition-colors hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-gray-700"
+              >
+                🔒 PDF Export (Premium)
+              </Link>
+            )
+          ) : undefined
+        }
       />
 
-      {loading || !overview || !adherence || !medicines || !prescriptions || !appointments ? (
+      {loading || !overview || !adherence || !medicines || !prescriptions || !appointments || !insightsResponse ? (
         <ReportsSkeleton />
       ) : hasNoData ? (
         <ReportsEmptyState />
       ) : (
         <div className="flex flex-col gap-6">
           <ReportsOverview overview={overview} />
+
+          {insightsResponse.unlocked && insightsResponse.insights ? (
+            <InsightsSection insights={insightsResponse.insights} />
+          ) : (
+            <InsightsLocked />
+          )}
 
           <ReportsFilters period={period} onPeriodChange={setPeriod} days={days} onDaysChange={setDays} />
 
