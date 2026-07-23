@@ -2,16 +2,25 @@
 
 import Link from "next/link";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { forgotPasswordSchema, type ForgotPasswordFormData } from "../../../schemas/auth.schema";
+import {
+  forgotPasswordSchema,
+  type ForgotPasswordFormData,
+  verifyOtpSchema,
+  type VerifyOtpFormData,
+} from "../../../schemas/auth.schema";
 import { authService } from "../../../services/auth.service";
 import { useToast } from "../../../contexts/ToastContext";
 
 export default function ForgotPasswordPage() {
+  const router = useRouter();
   const toast = useToast();
   const [loading, setLoading] = useState(false);
-  const [submitted, setSubmitted] = useState(false);
+  const [step, setStep] = useState<"email" | "otp">("email");
+  const [email, setEmail] = useState("");
+  const [resending, setResending] = useState(false);
 
   const {
     register: registerField,
@@ -22,17 +31,56 @@ export default function ForgotPasswordPage() {
     defaultValues: { email: "" },
   });
 
+  const {
+    register: registerOtpField,
+    handleSubmit: handleOtpSubmit,
+    formState: { errors: otpErrors },
+    reset: resetOtpForm,
+  } = useForm<VerifyOtpFormData>({
+    resolver: zodResolver(verifyOtpSchema),
+    defaultValues: { otp: "" },
+  });
+
   const onSubmit = async (data: ForgotPasswordFormData) => {
     setLoading(true);
     try {
       const result = await authService.requestPasswordReset(data.email);
       toast.success(result.message);
-      setSubmitted(true);
+      setEmail(data.email);
+      setStep("otp");
     } catch (error) {
       const message = error instanceof Error ? error.message : "Something went wrong";
       toast.error(message);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const onVerifyOtp = async (data: VerifyOtpFormData) => {
+    setLoading(true);
+    try {
+      const result = await authService.verifyResetOtp(email, data.otp);
+      toast.success(result.message);
+      router.push(`/reset-password?token=${encodeURIComponent(result.resetToken)}`);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Invalid or expired code";
+      toast.error(message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleResend = async () => {
+    setResending(true);
+    try {
+      const result = await authService.requestPasswordReset(email);
+      toast.success(result.message);
+      resetOtpForm({ otp: "" });
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Something went wrong";
+      toast.error(message);
+    } finally {
+      setResending(false);
     }
   };
 
@@ -49,21 +97,57 @@ export default function ForgotPasswordPage() {
 
       <main className="auth-main">
         <div className="form-card">
-          {submitted ? (
+          {step === "otp" ? (
             <>
-              <h1>Check your email</h1>
+              <h1>Enter verification code</h1>
               <p className="form-sub">
-                If an account exists for that email address, we&apos;ve sent a link to reset your password. The link expires in 1 hour.
+                We&apos;ve sent a 6-digit code to <strong>{email}</strong>. It expires in 10 minutes.
+              </p>
+
+              <form onSubmit={handleOtpSubmit(onVerifyOtp)} className="auth-form" autoComplete="off">
+                <div className="field">
+                  <label htmlFor="otp">Verification Code</label>
+                  <input
+                    id="otp"
+                    {...registerOtpField("otp")}
+                    type="text"
+                    inputMode="numeric"
+                    maxLength={6}
+                    placeholder="123456"
+                    autoComplete="off"
+                    className="otp-input"
+                  />
+                  {otpErrors.otp && <span className="error-text">{otpErrors.otp.message}</span>}
+                </div>
+
+                <button type="submit" className="submit-btn" disabled={loading}>
+                  {loading ? (
+                    <span className="btn-loader">
+                      <span className="spinner" /> Verifying...
+                    </span>
+                  ) : (
+                    "Verify Code"
+                  )}
+                </button>
+              </form>
+
+              <p className="switch-link">
+                Didn&apos;t get a code?{" "}
+                <button type="button" className="link-btn" onClick={handleResend} disabled={resending}>
+                  {resending ? "Sending..." : "Resend code"}
+                </button>
               </p>
               <p className="switch-link">
-                <Link href="/login">Back to login</Link>
+                <button type="button" className="link-btn" onClick={() => setStep("email")}>
+                  Use a different email
+                </button>
               </p>
             </>
           ) : (
             <>
               <h1>Forgot your password?</h1>
               <p className="form-sub">
-                Enter the email address associated with your account and we&apos;ll send you a link to reset your password.
+                Enter the email address associated with your account and we&apos;ll send you a verification code.
               </p>
 
               <form onSubmit={handleSubmit(onSubmit)} className="auth-form" autoComplete="off">
@@ -85,7 +169,7 @@ export default function ForgotPasswordPage() {
                       <span className="spinner" /> Sending...
                     </span>
                   ) : (
-                    "Send Reset Link"
+                    "Send Verification Code"
                   )}
                 </button>
               </form>
@@ -204,6 +288,26 @@ export default function ForgotPasswordPage() {
 
         .field input::placeholder { color: #94a3b8; }
 
+        .otp-input {
+          text-align: center;
+          font-size: 1.5rem;
+          font-weight: 700;
+          letter-spacing: 8px;
+        }
+
+        .link-btn {
+          background: none;
+          border: none;
+          padding: 0;
+          color: #2563eb;
+          font-weight: 600;
+          font-size: inherit;
+          cursor: pointer;
+        }
+
+        .link-btn:hover { text-decoration: underline; }
+        .link-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+
         .submit-btn {
           margin-top: 0.5rem;
           padding: 0.8rem;
@@ -282,6 +386,9 @@ export default function ForgotPasswordPage() {
           background: #1f2937;
           border-color: #374151;
           color: #f3f4f6;
+        }
+        :global(.dark) .link-btn {
+          color: #60a5fa;
         }
       `}</style>
     </div>

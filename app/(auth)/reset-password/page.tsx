@@ -29,7 +29,7 @@ function ResetPasswordForm() {
 
   const onSubmit = async (data: ResetPasswordFormData) => {
     if (!token) {
-      toast.error("This reset link is missing its token. Please request a new one.");
+      toast.error("Your verification session is missing. Please request a new code.");
       return;
     }
 
@@ -64,7 +64,7 @@ function ResetPasswordForm() {
 
           {!token && (
             <p className="error-text field-error">
-              This reset link is invalid or missing a token. Please request a new one from the{" "}
+              Your verification session is invalid or has expired. Please request a new code from the{" "}
               <Link href="/forgot-password">forgot password</Link> page.
             </p>
           )}

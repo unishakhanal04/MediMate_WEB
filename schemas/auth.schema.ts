@@ -34,6 +34,15 @@ export const forgotPasswordSchema = z.object({
 
 export type ForgotPasswordFormData = z.infer<typeof forgotPasswordSchema>;
 
+export const verifyOtpSchema = z.object({
+  otp: z
+    .string()
+    .length(6, "Enter the 6-digit code")
+    .regex(/^\d{6}$/, "Code must contain only digits"),
+});
+
+export type VerifyOtpFormData = z.infer<typeof verifyOtpSchema>;
+
 export const resetPasswordSchema = z
   .object({
     password: z.string().min(6, "Password must be at least 6 characters"),
