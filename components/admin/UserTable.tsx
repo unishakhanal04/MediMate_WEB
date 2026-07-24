@@ -6,6 +6,8 @@ import { getInitials, avatarColorFor } from "../../lib/avatar";
 interface UserTableProps {
   users: AdminUser[];
   onToggleStatus: (user: AdminUser) => void;
+  onEdit: (user: AdminUser) => void;
+  onDelete: (user: AdminUser) => void;
 }
 
 const formatLastLogin = (lastLoginAt?: string) => {
@@ -23,7 +25,7 @@ const formatLastLogin = (lastLoginAt?: string) => {
   return date.toLocaleDateString(undefined, { year: "numeric", month: "short", day: "numeric" });
 };
 
-export function UserTable({ users, onToggleStatus }: UserTableProps) {
+export function UserTable({ users, onToggleStatus, onEdit, onDelete }: UserTableProps) {
   return (
     <div className="overflow-x-auto">
       <table className="w-full min-w-[720px] border-collapse text-sm">
@@ -75,6 +77,18 @@ export function UserTable({ users, onToggleStatus }: UserTableProps) {
                     className="rounded-full bg-gray-100 px-3 py-1.5 text-xs font-semibold text-gray-700 transition-colors hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
                   >
                     {user.status === "active" ? "Deactivate" : "Activate"}
+                  </button>
+                  <button
+                    onClick={() => onEdit(user)}
+                    className="rounded-full bg-gray-100 px-3 py-1.5 text-xs font-semibold text-gray-700 transition-colors hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
+                  >
+                    Edit
+                  </button>
+                  <button
+                    onClick={() => onDelete(user)}
+                    className="rounded-full bg-red-50 px-3 py-1.5 text-xs font-semibold text-red-600 transition-colors hover:bg-red-100 dark:bg-red-500/10 dark:text-red-400 dark:hover:bg-red-500/20"
+                  >
+                    Delete
                   </button>
                 </div>
               </td>

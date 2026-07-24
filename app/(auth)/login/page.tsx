@@ -28,6 +28,7 @@ export default function LoginPage() {
       email: "",
       password: "",
       rememberMe: false,
+      portal: "user",
     },
   });
 
@@ -92,6 +93,21 @@ export default function LoginPage() {
           </p>
 
           <form onSubmit={handleSubmit(onSubmit)} className="auth-form" autoComplete="off">
+            <div className="field">
+              <label>Login As</label>
+              <div className="portal-toggle">
+                <label className="portal-option">
+                  <input type="radio" value="user" {...registerField("portal")} />
+                  <span>User</span>
+                </label>
+                <label className="portal-option">
+                  <input type="radio" value="admin" {...registerField("portal")} />
+                  <span>Admin</span>
+                </label>
+              </div>
+              {errors.portal && <span className="error-text">{errors.portal.message}</span>}
+            </div>
+
             <div className="field">
               <label htmlFor="email">Email Address</label>
               <input
@@ -301,6 +317,28 @@ export default function LoginPage() {
         }
 
         .field input::placeholder { color: #94a3b8; }
+
+        .portal-toggle {
+          display: flex;
+          gap: 1.5rem;
+        }
+
+        .portal-option {
+          display: flex;
+          align-items: center;
+          gap: 0.5rem;
+          font-size: 0.9rem;
+          font-weight: 500;
+          color: #334155;
+          cursor: pointer;
+        }
+
+        .portal-option input {
+          width: 15px;
+          height: 15px;
+          cursor: pointer;
+          accent-color: #2563eb;
+        }
 
         .field-row {
           display: flex;
@@ -561,6 +599,9 @@ export default function LoginPage() {
         }
         :global(.dark) .remember-label {
           color: #9ca3af;
+        }
+        :global(.dark) .portal-option {
+          color: #d1d5db;
         }
         :global(.dark) .eye-btn {
           color: #9ca3af;

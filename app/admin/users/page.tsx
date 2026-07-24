@@ -2,15 +2,26 @@
 
 import { Suspense, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { useToast } from "../../../contexts/ToastContext";
+import { useConfirmDialog } from "../../../contexts/ConfirmDialogContext";
 import { adminService } from "../../../services/admin.service";
+import { adminUserService } from "../../../services/admin-user.service";
 import { AdminDashboardSummary, AdminUser, UserStatus } from "../../../types/admin.types";
+import {
+  adminCreateUserSchema,
+  adminUpdateUserSchema,
+  type AdminCreateUserFormData,
+  type AdminUpdateUserFormData,
+} from "../../../schemas/admin-user.schema";
 import { SearchBar } from "../../../components/common/SearchBar";
 import { UserTable } from "../../../components/admin/UserTable";
 import { Pagination } from "../../../components/admin/Pagination";
 import { AdminSkeleton } from "../../../components/admin/AdminSkeleton";
 import { AdminEmptyState } from "../../../components/admin/AdminEmptyState";
 import { Card } from "../../../components/dashboard/Card";
+import { Modal } from "../../../components/Modal";
 
 const PAGE_SIZE = 10;
 
@@ -33,6 +44,7 @@ const toQueryParams = (mode: UserFilterMode): { status?: UserStatus; sort?: "rec
 
 function AdminUsersPageContent() {
   const toast = useToast();
+  const confirmDialog = useConfirmDialog();
   const searchParams = useSearchParams();
   const [users, setUsers] = useState<AdminUser[]>([]);
   const [total, setTotal] = useState(0);
@@ -41,6 +53,8 @@ function AdminUsersPageContent() {
   const [search, setSearch] = useState(() => searchParams.get("search") ?? "");
   const [filterMode, setFilterMode] = useState<UserFilterMode>("all");
   const [loading, setLoading] = useState(true);
+  const [userModal, setUserModal] = useState<{ mode: "create" | "edit"; user: AdminUser | null } | null>(null);
+  const [savingUser, setSavingUser] = useState(false);
   const [summary, setSummary] = useState<AdminDashboardSummary | null>(null);
 
   useEffect(() => {
@@ -102,6 +116,58 @@ function AdminUsersPageContent() {
     }
   };
 
+  const openCreateModal = () => setUserModal({ mode: "create", user: null });
+  const openEditModal = (user: AdminUser) => setUserModal({ mode: "edit", user });
+  const closeUserModal = () => setUserModal(null);
+
+  const handleCreateUser = async (data: AdminCreateUserFormData) => {
+    setSavingUser(true);
+    try {
+      await adminUserService.createUser(data);
+      toast.success("User created successfully.");
+      closeUserModal();
+      fetchUsers(page, search, filterMode);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Unable to create user.";
+      toast.error(message);
+    } finally {
+      setSavingUser(false);
+    }
+  };
+
+  const handleUpdateUser = async (data: AdminUpdateUserFormData) => {
+    if (!userModal?.user) return;
+    setSavingUser(true);
+    try {
+      const updated = await adminUserService.updateUser(userModal.user.id, data);
+      setUsers((prev) => prev.map((u) => (u.id === updated.id ? { ...u, ...updated } : u)));
+      toast.success("User updated successfully.");
+      closeUserModal();
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Unable to update user.";
+      toast.error(message);
+    } finally {
+      setSavingUser(false);
+    }
+  };
+
+  const handleDeleteUser = async (user: AdminUser) => {
+    const confirmed = await confirmDialog({
+      title: "Delete user",
+      message: `Are you sure you want to permanently delete ${user.username}? This cannot be undone.`,
+    });
+    if (!confirmed) return;
+
+    try {
+      await adminUserService.deleteUser(user.id);
+      toast.success("User deleted.");
+      fetchUsers(page, search, filterMode);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Unable to delete user.";
+      toast.error(message);
+    }
+  };
+
   const statCards = summary
     ? [
         { label: "Total Users", value: total.toLocaleString(), sublabel: "All registered accounts" },
@@ -116,13 +182,21 @@ function AdminUsersPageContent() {
 
   return (
     <div className="flex flex-col gap-6">
-      <div>
-        <h1 className="text-2xl font-extrabold tracking-tight text-gray-900 dark:text-white sm:text-3xl">
-          User Management
-        </h1>
-        <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-          Monitor and manage user accounts across MediMate.
-        </p>
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+        <div>
+          <h1 className="text-2xl font-extrabold tracking-tight text-gray-900 dark:text-white sm:text-3xl">
+            User Management
+          </h1>
+          <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
+            Monitor and manage user accounts across MediMate.
+          </p>
+        </div>
+        <button
+          onClick={openCreateModal}
+          className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-blue-700"
+        >
+          + Add User
+        </button>
       </div>
 
       {statCards.length > 0 && (
@@ -166,7 +240,7 @@ function AdminUsersPageContent() {
           <AdminEmptyState title="No users found" description="Try a different search term or filter." />
         ) : (
           <>
-            <UserTable users={users} onToggleStatus={toggleStatus} />
+            <UserTable users={users} onToggleStatus={toggleStatus} onEdit={openEditModal} onDelete={handleDeleteUser} />
 
             <div className="flex flex-wrap items-center justify-between gap-4">
               <p className="text-sm text-gray-500 dark:text-gray-400">
@@ -178,7 +252,195 @@ function AdminUsersPageContent() {
           </>
         )}
       </Card>
+
+      <Modal
+        open={userModal !== null}
+        title={userModal?.mode === "edit" ? "Edit User" : "Add User"}
+        onClose={closeUserModal}
+      >
+        {userModal?.mode === "create" && (
+          <CreateUserForm submitting={savingUser} onSubmit={handleCreateUser} onCancel={closeUserModal} />
+        )}
+        {userModal?.mode === "edit" && userModal.user && (
+          <EditUserForm
+            key={userModal.user.id}
+            user={userModal.user}
+            submitting={savingUser}
+            onSubmit={handleUpdateUser}
+            onCancel={closeUserModal}
+          />
+        )}
+      </Modal>
     </div>
+  );
+}
+
+const userFormInputClass =
+  "w-full rounded-lg border border-gray-200 px-3 py-2 text-sm outline-none transition-colors focus:border-blue-500 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100";
+const userFormLabelClass = "mb-1 block text-sm font-semibold text-gray-700 dark:text-gray-300";
+
+function UserFormActions({ submitting, submitLabel, onCancel }: { submitting: boolean; submitLabel: string; onCancel: () => void }) {
+  return (
+    <div className="mt-2 flex gap-3">
+      <button
+        type="button"
+        onClick={onCancel}
+        className="flex-1 rounded-lg bg-gray-100 px-3 py-2 text-sm font-semibold text-gray-700 transition-colors hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
+      >
+        Cancel
+      </button>
+      <button
+        type="submit"
+        disabled={submitting}
+        className="flex-1 rounded-lg bg-blue-600 px-3 py-2 text-sm font-semibold text-white transition-colors hover:bg-blue-700 disabled:opacity-50"
+      >
+        {submitting ? "Saving..." : submitLabel}
+      </button>
+    </div>
+  );
+}
+
+function CreateUserForm({
+  submitting,
+  onSubmit,
+  onCancel,
+}: {
+  submitting: boolean;
+  onSubmit: (data: AdminCreateUserFormData) => void;
+  onCancel: () => void;
+}) {
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<AdminCreateUserFormData>({
+    resolver: zodResolver(adminCreateUserSchema),
+    defaultValues: { username: "", email: "", gender: "other", role: "user", status: "active", password: "" },
+  });
+
+  return (
+    <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
+      <div>
+        <label className={userFormLabelClass}>Username</label>
+        <input className={userFormInputClass} {...register("username")} />
+        {errors.username && <p className="mt-1 text-xs text-red-600">{errors.username.message}</p>}
+      </div>
+
+      <div>
+        <label className={userFormLabelClass}>Email</label>
+        <input type="email" className={userFormInputClass} {...register("email")} />
+        {errors.email && <p className="mt-1 text-xs text-red-600">{errors.email.message}</p>}
+      </div>
+
+      <div>
+        <label className={userFormLabelClass}>Gender</label>
+        <select className={userFormInputClass} {...register("gender")}>
+          <option value="male">Male</option>
+          <option value="female">Female</option>
+          <option value="other">Other</option>
+        </select>
+        {errors.gender && <p className="mt-1 text-xs text-red-600">{errors.gender.message}</p>}
+      </div>
+
+      <div>
+        <label className={userFormLabelClass}>Password</label>
+        <input type="password" className={userFormInputClass} {...register("password")} />
+        {errors.password && <p className="mt-1 text-xs text-red-600">{errors.password.message}</p>}
+      </div>
+
+      <div>
+        <label className={userFormLabelClass}>Role</label>
+        <select className={userFormInputClass} {...register("role")}>
+          <option value="user">User</option>
+          <option value="admin">Admin</option>
+        </select>
+        {errors.role && <p className="mt-1 text-xs text-red-600">{errors.role.message}</p>}
+      </div>
+
+      <div>
+        <label className={userFormLabelClass}>Status</label>
+        <select className={userFormInputClass} {...register("status")}>
+          <option value="active">Active</option>
+          <option value="inactive">Inactive</option>
+        </select>
+        {errors.status && <p className="mt-1 text-xs text-red-600">{errors.status.message}</p>}
+      </div>
+
+      <UserFormActions submitting={submitting} submitLabel="Create User" onCancel={onCancel} />
+    </form>
+  );
+}
+
+function EditUserForm({
+  user,
+  submitting,
+  onSubmit,
+  onCancel,
+}: {
+  user: AdminUser;
+  submitting: boolean;
+  onSubmit: (data: AdminUpdateUserFormData) => void;
+  onCancel: () => void;
+}) {
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<AdminUpdateUserFormData>({
+    resolver: zodResolver(adminUpdateUserSchema),
+    defaultValues: {
+      username: user.username,
+      email: user.email,
+      gender: user.gender,
+      role: user.role,
+      status: user.status,
+    },
+  });
+
+  return (
+    <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
+      <div>
+        <label className={userFormLabelClass}>Username</label>
+        <input className={userFormInputClass} {...register("username")} />
+        {errors.username && <p className="mt-1 text-xs text-red-600">{errors.username.message}</p>}
+      </div>
+
+      <div>
+        <label className={userFormLabelClass}>Email</label>
+        <input type="email" className={userFormInputClass} {...register("email")} />
+        {errors.email && <p className="mt-1 text-xs text-red-600">{errors.email.message}</p>}
+      </div>
+
+      <div>
+        <label className={userFormLabelClass}>Gender</label>
+        <select className={userFormInputClass} {...register("gender")}>
+          <option value="male">Male</option>
+          <option value="female">Female</option>
+          <option value="other">Other</option>
+        </select>
+        {errors.gender && <p className="mt-1 text-xs text-red-600">{errors.gender.message}</p>}
+      </div>
+
+      <div>
+        <label className={userFormLabelClass}>Role</label>
+        <select className={userFormInputClass} {...register("role")}>
+          <option value="user">User</option>
+          <option value="admin">Admin</option>
+        </select>
+        {errors.role && <p className="mt-1 text-xs text-red-600">{errors.role.message}</p>}
+      </div>
+
+      <div>
+        <label className={userFormLabelClass}>Status</label>
+        <select className={userFormInputClass} {...register("status")}>
+          <option value="active">Active</option>
+          <option value="inactive">Inactive</option>
+        </select>
+        {errors.status && <p className="mt-1 text-xs text-red-600">{errors.status.message}</p>}
+      </div>
+
+      <UserFormActions submitting={submitting} submitLabel="Save Changes" onCancel={onCancel} />
+    </form>
   );
 }
 
