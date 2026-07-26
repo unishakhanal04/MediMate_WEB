@@ -90,24 +90,31 @@ export default function RegisterPage() {
       <main className="auth-main">
         <div className="hero-panel">
           <div className="doctor-image">
-            <div className="doctor-placeholder">👩‍⚕️</div>
+            <div className="doctor-placeholder">
+              <div className="hero-orbit">
+                <div className="hero-orbit-item hero-orbit-pos-0">
+                  <span className="hero-icon" title="Medicines">💊</span>
+                </div>
+                <div className="hero-orbit-item hero-orbit-pos-72">
+                  <span className="hero-icon" title="Appointments">📅</span>
+                </div>
+                <div className="hero-orbit-item hero-orbit-pos-144">
+                  <span className="hero-icon" title="Reminders">⏰</span>
+                </div>
+                <div className="hero-orbit-item hero-orbit-pos-216">
+                  <span className="hero-icon" title="Notifications">🔔</span>
+                </div>
+                <div className="hero-orbit-item hero-orbit-pos-288">
+                  <span className="hero-icon" title="Reports">📊</span>
+                </div>
+                <div className="hero-orbit-center">
+                  <span className="hero-icon hero-orbit-center-icon" title="Health tracking">❤️</span>
+                </div>
+              </div>
+            </div>
           </div>
           <div className="hero-text">
             <h2>Empathetic Care. Precisely Delivered.</h2>
-            <div className="feature-badges">
-              <div className="feature-badge">
-                <span className="badge-icon">🔒</span>
-                <span>SECURE DATA</span>
-              </div>
-              <div className="feature-badge">
-                <span className="badge-icon">🕐</span>
-                <span>24/7 SUPPORT</span>
-              </div>
-              <div className="feature-badge">
-                <span className="badge-icon">✨</span>
-                <span>AI POWERED</span>
-              </div>
-            </div>
           </div>
         </div>
 
@@ -236,37 +243,6 @@ export default function RegisterPage() {
         </div>
       </main>
 
-      <footer className="auth-footer">
-        <div className="footer-brand">
-          <span className="footer-logo">MediMate</span>
-          <div className="social-icons">
-            <span>𝕏</span>
-            <span>in</span>
-            <span>f</span>
-            <span>◎</span>
-          </div>
-        </div>
-        <div className="footer-links-grid">
-          <div>
-            <p className="footer-col-head">Services</p>
-            <Link href="#">Cardiology</Link>
-            <Link href="#">Neurology</Link>
-            <Link href="#">Pediatrics</Link>
-          </div>
-          <div>
-            <p className="footer-col-head">Support</p>
-            <Link href="#">Help Center</Link>
-            <Link href="#">Contact Us</Link>
-          </div>
-          <div>
-            <p className="footer-col-head">Legal</p>
-            <Link href="#">Privacy Policy</Link>
-            <Link href="#">Terms of Service</Link>
-          </div>
-        </div>
-        <p className="footer-copy">© {new Date().getFullYear()} MediMate. All rights reserved.</p>
-      </footer>
-
       <style jsx>{`
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -299,17 +275,30 @@ export default function RegisterPage() {
         .logo span { color: #2563eb; }
 
         .nav-login {
-          font-size: 0.875rem;
-          color: #64748b;
+          display: flex;
+          align-items: center;
+          gap: 0.65rem;
+          font-size: 0.95rem;
+          font-weight: 600;
+          color: #334155;
         }
 
         .nav-login a {
-          color: #2563eb;
-          font-weight: 600;
+          color: #fff;
+          background: #2563eb;
+          padding: 0.5rem 1.15rem;
+          border-radius: 999px;
+          font-weight: 700;
+          font-size: 0.9rem;
           text-decoration: none;
+          box-shadow: 0 4px 14px rgba(37, 99, 235, 0.35);
+          transition: background 0.2s, transform 0.2s;
         }
 
-        .nav-login a:hover { text-decoration: underline; }
+        .nav-login a:hover {
+          background: #1d4ed8;
+          transform: translateY(-1px);
+        }
 
         .auth-main {
           flex: 1;
@@ -318,7 +307,7 @@ export default function RegisterPage() {
         }
 
         .hero-panel {
-          background: linear-gradient(180deg, #e0f2fe 0%, #f0f9ff 100%);
+          background: linear-gradient(160deg, #bfdbfe 0%, #eff6ff 100%);
           display: flex;
           flex-direction: column;
           padding: 3rem;
@@ -331,15 +320,84 @@ export default function RegisterPage() {
 
         .doctor-placeholder {
           width: 100%;
-          max-width: 380px;
-          aspect-ratio: 4/5;
-          background: linear-gradient(135deg, #bfdbfe 0%, #93c5fd 100%);
-          border-radius: 20px;
+          aspect-ratio: 4/3;
+          background: linear-gradient(135deg, #60a5fa 0%, #2563eb 100%);
+          border-radius: 24px;
           display: flex;
           align-items: center;
           justify-content: center;
-          font-size: 8rem;
-          box-shadow: 0 12px 40px rgba(37, 99, 235, 0.15);
+          box-shadow: 0 16px 44px rgba(37, 99, 235, 0.3);
+        }
+
+        .hero-orbit {
+          position: relative;
+          width: 280px;
+          height: 280px;
+          animation: hero-orbit-spin 16s linear infinite;
+        }
+
+        .hero-orbit-item {
+          position: absolute;
+          top: 50%;
+          left: 50%;
+          width: 92px;
+          height: 92px;
+          margin: -46px 0 0 -46px;
+        }
+
+        .hero-orbit-pos-0   { transform: rotate(0deg)   translate(130px) rotate(0deg); }
+        .hero-orbit-pos-72  { transform: rotate(72deg)  translate(130px) rotate(-72deg); }
+        .hero-orbit-pos-144 { transform: rotate(144deg) translate(130px) rotate(-144deg); }
+        .hero-orbit-pos-216 { transform: rotate(216deg) translate(130px) rotate(-216deg); }
+        .hero-orbit-pos-288 { transform: rotate(288deg) translate(130px) rotate(-288deg); }
+
+        .hero-icon {
+          width: 100%;
+          height: 100%;
+          background: #fff;
+          border-radius: 50%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 2.75rem;
+          box-shadow: 0 8px 24px rgba(15, 23, 42, 0.15);
+          animation: hero-icon-counter-spin 16s linear infinite;
+        }
+
+        .hero-orbit-center {
+          position: absolute;
+          top: 50%;
+          left: 50%;
+          width: 100px;
+          height: 100px;
+          margin: -50px 0 0 -50px;
+        }
+
+        .hero-orbit-center-icon {
+          font-size: 3rem;
+          box-shadow: 0 10px 30px rgba(15, 23, 42, 0.2);
+          animation: hero-heart-tilt-spin 16s linear infinite;
+        }
+
+        @keyframes hero-orbit-spin {
+          from { transform: rotate(0deg); }
+          to { transform: rotate(360deg); }
+        }
+
+        @keyframes hero-heart-tilt-spin {
+          from { transform: rotate(-15deg); }
+          to { transform: rotate(-375deg); }
+        }
+
+        @keyframes hero-icon-counter-spin {
+          from { transform: rotate(0deg); }
+          to { transform: rotate(-360deg); }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+          .hero-orbit, .hero-icon, .hero-orbit-center, .hero-orbit-center-icon {
+            animation: none;
+          }
         }
 
         .hero-text h2 {
@@ -348,35 +406,6 @@ export default function RegisterPage() {
           color: #0f172a;
           margin-bottom: 1.5rem;
           letter-spacing: -0.3px;
-        }
-
-        .feature-badges {
-          display: flex;
-          gap: 1.5rem;
-          flex-wrap: wrap;
-        }
-
-        .feature-badge {
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          gap: 0.5rem;
-          font-size: 0.7rem;
-          font-weight: 700;
-          letter-spacing: 0.5px;
-          color: #475569;
-        }
-
-        .badge-icon {
-          width: 44px;
-          height: 44px;
-          background: #fff;
-          border-radius: 50%;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          font-size: 1.1rem;
-          box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
         }
 
         .form-panel {
@@ -576,69 +605,6 @@ export default function RegisterPage() {
 
         .terms-text a:hover { text-decoration: underline; }
 
-        .auth-footer {
-          background: #fff;
-          border-top: 1px solid #e2e8f0;
-          padding: 2.5rem 3rem 1.5rem;
-        }
-
-        .footer-brand {
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          margin-bottom: 2rem;
-        }
-
-        .footer-logo {
-          font-size: 1.1rem;
-          font-weight: 800;
-          color: #0f172a;
-        }
-
-        .social-icons {
-          display: flex;
-          gap: 0.75rem;
-          font-size: 0.85rem;
-          color: #94a3b8;
-        }
-
-        .footer-links-grid {
-          display: flex;
-          gap: 4rem;
-          margin-bottom: 2rem;
-        }
-
-        .footer-links-grid > div {
-          display: flex;
-          flex-direction: column;
-          gap: 0.5rem;
-        }
-
-        .footer-col-head {
-          font-size: 0.75rem;
-          font-weight: 700;
-          letter-spacing: 0.5px;
-          text-transform: uppercase;
-          color: #94a3b8;
-          margin-bottom: 0.25rem;
-        }
-
-        .footer-links-grid a {
-          font-size: 0.85rem;
-          color: #64748b;
-          text-decoration: none;
-          transition: color 0.2s;
-        }
-
-        .footer-links-grid a:hover { color: #2563eb; }
-
-        .footer-copy {
-          font-size: 0.78rem;
-          color: #94a3b8;
-          padding-top: 1.5rem;
-          border-top: 1px solid #f1f5f9;
-        }
-
         .error-text {
           font-size: 0.75rem;
           color: #ef4444;
@@ -666,8 +632,6 @@ export default function RegisterPage() {
 
         @media (max-width: 768px) {
           .nav { padding: 1rem 1.5rem; }
-          .auth-footer { padding: 2rem 1.5rem 1rem; }
-          .footer-links-grid { gap: 2rem; flex-wrap: wrap; }
         }
 
         :global(.dark) .auth-root {
@@ -675,23 +639,18 @@ export default function RegisterPage() {
           color: #f3f4f6;
         }
         :global(.dark) .nav,
-        :global(.dark) .form-panel,
-        :global(.dark) .auth-footer {
+        :global(.dark) .form-panel {
           background: #111827;
           border-color: #1f2937;
         }
         :global(.dark) .logo,
         :global(.dark) .form-card h1,
-        :global(.dark) .hero-text h2,
-        :global(.dark) .footer-logo {
+        :global(.dark) .hero-text h2 {
           color: #f9fafb;
         }
         :global(.dark) .nav-login,
         :global(.dark) .form-sub,
-        :global(.dark) .terms-text,
-        :global(.dark) .footer-links-grid a,
-        :global(.dark) .footer-copy,
-        :global(.dark) .social-icons {
+        :global(.dark) .terms-text {
           color: #9ca3af;
         }
         :global(.dark) .field label {
@@ -710,17 +669,8 @@ export default function RegisterPage() {
         :global(.dark) .checkbox-text {
           color: #9ca3af;
         }
-        :global(.dark) .feature-badge {
-          color: #d1d5db;
-        }
-        :global(.dark) .badge-icon {
-          background: #1f2937;
-        }
         :global(.dark) .hero-panel {
           background: linear-gradient(180deg, rgba(37, 99, 235, 0.08) 0%, rgba(37, 99, 235, 0.02) 100%);
-        }
-        :global(.dark) .footer-copy {
-          border-color: #1f2937;
         }
       `}</style>
     </div>
