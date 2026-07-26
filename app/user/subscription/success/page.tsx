@@ -1,7 +1,7 @@
 "use client";
 
 import { Suspense, useEffect, useState } from "react";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { useToast } from "../../../../contexts/ToastContext";
 import { subscriptionService } from "../../../../services/subscription.service";
@@ -9,6 +9,7 @@ import { subscriptionService } from "../../../../services/subscription.service";
 type VerifyState = "verifying" | "success" | "pending" | "failed";
 
 function SuccessContent() {
+  const router = useRouter();
   const searchParams = useSearchParams();
   const toast = useToast();
   const [state, setState] = useState<VerifyState>("verifying");
@@ -44,6 +45,12 @@ function SuccessContent() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  useEffect(() => {
+    if (state !== "success") return;
+    const timer = setTimeout(() => router.push("/user/subscription"), 2500);
+    return () => clearTimeout(timer);
+  }, [state, router]);
+
   return (
     <div className="flex min-h-[60vh] flex-col items-center justify-center gap-4 text-center">
       {state === "verifying" && <p className="text-sm text-gray-500 dark:text-gray-400">Verifying your payment...</p>}
@@ -55,6 +62,7 @@ function SuccessContent() {
           <p className="max-w-sm text-sm text-gray-500 dark:text-gray-400">
             Unlimited AI, Advanced Reports, and PDF export are unlocked.
           </p>
+          <p className="text-xs text-gray-400 dark:text-gray-500">Redirecting you to your subscription...</p>
           <Link href="/user/subscription" className="font-semibold text-blue-600 hover:underline">
             View Subscription
           </Link>
