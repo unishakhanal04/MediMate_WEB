@@ -65,10 +65,12 @@ export default function SubscriptionPage() {
       redirectToEsewa(paymentUrl, fields);
     } catch (error) {
       console.error("Failed to start payment:", error);
-      toast.error("Unable to start the payment. Please try again.");
+      const message = error instanceof Error ? error.message : "Unable to start the payment. Please try again.";
+      toast.error(message);
       setUpgrading(false);
     }
   };
+
 
   if (!isAuthenticated) {
     return null;
