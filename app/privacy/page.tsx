@@ -50,8 +50,8 @@ export default function PrivacyPolicyPage() {
             <h2 className="text-lg font-bold text-slate-900 dark:text-white">Third parties</h2>
             <p className="mt-2">
               MediMate uses Google Gemini to power the AI Assistant and prescription scanning,
-              openFDA&apos;s public label database for interaction checks, and eSewa to process
-              subscription payments. None of your data is sold or used for advertising.
+              and openFDA&apos;s public label database for interaction checks. None of your data
+              is sold or used for advertising.
             </p>
           </section>
 

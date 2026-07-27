@@ -15,8 +15,6 @@ import { AdminEmptyState } from "../../../components/admin/AdminEmptyState";
 
 const targetTypeLabel: Record<string, string> = {
   user: "User Management",
-  subscription: "Subscriptions",
-  payment: "Payments",
   feedback: "Feedback",
   report: "Reports",
   settings: "System Settings",

@@ -6,8 +6,6 @@ import { useAuth } from "../../contexts/AuthContext";
 import {
   DashboardIcon,
   UsersIcon,
-  SubscriptionIcon,
-  PaymentsIcon,
   ReportsIcon,
   AuditLogIcon,
   FeedbackIcon,
@@ -18,8 +16,6 @@ import {
 const navItems = [
   { href: "/admin/dashboard", label: "Dashboard", Icon: DashboardIcon },
   { href: "/admin/users", label: "User Management", Icon: UsersIcon },
-  { href: "/admin/subscriptions", label: "Subscriptions", Icon: SubscriptionIcon },
-  { href: "/admin/payments", label: "Payments", Icon: PaymentsIcon },
   { href: "/admin/reports", label: "Reports", Icon: ReportsIcon },
   { href: "/admin/audit-logs", label: "Audit Logs", Icon: AuditLogIcon },
   { href: "/admin/feedback", label: "Feedback", Icon: FeedbackIcon },

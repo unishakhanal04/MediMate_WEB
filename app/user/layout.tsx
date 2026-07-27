@@ -25,7 +25,6 @@ const navItems = [
   { href: "/user/reports", label: "Reports", icon: "📈" },
   { href: "/user/timeline", label: "Timeline", icon: "🕒" },
   { href: "/user/ai", label: "AI Assistant", icon: "✨" },
-  { href: "/user/subscription", label: "Subscription", icon: "⭐" },
   { href: "/user/feedback", label: "Feedback", icon: "💬" },
 ];
 

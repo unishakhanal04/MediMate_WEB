@@ -181,37 +181,6 @@ export default function LoginPage() {
         </div>
       </main>
 
-      <footer className="auth-footer">
-        <div className="footer-brand">
-          <span className="footer-logo">MediMate</span>
-          <div className="social-icons">
-            <span>𝕏</span>
-            <span>in</span>
-            <span>f</span>
-            <span>◎</span>
-          </div>
-        </div>
-        <div className="footer-links-grid">
-          <div>
-            <p className="footer-col-head">Services</p>
-            <Link href="#">Cardiology</Link>
-            <Link href="#">Neurology</Link>
-            <Link href="#">Pediatrics</Link>
-          </div>
-          <div>
-            <p className="footer-col-head">Support</p>
-            <Link href="#">Help Center</Link>
-            <Link href="#">Contact Us</Link>
-          </div>
-          <div>
-            <p className="footer-col-head">Legal</p>
-            <Link href="#">Privacy Policy</Link>
-            <Link href="#">Terms of Service</Link>
-          </div>
-        </div>
-        <p className="footer-copy">© {new Date().getFullYear()} MediMate. All rights reserved.</p>
-      </footer>
-
       <style jsx>{`
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -479,69 +448,6 @@ export default function LoginPage() {
           font-size: 1rem;
         }
 
-        .auth-footer {
-          background: #fff;
-          border-top: 1px solid #e2e8f0;
-          padding: 2.5rem 3rem 1.5rem;
-        }
-
-        .footer-brand {
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          margin-bottom: 2rem;
-        }
-
-        .footer-logo {
-          font-size: 1.1rem;
-          font-weight: 800;
-          color: #0f172a;
-        }
-
-        .social-icons {
-          display: flex;
-          gap: 0.75rem;
-          font-size: 0.85rem;
-          color: #94a3b8;
-        }
-
-        .footer-links-grid {
-          display: flex;
-          gap: 4rem;
-          margin-bottom: 2rem;
-        }
-
-        .footer-links-grid > div {
-          display: flex;
-          flex-direction: column;
-          gap: 0.5rem;
-        }
-
-        .footer-col-head {
-          font-size: 0.75rem;
-          font-weight: 700;
-          letter-spacing: 0.5px;
-          text-transform: uppercase;
-          color: #94a3b8;
-          margin-bottom: 0.25rem;
-        }
-
-        .footer-links-grid a {
-          font-size: 0.85rem;
-          color: #64748b;
-          text-decoration: none;
-          transition: color 0.2s;
-        }
-
-        .footer-links-grid a:hover { color: #2563eb; }
-
-        .footer-copy {
-          font-size: 0.78rem;
-          color: #94a3b8;
-          padding-top: 1.5rem;
-          border-top: 1px solid #f1f5f9;
-        }
-
         .error-text {
           font-size: 0.75rem;
           color: #ef4444;
@@ -563,8 +469,6 @@ export default function LoginPage() {
 
         @media (max-width: 768px) {
           .nav { padding: 1rem 1.5rem; }
-          .auth-footer { padding: 2rem 1.5rem 1rem; }
-          .footer-links-grid { gap: 2rem; flex-wrap: wrap; }
         }
 
         :global(.dark) .auth-root {
@@ -572,21 +476,16 @@ export default function LoginPage() {
           color: #f3f4f6;
         }
         :global(.dark) .nav,
-        :global(.dark) .form-card,
-        :global(.dark) .auth-footer {
+        :global(.dark) .form-card {
           background: #111827;
           border-color: #1f2937;
         }
         :global(.dark) .logo,
-        :global(.dark) .form-card h1,
-        :global(.dark) .footer-logo {
+        :global(.dark) .form-card h1 {
           color: #f9fafb;
         }
         :global(.dark) .form-sub,
-        :global(.dark) .switch-link,
-        :global(.dark) .footer-links-grid a,
-        :global(.dark) .footer-copy,
-        :global(.dark) .social-icons {
+        :global(.dark) .switch-link {
           color: #9ca3af;
         }
         :global(.dark) .field label {
@@ -625,9 +524,6 @@ export default function LoginPage() {
           background: rgba(59, 130, 246, 0.1);
           border-color: rgba(59, 130, 246, 0.2);
           color: #60a5fa;
-        }
-        :global(.dark) .footer-copy {
-          border-color: #1f2937;
         }
       `}</style>
     </div>
