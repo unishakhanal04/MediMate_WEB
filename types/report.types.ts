@@ -62,7 +62,6 @@ export interface AppointmentsReport {
 export type ReportPeriod = "daily" | "weekly";
 
 export interface InsightsResponse {
-  unlocked: boolean;
   insights: ReportsInsights | null;
 }
 

@@ -14,8 +14,6 @@ import { AdherenceRing } from "../../../components/admin/AdherenceRing";
 
 const activityDot: Record<AdminNotificationType, string> = {
   new_user_registered: "bg-emerald-500",
-  payment_success: "bg-blue-500",
-  subscription_expired: "bg-amber-500",
   gemini_api_failed: "bg-red-500",
   system_error: "bg-red-500",
 };

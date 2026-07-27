@@ -11,8 +11,6 @@ interface TypeConfig {
 
 const typeConfig: Record<AdminNotificationType, TypeConfig> = {
   new_user_registered: { icon: "🆕", iconBg: "bg-blue-50 dark:bg-blue-500/10" },
-  payment_success: { icon: "💳", iconBg: "bg-emerald-50 dark:bg-emerald-500/10" },
-  subscription_expired: { icon: "⏳", iconBg: "bg-amber-50 dark:bg-amber-500/10" },
   gemini_api_failed: { icon: "🤖", iconBg: "bg-red-50 dark:bg-red-500/10" },
   system_error: { icon: "🔥", iconBg: "bg-red-50 dark:bg-red-500/10" },
 };

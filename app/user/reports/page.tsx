@@ -2,11 +2,9 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import Link from "next/link";
 import { useAuth } from "../../../contexts/AuthContext";
 import { useToast } from "../../../contexts/ToastContext";
 import { reportService } from "../../../services/report.service";
-import { subscriptionService } from "../../../services/subscription.service";
 import {
   ReportsOverview as ReportsOverviewData,
   AdherenceReport,
@@ -20,7 +18,6 @@ import { downloadUserReportPdf } from "../../../lib/pdf";
 import { PageHeader } from "../../../components/common/PageHeader";
 import { ReportsOverview } from "../../../components/reports/ReportsOverview";
 import { InsightsSection } from "../../../components/reports/InsightsSection";
-import { InsightsLocked } from "../../../components/reports/InsightsLocked";
 import { ReportsFilters } from "../../../components/reports/ReportsFilters";
 import { AdherenceChart } from "../../../components/reports/AdherenceChart";
 import { MedicineChart } from "../../../components/reports/MedicineChart";
@@ -45,7 +42,6 @@ export default function ReportsPage() {
   const [prescriptions, setPrescriptions] = useState<PrescriptionsReport | null>(null);
   const [appointments, setAppointments] = useState<AppointmentsReport | null>(null);
   const [insightsResponse, setInsightsResponse] = useState<InsightsResponse | null>(null);
-  const [isPremium, setIsPremium] = useState(false);
   const [exportingPdf, setExportingPdf] = useState(false);
 
   useEffect(() => {
@@ -59,7 +55,7 @@ export default function ReportsPage() {
 
   const fetchAll = async () => {
     try {
-      const [overviewData, adherenceData, medicinesData, prescriptionsData, appointmentsData, insightsData, subscriptionData] =
+      const [overviewData, adherenceData, medicinesData, prescriptionsData, appointmentsData, insightsData] =
         await Promise.all([
           reportService.getOverview(),
           reportService.getAdherence(period, period === "daily" ? 14 : 8),
@@ -67,7 +63,6 @@ export default function ReportsPage() {
           reportService.getPrescriptions(),
           reportService.getAppointments(),
           reportService.getInsights(),
-          subscriptionService.getCurrent(),
         ]);
       setOverview(overviewData);
       setAdherence(adherenceData);
@@ -75,7 +70,6 @@ export default function ReportsPage() {
       setPrescriptions(prescriptionsData);
       setAppointments(appointmentsData);
       setInsightsResponse(insightsData);
-      setIsPremium(subscriptionData.plan === "premium");
     } catch (error) {
       console.error("Failed to load reports:", error);
       toast.error("Unable to load reports. Please try again.");
@@ -146,18 +140,9 @@ export default function ReportsPage() {
         description="Track your medication adherence, prescriptions, and appointments over time."
         action={
           !loading && overview && !hasNoData ? (
-            isPremium ? (
-              <Button onClick={handleExportPdf} disabled={exportingPdf}>
-                {exportingPdf ? "Exporting..." : "⬇️ Download PDF Report"}
-              </Button>
-            ) : (
-              <Link
-                href="/user/subscription"
-                className="inline-flex items-center gap-1.5 rounded-full bg-gray-100 px-4 py-2.5 text-sm font-semibold text-gray-500 transition-colors hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-gray-700"
-              >
-                🔒 PDF Export (Premium)
-              </Link>
-            )
+            <Button onClick={handleExportPdf} disabled={exportingPdf}>
+              {exportingPdf ? "Exporting..." : "⬇️ Download PDF Report"}
+            </Button>
           ) : undefined
         }
       />
@@ -170,11 +155,7 @@ export default function ReportsPage() {
         <div className="flex flex-col gap-6">
           <ReportsOverview overview={overview} />
 
-          {insightsResponse.unlocked && insightsResponse.insights ? (
-            <InsightsSection insights={insightsResponse.insights} />
-          ) : (
-            <InsightsLocked />
-          )}
+          {insightsResponse.insights && <InsightsSection insights={insightsResponse.insights} />}
 
           <ReportsFilters period={period} onPeriodChange={setPeriod} days={days} onDaysChange={setDays} />
 

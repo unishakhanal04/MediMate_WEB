@@ -53,7 +53,7 @@ export default function AdminNotificationsPage() {
       <PageHeader
         icon="🔔"
         title="Notifications"
-        description="System events that need admin attention — new users, payments, expirations, and errors."
+        description="System events that need admin attention — new users and errors."
         action={
           unreadCount > 0 ? (
             <button
@@ -73,7 +73,7 @@ export default function AdminNotificationsPage() {
         <EmptyState
           icon="🔔"
           title="All quiet"
-          description="New registrations, successful payments, subscription expirations, and system errors will show up here."
+          description="New registrations and system errors will show up here."
         />
       ) : (
         <ul className="flex flex-col gap-3">

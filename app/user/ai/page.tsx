@@ -2,13 +2,11 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import Link from "next/link";
 import { useAuth } from "../../../contexts/AuthContext";
 import { useToast } from "../../../contexts/ToastContext";
 import { useConfirmDialog } from "../../../contexts/ConfirmDialogContext";
 import { aiService } from "../../../services/ai.service";
 import { AiMessage } from "../../../types/ai.types";
-import { AiUsage } from "../../../types/subscription.types";
 import { PageHeader } from "../../../components/common/PageHeader";
 import { LoadingSpinner } from "../../../components/common/LoadingSpinner";
 import { AIChat } from "../../../components/ai/AIChat";
@@ -56,7 +54,6 @@ export default function AIAssistantPage() {
   const [loadError, setLoadError] = useState(false);
   const [messages, setMessages] = useState<AiMessage[]>([greeting]);
   const [sending, setSending] = useState(false);
-  const [usage, setUsage] = useState<AiUsage | null>(null);
 
   useEffect(() => {
     if (!isAuthenticated) {
@@ -64,16 +61,8 @@ export default function AIAssistantPage() {
       return;
     }
     fetchHistory();
-    fetchUsage();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isAuthenticated, router]);
-
-  const fetchUsage = () => {
-    aiService
-      .getUsage()
-      .then(setUsage)
-      .catch((error) => console.error("Failed to load AI usage:", error));
-  };
 
   const fetchHistory = () => {
     setLoading(true);
@@ -102,7 +91,6 @@ export default function AIAssistantPage() {
     try {
       const reply = await aiService.sendMessage(text.trim());
       setMessages((prev) => [...prev, reply]);
-      fetchUsage();
     } catch (error) {
       console.error("Failed to send message:", error);
       const message = error instanceof Error ? error.message : "Failed to reach the AI assistant";
@@ -168,25 +156,6 @@ export default function AIAssistantPage() {
       <div className="mb-4">
         <MedicalDisclaimer />
       </div>
-
-      {usage && !usage.isPremium && usage.limit !== null && (
-        <div
-          className={`mb-4 flex flex-wrap items-center justify-between gap-3 rounded-xl border px-4 py-3 text-sm ${
-            usage.used >= usage.limit
-              ? "border-red-200 bg-red-50 text-red-700 dark:border-red-500/20 dark:bg-red-500/10 dark:text-red-400"
-              : "border-gray-200 bg-gray-50 text-gray-600 dark:border-gray-800 dark:bg-gray-800/60 dark:text-gray-400"
-          }`}
-        >
-          <span>
-            {usage.used >= usage.limit
-              ? "You've reached your free plan's monthly AI message limit."
-              : `${usage.used}/${usage.limit} free AI messages used this month.`}
-          </span>
-          <Link href="/user/subscription" className="font-semibold underline">
-            Upgrade for unlimited
-          </Link>
-        </div>
-      )}
 
       <div className="flex flex-1 flex-col gap-6 lg:flex-row">
         <ConversationSidebar groups={historyGroups} onNewConversation={handleClearHistory} />

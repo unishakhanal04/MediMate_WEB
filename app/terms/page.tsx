@@ -56,15 +56,6 @@ export default function TermsOfServicePage() {
           </section>
 
           <section>
-            <h2 className="text-lg font-bold text-slate-900 dark:text-white">Subscriptions</h2>
-            <p className="mt-2">
-              Some features (such as AI-generated report insights) are part of a paid
-              subscription tier, processed through eSewa. Subscription status and billing history
-              are visible from your account at any time.
-            </p>
-          </section>
-
-          <section>
             <h2 className="text-lg font-bold text-slate-900 dark:text-white">Changes</h2>
             <p className="mt-2">
               These terms may be updated as MediMate&apos;s features change. Continued use of the

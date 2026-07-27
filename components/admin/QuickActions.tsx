@@ -6,7 +6,7 @@ import { useToast } from "../../contexts/ToastContext";
 import { adminService } from "../../services/admin.service";
 import { SystemHealth } from "../../types/admin.types";
 import { downloadReportsCsv } from "../../lib/csv";
-import { EyeIcon, DownloadIcon, PulseIcon, PaymentsIcon, SubscriptionIcon } from "./icons";
+import { EyeIcon, DownloadIcon, PulseIcon } from "./icons";
 
 const dbStatusStyle: Record<SystemHealth["databaseStatus"], string> = {
   connected: "text-emerald-600 dark:text-emerald-400",
@@ -77,14 +77,6 @@ export function QuickActions() {
         <button onClick={handleCheckHealth} disabled={checkingHealth} className={`${pillBase} ${pillOutline}`}>
           <PulseIcon /> {checkingHealth ? "Checking..." : "Health Check"}
         </button>
-
-        <Link href="/admin/payments" className={`${pillBase} ${pillOutline}`}>
-          <PaymentsIcon className="h-4 w-4" /> Payments
-        </Link>
-
-        <Link href="/admin/subscriptions" className={`${pillBase} ${pillOutline}`}>
-          <SubscriptionIcon className="h-4 w-4" /> Subscriptions
-        </Link>
       </div>
 
       {health && (

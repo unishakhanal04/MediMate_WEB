@@ -165,6 +165,9 @@ export default function MedicinesPage() {
       await medicineService.deleteMedicine(id);
       toast.success("Medicine deleted successfully.");
       fetchMedicines();
+      fetchTodayMedicines();
+      fetchStats();
+      fetchRefillAlerts();
     } catch (error) {
       console.error("Failed to delete medicine:", error);
       toast.error("Unable to delete medicine. Please try again.");
@@ -312,6 +315,9 @@ export default function MedicinesPage() {
         onSuccess={() => {
           closeModal();
           fetchMedicines();
+          fetchTodayMedicines();
+          fetchStats();
+          fetchRefillAlerts();
         }}
         toast={toast}
       />

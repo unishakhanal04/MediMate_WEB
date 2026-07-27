@@ -25,9 +25,13 @@ const checkBackend = () =>
   });
 
 const startProcess = (command, args, options) => {
+  // On Windows, spawning a .cmd file (like npm.cmd) directly requires shell:true —
+  // Node refuses it otherwise (spawn EINVAL) as of the Node.js CVE-2024-27980 fix.
+  const needsShell = process.platform === "win32" && command.toLowerCase().endsWith(".cmd");
+
   const child = spawn(command, args, {
     stdio: "inherit",
-    shell: false,
+    shell: needsShell,
     ...options,
   });
 

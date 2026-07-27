@@ -100,7 +100,7 @@ export default function AdminUserDetailPage() {
     );
   }
 
-  const { user, profile, medicines, appointments, prescriptions, emergencyContacts, timeline, reports, aiUsage, subscription } =
+  const { user, profile, medicines, appointments, prescriptions, emergencyContacts, timeline, reports, aiUsage } =
     activity;
 
   return (
@@ -295,26 +295,6 @@ export default function AdminUserDetailPage() {
           <p className="text-2xl font-bold text-gray-900 dark:text-white">{aiUsage.totalConversations}</p>
           <p className="text-sm text-gray-500 dark:text-gray-400">Total conversations</p>
         </SectionCard>
-
-        <Card className="flex flex-col gap-2">
-          <h2 className="flex items-center gap-2 text-base font-bold text-gray-900 dark:text-white">
-            <span aria-hidden="true">⭐</span> Subscription
-          </h2>
-          <span
-            className={`w-fit rounded-full px-2 py-0.5 text-[11px] font-bold uppercase tracking-wide ${
-              subscription.plan === "premium"
-                ? "bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400"
-                : "bg-gray-100 text-gray-500 dark:bg-gray-800 dark:text-gray-500"
-            }`}
-          >
-            {subscription.plan === "premium" ? "Premium" : "Free"}
-          </span>
-          <p className="text-sm text-gray-500 dark:text-gray-400">
-            {subscription.plan === "premium" && subscription.expiresAt
-              ? `Renews/expires ${new Date(subscription.expiresAt).toLocaleDateString()} · NPR ${subscription.priceNpr}`
-              : "Not currently subscribed to premium."}
-          </p>
-        </Card>
       </div>
     </div>
   );

@@ -26,24 +26,6 @@ export function UsersIcon({ className = base }: IconProps) {
   );
 }
 
-export function SubscriptionIcon({ className = base }: IconProps) {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className={className} aria-hidden="true">
-      <path d="m12 2 2.6 5.6 6.1.8-4.5 4.3 1.1 6.1L12 15.9l-5.3 2.9 1.1-6.1L3.3 8.4l6.1-.8Z" />
-    </svg>
-  );
-}
-
-export function PaymentsIcon({ className = base }: IconProps) {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className={className} aria-hidden="true">
-      <rect x="2.5" y="5" width="19" height="14" rx="2" />
-      <path d="M2.5 10h19" />
-      <path d="M6 15h4" />
-    </svg>
-  );
-}
-
 export function ReportsIcon({ className = base }: IconProps) {
   return (
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className={className} aria-hidden="true">

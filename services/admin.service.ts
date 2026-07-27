@@ -4,12 +4,7 @@ import {
   AdminFeedbackItem,
   AdminFeedbackListParams,
   AdminFeedbackListResult,
-  AdminPaymentListParams,
-  AdminPaymentListResult,
   AdminReportsOverview,
-  AdminSubscriptionListParams,
-  AdminSubscriptionListResult,
-  AdminSubscriptionStats,
   AdminUser,
   AdminUserActivity,
   AdminUserListParams,
@@ -85,28 +80,6 @@ export const adminService = {
     return apiFetch<{ notificationsLastSeenAt: string }>("/api/v1/admin/notifications/mark-seen", {
       method: "POST",
     });
-  },
-
-  async getSubscriptionStats(): Promise<AdminSubscriptionStats> {
-    return apiFetch<AdminSubscriptionStats>("/api/v1/admin/subscriptions/stats");
-  },
-
-  async listSubscriptions(params: AdminSubscriptionListParams = {}): Promise<AdminSubscriptionListResult> {
-    const query = new URLSearchParams();
-    query.set("page", String(params.page ?? 1));
-    query.set("limit", String(params.limit ?? 10));
-    if (params.status) query.set("status", params.status);
-
-    return apiFetch<AdminSubscriptionListResult>(`/api/v1/admin/subscriptions?${query.toString()}`);
-  },
-
-  async listPayments(params: AdminPaymentListParams = {}): Promise<AdminPaymentListResult> {
-    const query = new URLSearchParams();
-    query.set("page", String(params.page ?? 1));
-    query.set("limit", String(params.limit ?? 10));
-    if (params.status) query.set("status", params.status);
-
-    return apiFetch<AdminPaymentListResult>(`/api/v1/admin/payments?${query.toString()}`);
   },
 
   async listUsers(params: AdminUserListParams = {}): Promise<AdminUserListResult> {
