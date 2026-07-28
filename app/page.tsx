@@ -41,10 +41,10 @@ export default function HomePage() {
   }
 
   return (
-    <div className="min-h-screen bg-white text-slate-900 dark:bg-gray-950 dark:text-white">
+    <div className="min-h-screen overflow-x-hidden bg-white text-slate-900 dark:bg-gray-950 dark:text-white">
       {/* ── Nav ── */}
       <header className="sticky top-0 z-50 border-b border-slate-200 bg-white/90 backdrop-blur dark:border-gray-800 dark:bg-gray-950/90">
-        <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
+        <div className="flex w-full items-center justify-between px-4 py-4 sm:px-6 lg:px-8">
           <Link href="/" className="text-lg font-extrabold tracking-tight text-slate-900 dark:text-white">
             MediMate
           </Link>
@@ -108,7 +108,7 @@ export default function HomePage() {
       </header>
 
       {/* ── Hero ── */}
-      <section className="mx-auto grid max-w-7xl grid-cols-1 items-center gap-12 px-6 py-16 lg:grid-cols-2 lg:py-24">
+      <section className="grid w-full grid-cols-1 items-center gap-12 px-4 py-16 sm:px-6 lg:px-8 lg:grid-cols-2 lg:py-24">
         <div>
           <span className="inline-flex items-center gap-1.5 rounded-full border border-violet-100 bg-violet-50 px-3 py-1 text-xs font-semibold text-violet-700 dark:border-violet-500/20 dark:bg-violet-500/10 dark:text-violet-400">
             🔒 Your data, your control
@@ -184,7 +184,7 @@ export default function HomePage() {
       </section>
 
       {/* ── Features ── */}
-      <section id="features" className="mx-auto max-w-7xl px-6 py-20">
+      <section id="features" className="w-full px-4 py-20 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-xl text-center">
           <span className="inline-flex items-center rounded-full bg-blue-50 px-3 py-1 text-xs font-semibold text-blue-700 dark:bg-blue-500/10 dark:text-blue-400">
             What&apos;s Inside
@@ -283,7 +283,7 @@ export default function HomePage() {
 
       {/* ── Three steps ── */}
       <section id="how-it-works" className="bg-slate-50 py-20 dark:bg-gray-900">
-        <div className="mx-auto max-w-4xl px-6 text-center">
+        <div className="mx-auto max-w-5xl px-4 text-center sm:px-6 lg:px-8">
           <span className="inline-flex items-center rounded-full bg-blue-50 px-3 py-1 text-xs font-semibold text-blue-700 dark:bg-blue-500/10 dark:text-blue-400">
             How It Works
           </span>
@@ -295,7 +295,7 @@ export default function HomePage() {
           </p>
         </div>
 
-        <div className="relative mx-auto mt-14 max-w-4xl px-6">
+        <div className="relative mx-auto mt-14 max-w-5xl px-4 sm:px-6 lg:px-8">
           <div className="absolute inset-x-[16.5%] top-6 hidden h-px bg-slate-300 dark:bg-gray-700 sm:block" aria-hidden="true" />
           <div className="grid grid-cols-1 gap-10 sm:grid-cols-3">
             {steps.map((step) => (
@@ -312,7 +312,7 @@ export default function HomePage() {
       </section>
 
       {/* ── Testimonial ── */}
-      <section id="pricing" className="mx-auto max-w-7xl px-6 py-20">
+      <section id="pricing" className="w-full px-4 py-20 sm:px-6 lg:px-8">
         <span className="inline-flex items-center rounded-full bg-violet-50 px-3 py-1 text-xs font-semibold text-violet-700 dark:bg-violet-500/10 dark:text-violet-400">
           Built for Real Routines
         </span>
@@ -359,7 +359,7 @@ export default function HomePage() {
       </section>
 
       {/* ── CTA banner ── */}
-      <section className="mx-auto max-w-7xl px-6 pb-20">
+      <section className="w-full px-4 pb-20 sm:px-6 lg:px-8">
         <div className="flex flex-col items-center gap-5 rounded-3xl bg-slate-900 px-6 py-14 text-center">
           <h2 className="max-w-xl text-2xl font-extrabold tracking-tight text-white sm:text-3xl">
             Take control of your medicine routine today
@@ -378,7 +378,7 @@ export default function HomePage() {
 
       {/* ── Footer ── */}
       <footer id="contact" className="bg-slate-900 text-slate-300">
-        <div className="mx-auto grid max-w-7xl grid-cols-2 gap-10 px-6 py-16 sm:grid-cols-4">
+        <div className="grid w-full grid-cols-2 gap-10 px-4 py-16 sm:grid-cols-4 sm:px-6 lg:px-8">
           <div className="col-span-2 sm:col-span-1">
             <p className="text-lg font-extrabold text-white">MediMate</p>
             <p className="mt-3 max-w-[200px] text-xs leading-relaxed text-slate-400">
@@ -432,7 +432,7 @@ export default function HomePage() {
         </div>
 
         <div className="border-t border-slate-800">
-          <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-4 px-6 py-6 text-xs text-slate-500 sm:flex-row">
+          <div className="flex w-full flex-col items-center justify-between gap-4 px-4 py-6 text-xs text-slate-500 sm:flex-row sm:px-6 lg:px-8">
             <p>© {new Date().getFullYear()} MediMate. All rights reserved.</p>
           </div>
         </div>
