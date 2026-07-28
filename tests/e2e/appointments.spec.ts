@@ -35,6 +35,24 @@ test.describe("Appointments", () => {
     await expect(page.getByText("Dr. Sharma")).toBeVisible();
   });
 
+  test("editing an appointment updates its doctor name", async ({ page }) => {
+    await registerAndLoginViaUI(page, "appt-edit");
+    await page.goto("/user/appointments");
+
+    await scheduleAppointment(page, "Cardiology Review", "Dr. Original", 2);
+    await expect(page.getByText("Appointment scheduled successfully.")).toBeVisible({ timeout: 10000 });
+
+    // With only one appointment scheduled it renders as the hero card, whose edit
+    // control is labeled "Reschedule" rather than the list row's "Edit appointment".
+    await page.getByRole("button", { name: "Reschedule" }).click();
+    await fieldInput(page, "Doctor Name *").fill("Dr. Updated");
+    await page.getByRole("button", { name: "Update Appointment" }).click();
+
+    await expect(page.getByText("Appointment updated successfully.")).toBeVisible({ timeout: 10000 });
+    await expect(page.getByText("Dr. Updated")).toBeVisible();
+    await expect(page.getByText("Dr. Original")).not.toBeVisible();
+  });
+
   test("deleting an appointment removes it from the list", async ({ page }) => {
     await registerAndLoginViaUI(page, "appt-delete");
     await page.goto("/user/appointments");
