@@ -35,7 +35,12 @@ export const loginViaUI = async (page: Page, user: E2EUser, portal: "user" | "ad
   }
   await page.getByLabel("Email Address").fill(user.email);
   await page.getByLabel("Password", { exact: true }).fill(user.password);
-  await page.getByRole("button", { name: "Sign In" }).click();
+  await Promise.all([
+    page.waitForResponse(
+      (res) => res.url().includes("/api/auth/login") && res.request().method() === "POST"
+    ),
+    page.getByRole("button", { name: "Sign In" }).click(),
+  ]);
 };
 
 export const registerAndLoginViaUI = async (page: Page, label: string): Promise<E2EUser> => {
