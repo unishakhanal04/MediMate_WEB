@@ -55,6 +55,15 @@ test.describe("Auth flows", () => {
     await expect(page).toHaveURL(/\/login/, { timeout: 10000 });
   });
 
+  test("submitting the login form empty shows field-level validation errors", async ({ page }) => {
+    await page.goto("/login");
+    await page.getByRole("button", { name: "Sign In" }).click();
+
+    await expect(page.getByText("Invalid email address")).toBeVisible();
+    await expect(page.getByText("Password must be at least 6 characters")).toBeVisible();
+    await expect(page).toHaveURL(/\/login/);
+  });
+
   test("forgot-password flow advances to the OTP entry step", async ({ page }) => {
     const user = makeUser("forgot-pass");
     await registerViaUI(page, user);

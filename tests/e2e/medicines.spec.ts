@@ -37,6 +37,23 @@ test.describe("Medicines", () => {
     await expect(page.getByText("✔️Taken")).toBeVisible();
   });
 
+  test("editing a medicine updates its dosage", async ({ page }) => {
+    await registerAndLoginViaUI(page, "med-edit");
+    await page.goto("/user/medicines");
+
+    await addMedicine(page, "Losartan", "25mg");
+    await expect(page.getByText("Medicine added successfully.")).toBeVisible({ timeout: 10000 });
+
+    const card = page.locator("div.divide-y", { hasText: "Losartan" });
+    await card.getByRole("button", { name: "Edit" }).click();
+    const dosageInput = page.locator(".form-group", { hasText: "Dosage" }).locator("input");
+    await dosageInput.fill("50mg");
+    await page.getByRole("button", { name: "Update Medicine" }).click();
+
+    await expect(page.getByText("Medicine updated successfully.")).toBeVisible({ timeout: 10000 });
+    await expect(page.getByText("50mg")).toBeVisible();
+  });
+
   test("deleting a medicine removes it from the list", async ({ page }) => {
     await registerAndLoginViaUI(page, "med-delete");
     await page.goto("/user/medicines");
