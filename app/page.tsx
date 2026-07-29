@@ -13,7 +13,6 @@ const navLinks = [
 ];
 
 const statHighlights = [
-  { value: "100% Offline", body: "Medicine tracking works without signal", color: "text-blue-600 dark:text-blue-400" },
   { value: "AI-Powered", body: "Drug interaction checks & health assistant", color: "text-violet-600 dark:text-violet-400" },
   { value: "Real-Time", body: "Reminders, even with the app closed", color: "text-emerald-600 dark:text-emerald-400" },
   { value: "Private", body: "You control what's shared", color: "text-amber-600 dark:text-amber-400" },
@@ -198,7 +197,7 @@ export default function HomePage() {
           </p>
         </div>
 
-        <div className="mt-12 grid grid-cols-2 gap-4 text-center sm:grid-cols-4">
+        <div className="mt-12 grid grid-cols-1 gap-4 text-center sm:grid-cols-3">
           {statHighlights.map((stat) => (
             <div key={stat.value}>
               <p className={`text-base font-extrabold ${stat.color}`}>{stat.value}</p>
