@@ -51,7 +51,10 @@ test.describe("Medicines", () => {
     await page.getByRole("button", { name: "Update Medicine" }).click();
 
     await expect(page.getByText("Medicine updated successfully.")).toBeVisible({ timeout: 10000 });
-    await expect(page.getByText("50mg")).toBeVisible();
+    // Scoped to the card: the Today's Medicines widget can independently render
+    // "50mg • 08:00" for the same medicine, which also matches a bare "50mg" text
+    // search and causes a strict-mode violation depending on fetch timing.
+    await expect(card.getByText("50mg", { exact: true })).toBeVisible();
   });
 
   test("deleting a medicine removes it from the list", async ({ page }) => {
